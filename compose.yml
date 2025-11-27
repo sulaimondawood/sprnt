@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:15
+    restart: always
+    env_file: .env
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: sprnt_db
+    ports:
+      - "5432:5432"
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8081:8080
