@@ -1,10 +1,9 @@
-package com.dawood.sprnt.driver.model;
+package com.dawood.sprnt.rider.model;
 
 import java.util.UUID;
 
 import com.dawood.sprnt.identity.model.User;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -20,13 +19,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "drivers")
+@Table(name = "riders")
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Setter
 @Getter
-public class Driver {
+public class Rider {
 
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
@@ -36,27 +35,16 @@ public class Driver {
 
   private String profileImage;
 
-  @Column(nullable = false, unique = true)
-  private String licenseNumber;
+  private String defaultPickupLocation;
 
-  @Column(nullable = false)
-  private String licenseExpiry;
+  private long totalRides;
 
-  @Column(nullable = false, unique = true)
-  private String nin;
+  private String referralCode;
 
   @Enumerated(EnumType.STRING)
-  private DriverStatus status;
-
-  @Enumerated(EnumType.STRING)
-  private DriverAvailabilityStatus availabilityStatus;
+  private RiderStatus status;
 
   private double rating;
-
-  private long totalCompletedTrips;
-
-  @Enumerated(EnumType.STRING)
-  private DriverKycStatus kycStatus;
 
   @OneToOne
   private User user;
