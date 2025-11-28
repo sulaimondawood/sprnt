@@ -1,4 +1,4 @@
-package com.dawood.sprnt.driver.model;
+package com.dawood.sprnt.vehicle.model;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -6,10 +6,8 @@ import java.util.UUID;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import com.dawood.sprnt.identity.model.User;
-import com.dawood.sprnt.vehicle.model.Vehicle;
+import com.dawood.sprnt.driver.model.Driver;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -25,49 +23,43 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "drivers")
+@Table(name = "vehicles")
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Setter
-@Getter
-public class Driver {
+public class Vehicle {
 
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
-  private String displayName;
+  private String plateNumber;
 
-  private String profileImage;
+  private String brand;
 
-  @Column(nullable = false, unique = true)
-  private String licenseNumber;
+  private String model;
 
-  @Column(nullable = false)
-  private String licenseExpiry;
+  private String color;
 
-  @Column(nullable = false, unique = true)
-  private String nin;
+  private String year;
 
-  @Enumerated(EnumType.STRING)
-  private DriverStatus status;
+  private int capacity;
 
   @Enumerated(EnumType.STRING)
-  private DriverAvailabilityStatus availabilityStatus;
-
-  private double rating;
-
-  private long totalCompletedTrips;
+  private VehicleStatus status;
 
   @Enumerated(EnumType.STRING)
-  private DriverKycStatus kycStatus;
+  private VehicleType type;
 
   @OneToOne
-  private User user;
+  private VehicleDocument vehicleDocument;
 
-  @OneToOne(mappedBy = "driver")
-  private Vehicle vehicle;
+  private boolean deleted;
+
+  @OneToOne
+  private Driver driver;
 
   @CreationTimestamp
   private LocalDateTime createdAt;

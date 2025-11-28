@@ -1,4 +1,4 @@
-package com.dawood.sprnt.rider.model;
+package com.dawood.sprnt.vehicle.model;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -6,11 +6,7 @@ import java.util.UUID;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import com.dawood.sprnt.identity.model.User;
-
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -23,39 +19,35 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "riders")
+@Table(name = "vehicles")
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Setter
-@Getter
-public class Rider {
+public class VehicleDocument {
 
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
-  private String displayName;
+  private VehicleDocumentType documentType;
 
-  private String profileImage;
+  private String documentUrl;
 
-  private String defaultPickupLocation;
+  private VehicleDocumentStatus status;
 
-  private long totalRides;
+  private LocalDateTime issuedAt;
 
-  private String referralCode;
+  private LocalDateTime expiresAt;
 
-  @Enumerated(EnumType.STRING)
-  private RiderStatus status;
-
-  private double rating;
-
-  @OneToOne
-  private User user;
+  @OneToOne(mappedBy = "vehicleDocument")
+  private Vehicle vehicle;
 
   @CreationTimestamp
   private LocalDateTime createdAt;
 
   @UpdateTimestamp
   private LocalDateTime updatedAt;
+
 }
