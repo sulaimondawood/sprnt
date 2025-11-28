@@ -7,3 +7,7 @@ spring:
     username: ${DB_USER}
     password: ${DB_PASSWORD}
     url: jdbc:postgresql://localhost:5432/sprnt_db
+
+  jpa:
+    hibernate:
+      ddl-auto: validate

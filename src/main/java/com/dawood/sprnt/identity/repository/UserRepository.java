@@ -1,0 +1,13 @@
+package com.dawood.sprnt.identity.repository;
+
+import java.util.UUID;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import com.dawood.sprnt.identity.model.User;
+
+@Repository
+public interface UserRepository extends JpaRepository<User, UUID> {
+
+}
