@@ -1,7 +1,11 @@
 package com.dawood.sprnt.identity.api;
 
 import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class RegisterRequestDTO {
 
   @NotBlank(message = "Your email address is required")
