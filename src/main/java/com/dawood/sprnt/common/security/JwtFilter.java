@@ -42,15 +42,15 @@ public class JwtFilter extends OncePerRequestFilter {
         buildResponse(
             response,
             "Invalid authorization token",
-            HttpStatus.BAD_GATEWAY,
-            request.getPathInfo());
+            HttpStatus.UNAUTHORIZED,
+            request.getRequestURI());
 
         return;
       }
 
       String token = auth.substring(7);
 
-      // verify plus decoding
+      // verify and decode
       DecodedJWT decodedJWT = jwtProvider.parseToken(token);
       String subject = decodedJWT.getSubject();
 

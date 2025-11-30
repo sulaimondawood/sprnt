@@ -23,14 +23,15 @@ public class SecurityConfig {
 
   private final JwtFilter jwtFilter;
 
+  @Bean
   public SecurityFilterChain filterChain(HttpSecurity httpSecurity) {
 
     return httpSecurity
         .csrf(csrf -> csrf.disable())
-        .cors(cors -> cors.configurationSource(null))
+        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
         .authorizeHttpRequests(authRequest -> authRequest
-            .requestMatchers("/auth/**").authenticated()
-            .anyRequest().permitAll())
+            .requestMatchers("/auth/**").permitAll()
+            .anyRequest().authenticated())
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
         .build();
@@ -42,11 +43,14 @@ public class SecurityConfig {
     return new BCryptPasswordEncoder();
   }
 
-  public CorsConfigurationSource corsConfigurationSource(CorsConfiguration config) {
+  @Bean
+  public CorsConfigurationSource corsConfigurationSource() {
+
+    CorsConfiguration config = new CorsConfiguration();
 
     config.setAllowCredentials(true);
     config.setAllowedHeaders(List.of("*"));
-    config.setAllowedMethods(List.of("*"));
+    config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
     config.setAllowedOrigins(List.of("http://localhost:3000"));
 
     UrlBasedCorsConfigurationSource cors = new UrlBasedCorsConfigurationSource();
