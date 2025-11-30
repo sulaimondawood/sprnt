@@ -38,6 +38,7 @@ public class JwtFilter extends OncePerRequestFilter {
     String auth = request.getHeader(HttpHeaders.AUTHORIZATION);
 
     try {
+
       if (auth == null || !auth.startsWith("Bearer ")) {
         buildResponse(
             response,
@@ -79,6 +80,11 @@ public class JwtFilter extends OncePerRequestFilter {
 
     }
 
+  }
+
+  @Override
+  protected boolean shouldNotFilter(HttpServletRequest request) {
+    return request.getRequestURI().contains("/api/v1/email");
   }
 
   private void buildResponse(HttpServletResponse response, String message, HttpStatus status, String path)

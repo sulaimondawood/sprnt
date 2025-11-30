@@ -29,19 +29,21 @@ public class JwtProvider {
   public String generateToken(String subject, Map<String, Object> claims) {
     try {
 
-      String token = JWT.create()
+      var token = JWT.create()
           .withIssuer("sprnt")
           .withSubject(subject)
           .withClaim("claims", claims)
           .withIssuedAt(Instant.now())
-          .withExpiresAt(Instant.now().plus(1, ChronoUnit.DAYS))
-          .sign(getAlgorithm());
+          .withExpiresAt(Instant.now().plus(1, ChronoUnit.DAYS));
 
-      return token;
+      claims.forEach((k, v) -> token.withClaim(k, String.valueOf(v)));
+
+      return token.sign(getAlgorithm());
 
     } catch (JWTCreationException exception) {
       log.error(exception.getMessage(), exception);
-      throw exception;
+      throw new RuntimeException("Token creation failed");
+
     }
   }
 
@@ -53,7 +55,8 @@ public class JwtProvider {
 
       return verifier.verify(token);
     } catch (Exception e) {
-      throw e;
+      log.error(e.getMessage(), e);
+      throw new RuntimeException("Invalid or expired token");
     }
   }
 
