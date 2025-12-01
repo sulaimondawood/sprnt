@@ -9,8 +9,10 @@ import com.dawood.sprnt.common.dto.ErrorResponse;
 import com.dawood.sprnt.identity.exception.UserAlreadyExistsException;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
   @ExceptionHandler(UserAlreadyExistsException.class)
@@ -24,12 +26,14 @@ public class GlobalExceptionHandler {
         .error(HttpStatus.BAD_REQUEST.name())
         .build();
 
+    log.error(ex.getMessage(), ex);
+
     return ResponseEntity.badRequest().body(errorResponse);
 
   }
 
   @ExceptionHandler(Exception.class)
-  public ResponseEntity<ErrorResponse> handleException(Exception ex ,
+  public ResponseEntity<ErrorResponse> handleException(Exception ex, HttpServletRequest request) {
 
     ErrorResponse errorResponse = ErrorResponse.builder()
         .status(HttpStatus.BAD_REQUEST.value())
@@ -37,6 +41,8 @@ public class GlobalExceptionHandler {
         .message(ex.getMessage())
         .error(HttpStatus.BAD_REQUEST.name())
         .build();
+
+    log.error(ex.getMessage(), ex);
 
     return ResponseEntity.badRequest().body(errorResponse);
 
