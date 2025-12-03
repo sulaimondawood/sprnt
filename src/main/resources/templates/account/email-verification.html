@@ -3,133 +3,129 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Verify Your Account</title>
+    <title>Activate Your Account</title>
   </head>
   <body
     style="
       margin: 0;
       padding: 0;
-      font-family: Axiforma, sans-serif;
-      background-color: #f4f4f4;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial,
+        sans-serif;
+      background-color: #ffffff;
     "
   >
     <table
       width="100%"
       cellpadding="0"
       cellspacing="0"
-      style="background-color: #f4f4f4; padding: 20px"
+      style="max-width: 600px; margin: 40px auto; padding: 0 20px"
     >
       <tr>
-        <td align="center">
-          <table
-            width="600"
-            cellpadding="0"
-            cellspacing="0"
+        <td>
+          <!-- Logo/Company Name -->
+          <h1
             style="
-              background-color: #ffffff;
-              border-radius: 8px;
-              overflow: hidden;
+              margin: 0 0 30px 0;
+              font-size: 18px;
+              font-weight: 600;
+              color: #1a1a1a;
             "
           >
-            <!-- Header -->
-            <tr>
-              <td
-                style="
-                  background-color: #4a90e2;
-                  padding: 30px;
-                  text-align: center;
-                "
-              >
-                <h1 style="margin: 0; color: #ffffff; font-size: 24px">
-                  Welcome!
-                </h1>
-              </td>
-            </tr>
+            SPRNT.
+          </h1>
 
-            <!-- Content -->
-            <tr>
-              <td style="padding: 40px 30px">
-                <h2 style="margin: 0 0 20px 0; color: #333333; font-size: 20px">
-                  Verify Your Email Address
-                </h2>
-                <p
-                  style="
-                    margin: 0 0 20px 0;
-                    color: #666666;
-                    font-size: 16px;
-                    line-height: 1.5;
-                  "
-                >
-                  Thanks for signing up! Please verify your email address by
-                  clicking the button below.
-                </p>
+          <!-- Main Content -->
+          <p
+            style="
+              margin: 0 0 24px 0;
+              font-size: 15px;
+              line-height: 1.6;
+              color: #333333;
+            "
+          >
+            Hello, <span th:text="${username}">{{username}}</span>
+          </p>
 
-                <!-- Button -->
-                <table width="100%" cellpadding="0" cellspacing="0">
-                  <tr>
-                    <td align="center" style="padding: 20px 0">
-                      <a
-                        href="https://yourwebsite.com/verify?token=VERIFICATION_TOKEN"
-                        style="
-                          display: inline-block;
-                          padding: 14px 40px;
-                          background-color: #4a90e2;
-                          color: #ffffff;
-                          text-decoration: none;
-                          border-radius: 5px;
-                          font-size: 16px;
-                          font-weight: bold;
-                        "
-                      >
-                        Verify Email
-                      </a>
-                    </td>
-                  </tr>
-                </table>
+          <p
+            style="
+              margin: 0 0 24px 0;
+              font-size: 15px;
+              line-height: 1.6;
+              color: #333333;
+            "
+          >
+            Your account has been created. Please activate it by clicking the
+            link below:
+          </p>
 
-                <p
-                  style="
-                    margin: 20px 0 0 0;
-                    color: #666666;
-                    font-size: 14px;
-                    line-height: 1.5;
-                  "
-                >
-                  If the button doesn't work, copy and paste this link into your
-                  browser:
-                </p>
-                <p
-                  style="
-                    margin: 10px 0 0 0;
-                    color: #4a90e2;
-                    font-size: 14px;
-                    word-break: break-all;
-                  "
-                >
-                  https://yourwebsite.com/verify?token=VERIFICATION_TOKEN
-                </p>
-              </td>
-            </tr>
+          <!-- Activation Link -->
+          <p style="margin: 0 0 32px 0">
+            <a
+              th:href="${activationLink}"
+              style="
+                display: inline-block;
+                padding: 12px 24px;
+                background-color: #000000;
+                color: #ffffff;
+                text-decoration: none;
+                font-size: 14px;
+                border-radius: 4px;
+              "
+            >
+              Activate Account
+            </a>
+          </p>
 
-            <!-- Footer -->
-            <tr>
-              <td
-                style="
-                  background-color: #f9f9f9;
-                  padding: 20px 30px;
-                  text-align: center;
-                  border-top: 1px solid #eeeeee;
-                "
-              >
-                <p style="margin: 0; color: #999999; font-size: 12px">
-                  If you didn't create an account, please ignore this email.
-                </p>
-                <p style="margin: 10px 0 0 0; color: #999999; font-size: 12px">
-                  © 2024 Your Company Name. All rights reserved.
-                </p>
-              </td>
-            </tr>
-          </table>
+          <p
+            style="
+              margin: 0 0 24px 0;
+              font-size: 14px;
+              line-height: 1.6;
+              color: #666666;
+            "
+          >
+            Or copy and paste this URL into your browser:<br />
+            <span
+              style="color: #0066cc; word-break: break-all"
+              th:text="${activationLink}"
+              >{{activationLink}}</span
+            >
+          </p>
+
+          <p
+            style="
+              margin: 0 0 24px 0;
+              font-size: 14px;
+              line-height: 1.6;
+              color: #666666;
+            "
+          >
+            This link will expire in
+            <span th:text="${expiresIn}">{expiresIn}</span>.
+          </p>
+
+          <!-- Divider -->
+          <div
+            style="margin: 40px 0; height: 1px; background-color: #e5e5e5"
+          ></div>
+
+          <!-- Footer -->
+          <p
+            style="
+              margin: 0 0 8px 0;
+              font-size: 13px;
+              line-height: 1.5;
+              color: #999999;
+            "
+          >
+            If you did not request this account, please disregard this email.
+          </p>
+
+          <p
+            style="margin: 0; font-size: 13px; line-height: 1.5; color: #999999"
+          >
+            © 2026 Your Company. All rights reserved.
+          </p>
         </td>
       </tr>
     </table>
