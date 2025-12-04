@@ -26,7 +26,7 @@ public class KafkaConsumer {
   private final EmailService emailService;
   private final TemplateEngine templateEngine;
 
-  @KafkaListener(topics = KafkaConfig.EMAIL_TOPIC_NAME, groupId = "email-service-group")
+  @KafkaListener(topics = KafkaConfig.EMAIL_TOPIC_NAME, groupId = "email-service-group-v2")
   public void consumeSendAccountActivationEmail(
       @Payload UserAccountDTO message,
       @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
@@ -54,7 +54,7 @@ public class KafkaConsumer {
 
       String emailBody = templateEngine.process("/account/email-verification.html", context);
 
-      emailService.sendEmail(email, "Account Activation", emailBody);
+      emailService.sendEmail(email, "Sprnt Account Activation", emailBody);
     } catch (Exception e) {
       log.error("Error processing Kafka message", e);
       throw new RuntimeException("Failed to process email", e);
