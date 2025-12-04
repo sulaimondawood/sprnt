@@ -50,6 +50,7 @@ public class User {
   @Enumerated(EnumType.STRING)
   private Status status;
 
+  @Enumerated(EnumType.STRING)
   private Role role;
 
   @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
@@ -57,6 +58,9 @@ public class User {
 
   @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
   private Rider rider;
+
+  @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
+  private VerificationToken token;
 
   @UpdateTimestamp
   private LocalDateTime updatedAt;

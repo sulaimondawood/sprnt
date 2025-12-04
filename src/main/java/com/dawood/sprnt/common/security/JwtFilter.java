@@ -39,46 +39,42 @@ public class JwtFilter extends OncePerRequestFilter {
 
     try {
 
-      if (auth == null || !auth.startsWith("Bearer ")) {
-        buildResponse(
-            response,
-            "Invalid authorization token",
-            HttpStatus.UNAUTHORIZED,
-            request.getRequestURI());
+      if (auth != null && auth.startsWith("Bearer ")) {
 
-        return;
+        String token = auth.substring(7);
+
+        // verify and decode
+        DecodedJWT decodedJWT = jwtProvider.parseToken(token);
+        String subject = decodedJWT.getSubject();
+
+        UserDetails userDetails = userDetailServiceImpl.loadUserByUsername(subject);
+
+        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+            userDetails,
+            null,
+            userDetails.getAuthorities());
+
+        SecurityContextHolder.getContext().setAuthentication(authToken);
+
       }
-
-      String token = auth.substring(7);
-
-      // verify and decode
-      DecodedJWT decodedJWT = jwtProvider.parseToken(token);
-      String subject = decodedJWT.getSubject();
-
-      UserDetails userDetails = userDetailServiceImpl.loadUserByUsername(subject);
-
-      UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-          userDetails,
-          null,
-          userDetails.getAuthorities());
-
-      SecurityContextHolder.getContext().setAuthentication(authToken);
-
-      filterChain.doFilter(request, response);
 
     } catch (TokenExpiredException e) {
       logger.error(e.getMessage(), e);
       buildResponse(response, "Authorization token expired", HttpStatus.UNAUTHORIZED, request.getRequestURI());
+      return;
 
     } catch (JWTVerificationException e) {
       logger.error(e.getMessage(), e);
       buildResponse(response, "Invalid authorization token", HttpStatus.UNAUTHORIZED, request.getRequestURI());
+      return;
 
     } catch (Exception e) {
       logger.error(e.getMessage(), e);
       buildResponse(response, "Something went wrong", HttpStatus.INTERNAL_SERVER_ERROR, request.getRequestURI());
-
+      return;
     }
+
+    filterChain.doFilter(request, response);
 
   }
 

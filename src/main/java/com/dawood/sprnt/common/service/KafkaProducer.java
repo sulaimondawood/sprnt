@@ -7,7 +7,7 @@ import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 
 import com.dawood.sprnt.common.config.KafkaConfig;
-import com.dawood.sprnt.identity.api.UserDTO;
+import com.dawood.sprnt.identity.api.UserAccountDTO;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +19,7 @@ public class KafkaProducer {
 
   private final KafkaTemplate<String, Object> kafkaTemplate;
 
-  public void sendAccountActivationEmail(UserDTO message) {
+  public void sendAccountActivationEmail(UserAccountDTO message) {
 
     CompletableFuture<SendResult<String, Object>> future = kafkaTemplate.send(KafkaConfig.EMAIL_TOPIC_NAME, message);
 
