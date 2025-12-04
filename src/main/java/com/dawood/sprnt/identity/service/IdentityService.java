@@ -31,9 +31,16 @@ public class IdentityService {
   private final VerificationTokenRepository tokenRepository;
   private final ApplicationEventPublisher applicationEventPublisher;
 
-  @Transactional
   public RegisterResponseDTO createDriverAccount(RegisterRequestDTO request) {
+    return createAccount(request, Role.DRIVER);
+  }
 
+  public RegisterResponseDTO createRiderAccount(RegisterRequestDTO request) {
+    return createAccount(request, Role.RIDER);
+  }
+
+  @Transactional
+  private RegisterResponseDTO createAccount(RegisterRequestDTO request, Role role) {
     if (userRepository.existsByEmailIgnoreCase(request.getEmail())) {
       throw new UserAlreadyExistsException();
     }
@@ -44,7 +51,7 @@ public class IdentityService {
         .password(passwordEncoder.encode(request.getPassword()))
         .active(false)
         .status(Status.UNVERIFIED)
-        .role(Role.RIDER)
+        .role(Role.DRIVER)
         .build();
 
     User savedUser = userRepository.save(newUser);
@@ -60,7 +67,5 @@ public class IdentityService {
         savedToken));
 
     return UserMapper.toRegisterResponseDTO(savedUser);
-
   }
-
 }
