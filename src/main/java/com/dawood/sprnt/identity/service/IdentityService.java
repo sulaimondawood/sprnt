@@ -1,6 +1,7 @@
 package com.dawood.sprnt.identity.service;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.context.ApplicationEventPublisher;
@@ -11,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.dawood.sprnt.common.event.AccountCreationEvent;
 import com.dawood.sprnt.identity.api.RegisterRequestDTO;
 import com.dawood.sprnt.identity.api.RegisterResponseDTO;
+import com.dawood.sprnt.identity.exception.TokenException;
 import com.dawood.sprnt.identity.exception.UserAlreadyExistsException;
 import com.dawood.sprnt.identity.mapper.UserMapper;
 import com.dawood.sprnt.identity.model.Role;
@@ -37,6 +39,21 @@ public class IdentityService {
 
   public RegisterResponseDTO createRiderAccount(RegisterRequestDTO request) {
     return createAccount(request, Role.RIDER);
+  }
+
+  @Transactional
+  public void verifyAccount(String token) {
+
+    VerificationToken existingToken = tokenRepository.findByToken(token)
+        .orElseThrow(() -> new TokenException("Invalid token"));
+
+    User existingUser = existingToken.getUser();
+    existingUser.setActive(true);
+    existingUser.setStatus(Status.ACTIVE);
+
+    userRepository.save(existingUser);
+    tokenRepository.delete(existingToken);
+
   }
 
   @Transactional
