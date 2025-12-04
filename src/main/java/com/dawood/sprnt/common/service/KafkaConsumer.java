@@ -1,9 +1,10 @@
 package com.dawood.sprnt.common.service;
 
-import java.io.UnsupportedEncodingException;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.support.KafkaHeaders;
+import org.springframework.messaging.handler.annotation.Header;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -26,30 +27,38 @@ public class KafkaConsumer {
   private final TemplateEngine templateEngine;
 
   @KafkaListener(topics = KafkaConfig.EMAIL_TOPIC_NAME, groupId = "email-service-group")
-  public void consumeSendAccountActivationEmail(UserAccountDTO message) throws UnsupportedEncodingException {
+  public void consumeSendAccountActivationEmail(
+      @Payload UserAccountDTO message,
+      @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
+      @Header(KafkaHeaders.RECEIVED_PARTITION) int partition,
+      @Header(KafkaHeaders.OFFSET) long offset) {
 
-    String token = message.getToken();
-    String fullname = message.getFullname();
-    String email = message.getEmail();
+    try {
 
-    String[] nameParts = fullname.split(" ");
-    String username = nameParts.length > 0 ? nameParts[0] : fullname;
+      log.info("Email service group subscribes to the published event");
 
-    String activationUrl = String.format("%s?token=%s", clientUrl, token);
+      String token = message.getToken();
+      String fullname = message.getFullname();
+      String email = message.getEmail();
 
-    log.info(activationUrl);
+      String[] nameParts = fullname.split(" ");
+      String username = nameParts.length > 0 ? nameParts[0] : fullname;
 
-    Context context = new Context();
+      String activationUrl = String.format("%s?token=%s", clientUrl, token);
 
-    context.setVariable("username", username);
+      Context context = new Context();
 
-    context.setVariable("activationLink", activationUrl);
+      context.setVariable("username", username);
 
-    String emailBody = templateEngine.process("/account/email-verification.html", context);
+      context.setVariable("activationLink", activationUrl);
 
-    log.info(emailBody);
+      String emailBody = templateEngine.process("/account/email-verification.html", context);
 
-    emailService.sendEmail(email, "Account Activation", emailBody);
+      emailService.sendEmail(email, "Account Activation", emailBody);
+    } catch (Exception e) {
+      log.error("Error processing Kafka message", e);
+      throw new RuntimeException("Failed to process email", e);
+    }
 
   }
 

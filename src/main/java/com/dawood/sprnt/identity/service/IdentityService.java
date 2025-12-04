@@ -6,12 +6,11 @@ import java.util.UUID;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.dawood.sprnt.common.event.AccountCreationEvent;
-import com.dawood.sprnt.common.service.KafkaProducer;
 import com.dawood.sprnt.identity.api.RegisterRequestDTO;
 import com.dawood.sprnt.identity.api.RegisterResponseDTO;
-import com.dawood.sprnt.identity.api.UserAccountDTO;
 import com.dawood.sprnt.identity.exception.UserAlreadyExistsException;
 import com.dawood.sprnt.identity.mapper.UserMapper;
 import com.dawood.sprnt.identity.model.Role;
@@ -32,6 +31,7 @@ public class IdentityService {
   private final VerificationTokenRepository tokenRepository;
   private final ApplicationEventPublisher applicationEventPublisher;
 
+  @Transactional
   public RegisterResponseDTO createDriverAccount(RegisterRequestDTO request) {
 
     if (userRepository.existsByEmailIgnoreCase(request.getEmail())) {
@@ -56,7 +56,8 @@ public class IdentityService {
 
     VerificationToken savedToken = tokenRepository.save(newToken);
 
-    applicationEventPublisher.publishEvent(new AccountCreationEvent(savedUser, savedToken));
+    applicationEventPublisher.publishEvent(new AccountCreationEvent(savedUser,
+        savedToken));
 
     return UserMapper.toRegisterResponseDTO(savedUser);
 

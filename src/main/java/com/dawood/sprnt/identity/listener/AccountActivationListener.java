@@ -9,15 +9,19 @@ import com.dawood.sprnt.common.service.KafkaProducer;
 import com.dawood.sprnt.identity.api.UserAccountDTO;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AccountActivationListener {
 
   private final KafkaProducer kafkaProducer;
 
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void accountActivationListener(AccountCreationEvent event) {
+
+    log.info("Log from acount activation listener");
 
     kafkaProducer.sendAccountActivationEmail(UserAccountDTO.builder()
         .email(event.getUser().getEmail())
