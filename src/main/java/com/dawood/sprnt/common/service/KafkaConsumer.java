@@ -2,15 +2,12 @@ package com.dawood.sprnt.common.service;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.support.KafkaHeaders;
-import org.springframework.messaging.handler.annotation.Header;
-import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import com.dawood.sprnt.common.config.KafkaConfig;
-import com.dawood.sprnt.identity.api.UserAccountDTO;
+import com.dawood.sprnt.identity.api.dto.UserAccountDTO;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,12 +23,8 @@ public class KafkaConsumer {
   private final EmailService emailService;
   private final TemplateEngine templateEngine;
 
-  @KafkaListener(topics = KafkaConfig.EMAIL_TOPIC_NAME, groupId = "email-service-group-v2")
-  public void consumeSendAccountActivationEmail(
-      @Payload UserAccountDTO message,
-      @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
-      @Header(KafkaHeaders.RECEIVED_PARTITION) int partition,
-      @Header(KafkaHeaders.OFFSET) long offset) {
+  @KafkaListener(topics = KafkaConfig.EMAIL_TOPIC_NAME, groupId = "email-service-group-5")
+  public void consumeSendAccountActivationEmail(UserAccountDTO message) {
 
     try {
 

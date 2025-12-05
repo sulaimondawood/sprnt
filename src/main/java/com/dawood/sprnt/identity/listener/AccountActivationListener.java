@@ -6,7 +6,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 import com.dawood.sprnt.common.event.AccountCreationEvent;
 import com.dawood.sprnt.common.service.KafkaProducer;
-import com.dawood.sprnt.identity.api.UserAccountDTO;
+import com.dawood.sprnt.identity.api.dto.UserAccountDTO;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

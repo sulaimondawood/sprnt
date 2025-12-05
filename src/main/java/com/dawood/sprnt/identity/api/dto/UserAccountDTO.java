@@ -1,4 +1,4 @@
-package com.dawood.sprnt.identity.api;
+package com.dawood.sprnt.identity.api.dto;
 
 import java.util.UUID;
 

@@ -1,4 +1,4 @@
-package com.dawood.sprnt.identity.api;
+package com.dawood.sprnt.identity.api.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
@@ -6,13 +6,10 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class RegisterRequestDTO {
+public class LoginRequest {
 
-  @NotBlank(message = "Your email address is required")
+  @NotBlank(message = "Your email is required")
   private String email;
-
-  @NotBlank(message = "Your full name is required")
-  private String fullname;
 
   @NotBlank(message = "Your password is required")
   private String password;

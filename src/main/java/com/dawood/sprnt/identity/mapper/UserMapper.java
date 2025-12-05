@@ -1,7 +1,7 @@
 package com.dawood.sprnt.identity.mapper;
 
-import com.dawood.sprnt.identity.api.RegisterResponseDTO;
-import com.dawood.sprnt.identity.api.UserAccountDTO;
+import com.dawood.sprnt.identity.api.dto.RegisterResponseDTO;
+import com.dawood.sprnt.identity.api.dto.UserAccountDTO;
 import com.dawood.sprnt.identity.model.User;
 
 public class UserMapper {
