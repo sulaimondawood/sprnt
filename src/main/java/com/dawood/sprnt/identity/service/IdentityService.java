@@ -5,7 +5,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import com.dawood.sprnt.identity.exception.*;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,10 +19,6 @@ import com.dawood.sprnt.identity.api.dto.LoginRequest;
 import com.dawood.sprnt.identity.api.dto.LoginResponse;
 import com.dawood.sprnt.identity.api.dto.RegisterRequestDTO;
 import com.dawood.sprnt.identity.api.dto.RegisterResponseDTO;
-import com.dawood.sprnt.identity.exception.IdentityException;
-import com.dawood.sprnt.identity.exception.TokenException;
-import com.dawood.sprnt.identity.exception.TokenExpiredException;
-import com.dawood.sprnt.identity.exception.UserAlreadyExistsException;
 import com.dawood.sprnt.identity.mapper.UserMapper;
 import com.dawood.sprnt.identity.model.Role;
 import com.dawood.sprnt.identity.model.Status;
@@ -101,8 +100,23 @@ public class IdentityService {
     return response;
   }
 
+
+  public User getCurrentLoggedInUser(){
+    String username = SecurityContextHolder.getContext()
+            .getAuthentication()
+            .getName();
+
+    return  getUserByEmail(username);
+  }
+
+  @Cacheable(value = "user", key = "#email")
+  public User getUserByEmail(String email){
+    return userRepository.findByEmailIgnoreCase(email)
+            .orElseThrow(UserNotFoundException::new);
+  }
+
   @Transactional
-  private RegisterResponseDTO createAccount(RegisterRequestDTO request, Role role) {
+  protected RegisterResponseDTO createAccount(RegisterRequestDTO request, Role role) {
     if (userRepository.existsByEmailIgnoreCase(request.getEmail())) {
       throw new UserAlreadyExistsException();
     }
@@ -130,4 +144,5 @@ public class IdentityService {
 
     return UserMapper.toRegisterResponseDTO(savedUser);
   }
+
 }
