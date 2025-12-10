@@ -43,5 +43,12 @@ services:
       KAFKA_LOG_DIRS: "/tmp/kraft-combined-logs"
       CLUSTER_ID: "MkU3OEVBNTcwNTJENDM3Qk"
 
+  redis:
+    image: redis:8.4.0
+    container_name: sprnt-redis
+    ports:
+      - 6379:6379
+    restart: unless-stopped
+
 volumes:
   spring_db_data:
