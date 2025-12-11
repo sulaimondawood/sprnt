@@ -54,6 +54,11 @@ spring:
 app:
   base-url: http://localhost:8080/api/
   client-url: http://localhost:3000/auth/activate
+  cloudinary:
+    api-key: ${CLOUDINARY_API_KEY}
+    secret-key: ${CLOUDINARY_SECRET_KEY}
+    cloud-name: ${CLOUDINARY_CLOUD_NAME}
+    url: ${CLOUDINARY_URL}
 
 jwt:
   secret: ${JWT_SECRET}

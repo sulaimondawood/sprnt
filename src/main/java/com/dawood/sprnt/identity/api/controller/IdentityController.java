@@ -53,7 +53,7 @@ public class IdentityController {
   @PostMapping("/login")
   public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody LoginRequest request) {
 
-    return ApiResponse.created(identityService.login(request), "Login was successfull");
+    return ApiResponse.success(identityService.login(request), "Login was successfull");
 
   }
 

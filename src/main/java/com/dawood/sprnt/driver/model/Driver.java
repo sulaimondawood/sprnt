@@ -63,6 +63,8 @@ public class Driver {
   @Enumerated(EnumType.STRING)
   private DriverKycStatus kycStatus;
 
+  private boolean completedProfile = false;
+
   @OneToOne
   private User user;
 

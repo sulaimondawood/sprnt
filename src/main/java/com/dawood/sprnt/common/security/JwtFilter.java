@@ -80,7 +80,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
   @Override
   protected boolean shouldNotFilter(HttpServletRequest request) {
-    return request.getRequestURI().contains("/api/v1/email");
+    return request.getRequestURI().contains("/api/v1/email") || request.getRequestURI().contains("api/v1/auth");
   }
 
   private void buildResponse(HttpServletResponse response, String message, HttpStatus status, String path)

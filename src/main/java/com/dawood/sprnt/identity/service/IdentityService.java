@@ -5,7 +5,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import com.dawood.sprnt.driver.model.Driver;
 import com.dawood.sprnt.identity.exception.*;
+import com.dawood.sprnt.rider.model.Rider;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -91,6 +93,8 @@ public class IdentityService {
 
     Map<String, Object> claims = new HashMap<>();
     claims.put("role", user.getRole().name());
+
+//    claims.put("completedProfile", user.getRole().equals(Role.DRIVER)? driver.isCompletedProfile():rider.isCompletedProfile() );
 
     String token = jwtProvider.generateToken(user.getEmail(), claims);
 
