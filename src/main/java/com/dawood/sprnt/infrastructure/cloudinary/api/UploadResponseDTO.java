@@ -15,4 +15,6 @@ public class UploadResponseDTO {
 
     private String cloudName;
 
+    private String folder;
+
 }

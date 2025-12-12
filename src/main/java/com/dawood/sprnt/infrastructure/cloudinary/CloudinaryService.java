@@ -46,6 +46,7 @@ public class CloudinaryService {
         response.setTimestamp(params.get("timestamp").toString());
         response.setApiKey(apiKey);
         response.setCloudName(cloudName);
+        response.setFolder(params.get("folder").toString());
 
         return  response;
 
