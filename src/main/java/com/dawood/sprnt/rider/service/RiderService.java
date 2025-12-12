@@ -22,22 +22,20 @@ public class RiderService {
     private final UserRepository userRepository;
 
 
-    @Transactional
     public ProfileResponseDTO completeProfileDTO(ProfileRequestDTO profileRequest){
 
         User currentUser = identityService.getCurrentLoggedInUser();
 
         Rider rider = currentUser.getRider();
-        rider.setStatus(RiderStatus.ACTIVE);
-        rider.setProfileImage(profileRequest.getImageUrl());
-        rider.setDefaultPickupLocation(profileRequest.getDefaultPickupLocation());
-        rider.setDisplayName(profileRequest.getDisplayName());
-        rider.setCompletedProfile(true);
+
+        rider.completeProfile(profileRequest.getImageUrl(),
+                profileRequest.getDefaultPickupLocation(),
+                profileRequest.getDisplayName());
 
         userRepository.save(currentUser);
-        riderRepository.save(rider);
 
         return RiderMapper.toProfileResponse(rider);
     }
+
 
 }
