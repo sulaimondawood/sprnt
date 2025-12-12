@@ -28,13 +28,22 @@ public class RiderService {
 
         Rider rider = currentUser.getRider();
 
-        rider.completeProfile(profileRequest.getImageUrl(),
+        if(rider == null){
+            rider = new Rider();
+        }
+
+        rider.completeProfile(
+                profileRequest.getImageUrl(),
                 profileRequest.getDefaultPickupLocation(),
                 profileRequest.getDisplayName());
 
         userRepository.save(currentUser);
 
         return RiderMapper.toProfileResponse(rider);
+    }
+
+    public void bookRide(){
+
     }
 
 

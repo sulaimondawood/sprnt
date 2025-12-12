@@ -6,8 +6,10 @@ import java.util.Map;
 import java.util.UUID;
 
 import com.dawood.sprnt.driver.model.Driver;
+import com.dawood.sprnt.driver.repository.DriverRepository;
 import com.dawood.sprnt.identity.exception.*;
 import com.dawood.sprnt.rider.model.Rider;
+import com.dawood.sprnt.rider.repository.RiderRepository;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -40,6 +42,8 @@ public class IdentityService {
   private final VerificationTokenRepository tokenRepository;
   private final ApplicationEventPublisher applicationEventPublisher;
   private final JwtProvider jwtProvider;
+  private final RiderRepository riderRepository;
+  private final DriverRepository driverRepository;
 
   public RegisterResponseDTO createDriverAccount(RegisterRequestDTO request) {
     return createAccount(request, Role.DRIVER);
@@ -94,7 +98,35 @@ public class IdentityService {
     Map<String, Object> claims = new HashMap<>();
     claims.put("role", user.getRole().name());
 
-//    claims.put("completedProfile", user.getRole().equals(Role.DRIVER)? driver.isCompletedProfile():rider.isCompletedProfile() );
+    boolean completedProfile;
+
+    switch (user.getRole()){
+
+      case RIDER->{
+        Rider rider = riderRepository.findByUser(user)
+                .orElse(null);
+        if(rider != null){
+          completedProfile=rider.isCompletedProfile();
+        }else{
+          completedProfile = false;
+        }
+      }
+
+      case DRIVER -> {
+        Driver driver = driverRepository.findByUser(user)
+                .orElse(null);
+        if(driver != null){
+          completedProfile=driver.isCompletedProfile();
+        }else{
+          completedProfile = false;
+        }
+      }
+
+      default -> completedProfile=false;
+    }
+
+
+    claims.put("completedProfile",completedProfile );
 
     String token = jwtProvider.generateToken(user.getEmail(), claims);
 
