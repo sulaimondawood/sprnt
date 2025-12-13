@@ -1,16 +1,18 @@
 services:
-  db:
-    image: postgres:15
-    restart: always
-    env_file: .env
+  postgis-db:
+    image: postgis/postgis:16-3.5
+    container_name: postgres-spartial-db
+    restart: unless-stopped
+    ports:
+      - 5432:5432
+    env_file:
+      - .env
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: sprnt_db
     volumes:
-      - spring_db_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
+      - sprnt_db_data:/var/lib/postgresql/data
 
   adminer:
     image: adminer
@@ -33,8 +35,6 @@ services:
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-      # KAFKA_JMX_PORT: 9101
-      # KAFKA_JMX_HOSTNAME: localhost
       KAFKA_PROCESS_ROLES: "broker,controller"
       KAFKA_CONTROLLER_QUORUM_VOTERS: "1@broker:29093"
       KAFKA_LISTENERS: "PLAINTEXT://broker:29092,CONTROLLER://broker:29093,PLAINTEXT_HOST://0.0.0.0:9092"
@@ -51,4 +51,4 @@ services:
     restart: unless-stopped
 
 volumes:
-  spring_db_data:
+  sprnt_db_data:

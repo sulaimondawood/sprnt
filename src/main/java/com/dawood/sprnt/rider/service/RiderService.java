@@ -7,11 +7,10 @@ import com.dawood.sprnt.rider.api.dto.ProfileRequestDTO;
 import com.dawood.sprnt.rider.api.dto.ProfileResponseDTO;
 import com.dawood.sprnt.rider.mapper.RiderMapper;
 import com.dawood.sprnt.rider.model.Rider;
-import com.dawood.sprnt.rider.model.RiderStatus;
 import com.dawood.sprnt.rider.repository.RiderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+
 
 @Service
 @RequiredArgsConstructor
