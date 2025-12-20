@@ -25,21 +25,19 @@ public class Ride {
     @Embedded
     @AttributeOverrides({
             @AttributeOverride(name = "address", column = @Column(name = "pick_up_address")),
-            @AttributeOverride(name = "latitude", column = @Column(name = "pick_up_lat")),
-            @AttributeOverride(name = "longitude", column = @Column(name = "pick_up_lng"))
+            @AttributeOverride(name = "coords", column = @Column(name = "pick_up_coords")),
     })
     private Location pickupLocation;
 
     @Embedded
     @AttributeOverrides({
             @AttributeOverride(name = "address", column = @Column(name = "drop_off_address")),
-            @AttributeOverride(name = "latitude", column = @Column(name = "drop_off_lat")),
-            @AttributeOverride(name = "longitude", column = @Column(name = "drop_off_lng"))
+            @AttributeOverride(name = "coords", column = @Column(name = "drop_off_coords")),
     })
     private Location dropoffLocation;
 
     @Enumerated(EnumType.STRING)
-    private RideStatus status;
+    private RideStatus rideStatus;
 
     @ManyToOne
     private Rider rider;

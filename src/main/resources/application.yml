@@ -13,8 +13,9 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
-    
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
 
   mail:
     host: smtp.gmail.com
@@ -43,7 +44,7 @@ spring:
         spring.json.trusted.packages: "*"
 
   flyway:
-    enabled: true
+    enabled: false
     baseline-on-migrate: true
 
   data:

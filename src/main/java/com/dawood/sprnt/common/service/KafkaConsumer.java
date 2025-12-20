@@ -1,5 +1,10 @@
 package com.dawood.sprnt.common.service;
 
+import com.dawood.sprnt.ride.event.CreateRideEvent;
+import com.dawood.sprnt.ride.model.Ride;
+import com.dawood.sprnt.ride.service.RideMatchingService;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
@@ -22,8 +27,9 @@ public class KafkaConsumer {
 
   private final EmailService emailService;
   private final TemplateEngine templateEngine;
+  private final RideMatchingService rideMatchingService;
 
-  @KafkaListener(topics = KafkaConfig.EMAIL_TOPIC_NAME, groupId = "email-service-group-5")
+  @KafkaListener(topics = KafkaConfig.EMAIL_TOPIC_NAME, groupId = "email-service-group")
   public void consumeSendAccountActivationEmail(UserAccountDTO message) {
 
     try {
@@ -55,4 +61,11 @@ public class KafkaConsumer {
 
   }
 
+  @KafkaListener(topics = KafkaConfig.RIDE_REQUEST_TOPIC, groupId = "ride-request-group")
+  public  void consumeCreateRideRequest(CreateRideEvent message){
+
+    Ride ride = message.getRide();
+
+    rideMatchingService.getNearestDrivers(ride,null,10);
+  }
 }

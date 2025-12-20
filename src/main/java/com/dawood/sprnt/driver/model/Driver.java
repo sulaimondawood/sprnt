@@ -23,6 +23,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.locationtech.jts.geom.Point;
 
 @Entity
 @Table(name = "drivers")
@@ -64,6 +65,9 @@ public class Driver {
   private DriverKycStatus kycStatus;
 
   private boolean completedProfile = false;
+
+  @Column(columnDefinition = "geography(Point,4326)")
+  private Point location;
 
   @OneToOne
   private User user;

@@ -125,7 +125,6 @@ public class IdentityService {
       default -> completedProfile=false;
     }
 
-
     claims.put("completedProfile",completedProfile );
 
     String token = jwtProvider.generateToken(user.getEmail(), claims);

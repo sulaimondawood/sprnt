@@ -41,7 +41,7 @@ public class RiderService {
         return RiderMapper.toProfileResponse(rider);
     }
 
-    public void bookRide(){
+    public void createRideQuest(){
 
     }
 

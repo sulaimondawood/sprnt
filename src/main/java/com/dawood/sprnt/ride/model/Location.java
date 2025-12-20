@@ -1,10 +1,12 @@
 package com.dawood.sprnt.ride.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.locationtech.jts.geom.Point;
 
 @Embeddable
 @Setter
@@ -15,8 +17,7 @@ public class Location {
 
     private String address;
 
-    private double latitude;
-
-    private double longitude;
+    @Column(columnDefinition = "geography(Point,4326)")
+    private Point coords;
 
 }

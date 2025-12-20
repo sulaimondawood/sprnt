@@ -8,6 +8,7 @@ import org.springframework.kafka.config.TopicBuilder;
 @Configuration
 public class KafkaConfig {
 
+  public static final String RIDE_REQUEST_TOPIC="ride-request-topic";
   public static final String EMAIL_TOPIC_NAME = "email-topic";
 
   @Bean

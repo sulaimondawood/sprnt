@@ -2,6 +2,7 @@ package com.dawood.sprnt.common.service;
 
 import java.util.concurrent.CompletableFuture;
 
+import com.dawood.sprnt.ride.event.CreateRideEvent;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,22 @@ public class KafkaProducer {
       }
 
     });
+
+  }
+
+  public void sendCreateRideRequest(CreateRideEvent rideEvent){
+
+   CompletableFuture<SendResult<String,Object>> future= kafkaTemplate.send(KafkaConfig.RIDE_REQUEST_TOPIC, rideEvent);
+
+   future.whenComplete((result, err)->{
+     if(err==null){
+       log.info("Ride {} - request message sent successfully", rideEvent.getRide().getId());
+     }
+     else{
+       log.error("Failed to send ride request: ERROR({})", err.getMessage());
+     }
+   });
+
 
   }
 
