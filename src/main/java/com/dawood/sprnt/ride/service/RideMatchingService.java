@@ -1,7 +1,9 @@
 package com.dawood.sprnt.ride.service;
 
+import com.dawood.sprnt.driver.api.dto.DriverDistanceProjection;
 import com.dawood.sprnt.driver.model.Driver;
 import com.dawood.sprnt.driver.repository.DriverRepository;
+import com.dawood.sprnt.ride.mapper.RideMapper;
 import com.dawood.sprnt.ride.model.Ride;
 import com.dawood.sprnt.ride.repository.RideRepository;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +11,7 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Point;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -18,7 +21,7 @@ public class RideMatchingService {
     private final RideRepository rideRepository;
     private final DriverRepository driverRepository;
 
-    public List<Driver> getNearestDrivers(Ride ride, double[] expandSteps, int limit){
+    public List<DriverDistanceProjection> getNearestDrivers(Ride ride, double[] expandSteps, int limit){
 
         Point point = ride.getPickupLocation().getCoords();
 
@@ -30,10 +33,10 @@ public class RideMatchingService {
 
         for(double expansion: expansionProgression){
 
-            List<Driver> foundDrivers = driverRepository.findNearestDrivers(lng,lat,expansion,limit);
+            List<DriverDistanceProjection> foundDrivers = driverRepository.findNearestDrivers(lng,lat,expansion,limit);
 
             if(!foundDrivers.isEmpty()){
-                return foundDrivers;
+                return  foundDrivers;
             }
 
         }
@@ -42,4 +45,17 @@ public class RideMatchingService {
 
     }
 
+    public List<DriverDistanceProjection> rankDrivers(List<DriverDistanceProjection> candidates ){
+
+        return  candidates.stream().sorted(Comparator.
+                comparingDouble(DriverDistanceProjection::getDistance)
+                .thenComparing(Comparator.comparingDouble(DriverDistanceProjection::getRating).reversed())
+
+        ).toList();
+
+    }
+
+    public DriverDistanceProjection assignDriver(Ride ride, List<DriverDistanceProjection> candidates){
+
+    }
 }
