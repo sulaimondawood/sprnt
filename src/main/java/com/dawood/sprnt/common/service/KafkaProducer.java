@@ -1,8 +1,11 @@
 package com.dawood.sprnt.common.service;
 
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+import com.dawood.sprnt.ride.api.dto.DriverRideRequest;
 import com.dawood.sprnt.ride.event.CreateRideEvent;
+import com.dawood.sprnt.ride.model.Ride;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
@@ -52,4 +55,9 @@ public class KafkaProducer {
 
   }
 
+  public void sendRideRequestToDriver(DriverRideRequest message){
+
+    kafkaTemplate.send
+
+  }
 }

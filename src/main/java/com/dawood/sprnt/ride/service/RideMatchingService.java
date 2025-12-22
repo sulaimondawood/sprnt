@@ -70,7 +70,7 @@ public class RideMatchingService {
 
             if(!isLocked) continue;
 
-//            boolean isAccepted = kafkaProducer.
+            boolean isAccepted = kafkaProducer.sendRideRequestToDriver();
 
         }
 
