@@ -4,4 +4,5 @@ public enum DriverAvailabilityStatus {
   ONLINE,
   OFFLINE,
   BUSY,
+  RESERVED
 }

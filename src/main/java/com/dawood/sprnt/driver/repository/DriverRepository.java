@@ -5,10 +5,12 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.dawood.sprnt.driver.api.dto.DriverDistanceProjection;
+import com.dawood.sprnt.driver.model.DriverAvailabilityStatus;
 import com.dawood.sprnt.identity.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.dawood.sprnt.driver.model.Driver;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -32,6 +34,15 @@ public interface DriverRepository extends JpaRepository<Driver, UUID> {
                                                       @Param("lat") double lat,
                                                       @Param("expand") double expand,
                                                       @Param("limit") int limit);
+
+    @Modifying
+    @Query("""
+    UPDATE Driver d
+    SET d.availabilityStatus= :status
+    WHERE d.id = :driverId AND d.availabilityStatus='ONLINE'
+""")
+    int updateDriverAvailabilityStatus(@Param("status") DriverAvailabilityStatus status,
+                                          @Param("driverId") UUID driverId);
     
 }
 

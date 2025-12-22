@@ -1,7 +1,9 @@
 package com.dawood.sprnt.ride.service;
 
+import com.dawood.sprnt.common.service.KafkaProducer;
 import com.dawood.sprnt.driver.api.dto.DriverDistanceProjection;
 import com.dawood.sprnt.driver.model.Driver;
+import com.dawood.sprnt.driver.model.DriverAvailabilityStatus;
 import com.dawood.sprnt.driver.repository.DriverRepository;
 import com.dawood.sprnt.ride.mapper.RideMapper;
 import com.dawood.sprnt.ride.model.Ride;
@@ -20,6 +22,7 @@ public class RideMatchingService {
 
     private final RideRepository rideRepository;
     private final DriverRepository driverRepository;
+    private final KafkaProducer kafkaProducer;
 
     public List<DriverDistanceProjection> getNearestDrivers(Ride ride, double[] expandSteps, int limit){
 
@@ -56,6 +59,33 @@ public class RideMatchingService {
     }
 
     public DriverDistanceProjection assignDriver(Ride ride, List<DriverDistanceProjection> candidates){
+
+        List<Driver> drivers = candidates.stream()
+                .map(RideMapper::fromDriverDistanceProjection)
+                .toList();
+
+        for(Driver driver: drivers ){
+
+            boolean isLocked = lockDriver(driver);
+
+            if(!isLocked) continue;
+
+//            boolean isAccepted = kafkaProducer.
+
+        }
+
+        return  null;
+
+    }
+
+    private boolean lockDriver(Driver driver){
+
+        try{
+        driverRepository.updateDriverAvailabilityStatus(DriverAvailabilityStatus.RESERVED,driver.getId());
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
 
     }
 }
