@@ -66,6 +66,6 @@ public class KafkaConsumer {
 
     Ride ride = message.getRide();
 
-    rideMatchingService.getNearestDrivers(ride,null,10);
+    rideMatchingService.getNearestDriversAndMatch(ride,null,10);
   }
 }

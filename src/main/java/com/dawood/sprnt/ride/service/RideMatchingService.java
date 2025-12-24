@@ -6,16 +6,21 @@ import com.dawood.sprnt.driver.model.Driver;
 import com.dawood.sprnt.driver.model.DriverAvailabilityStatus;
 import com.dawood.sprnt.driver.repository.DriverRepository;
 import com.dawood.sprnt.ride.api.dto.DriverRideRequest;
-import com.dawood.sprnt.ride.mapper.RideMapper;
+import com.dawood.sprnt.ride.exception.DriverNotFoundException;
 import com.dawood.sprnt.ride.model.Ride;
+import com.dawood.sprnt.ride.model.RideStatus;
 import com.dawood.sprnt.ride.repository.RideRepository;
 import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Point;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -25,7 +30,7 @@ public class RideMatchingService {
     private final DriverRepository driverRepository;
     private final KafkaProducer kafkaProducer;
 
-    public List<DriverDistanceProjection> getNearestDrivers(Ride ride, double[] expandSteps, int limit){
+    public List<DriverDistanceProjection> getNearestDriversAndMatch(Ride ride, double[] expandSteps, int limit){
 
         Point point = ride.getPickupLocation().getCoords();
 
@@ -54,41 +59,60 @@ public class RideMatchingService {
         return  candidates.stream().sorted(Comparator.
                 comparingDouble(DriverDistanceProjection::getDistance)
                 .thenComparing(Comparator.comparingDouble(DriverDistanceProjection::getRating).reversed())
-                .thenComparing(Comparator.comparingLong(DriverDistanceProjection::getTotalCompletedTrips))
-
+                .thenComparing(Comparator.comparingLong(DriverDistanceProjection::getTotalCompletedTrips).reversed())
         ).toList();
 
     }
 
-    public DriverDistanceProjection assignDriver(Ride ride, List<DriverDistanceProjection> candidates){
 
-        List<Driver> drivers = driverRepository.findAllById(candidates
-                .stream()
-                .map(DriverDistanceProjection::getId)
-                .toList());
 
-        for(Driver driver: drivers ){
+    public boolean dispatchToBestDriver(Ride ride, List<DriverDistanceProjection> candidates){
 
-            boolean isLocked = lockDriver(driver);
+        for(DriverDistanceProjection candidate: candidates ){
+            boolean isLocked = lockDriver(candidate.getId());
 
-            if(!isLocked) continue;
+            if(isLocked){
+                sendRideRequestToDriver(ride, candidate);
 
+                Driver driver = driverRepository.findById(candidate.getId())
+                                .orElseThrow(()->new DriverNotFoundException());
+
+                ride.setDriver(driver);
+                ride.setRideStatus(RideStatus.REQUESTED);
+
+                rideRepository.save(ride);
+
+                return  true;
+            }
 
 
         }
 
-        return  null;
+        return  false;
 
     }
 
-    private boolean lockDriver(Driver driver){
+    private void sendRideRequestToDriver(Ride ride, DriverDistanceProjection driverDistanceProjection){
 
+        DriverRideRequest request = new DriverRideRequest();
+        request.setDriverId(driverDistanceProjection.getId());
+        request.setRideId(ride.getId());
+        request.setPickupLocation(ride.getPickupLocation().getCoords());
+        request.setEstimatedFare(BigDecimal.valueOf(5000));
+
+        request.setExpiresAt(LocalDateTime.now().plusSeconds(15));
+
+        kafkaProducer.send
+
+    }
+
+    @Transactional
+    protected boolean lockDriver(UUID driverId){
         try{
-        driverRepository.updateDriverAvailabilityStatus(DriverAvailabilityStatus.RESERVED,driver.getId());
+        driverRepository.updateDriverAvailabilityStatus(DriverAvailabilityStatus.RESERVED,driverId);
             return true;
         } catch (Exception e) {
             return false;
         }
-
     }
 }

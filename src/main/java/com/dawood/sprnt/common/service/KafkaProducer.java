@@ -1,20 +1,15 @@
 package com.dawood.sprnt.common.service;
 
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-
-import com.dawood.sprnt.ride.api.dto.DriverRideRequest;
+import com.dawood.sprnt.common.config.KafkaConfig;
+import com.dawood.sprnt.identity.api.dto.UserAccountDTO;
 import com.dawood.sprnt.ride.event.CreateRideEvent;
-import com.dawood.sprnt.ride.model.Ride;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 
-import com.dawood.sprnt.common.config.KafkaConfig;
-import com.dawood.sprnt.identity.api.dto.UserAccountDTO;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor

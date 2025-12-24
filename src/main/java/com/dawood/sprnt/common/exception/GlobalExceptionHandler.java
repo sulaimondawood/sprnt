@@ -1,5 +1,6 @@
 package com.dawood.sprnt.common.exception;
 
+import com.dawood.sprnt.ride.exception.DriverNotFoundException;
 import com.dawood.sprnt.rider.exception.RiderException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,22 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class GlobalExceptionHandler {
 
+  @ExceptionHandler(DriverNotFoundException.class)
+  public ResponseEntity<ErrorResponse> driverNotFoundExceptionHandler(DriverNotFoundException ex,
+      HttpServletRequest request) {
+
+    ErrorResponse errorResponse = ErrorResponse.builder()
+        .status(HttpStatus.NOT_FOUND.value())
+        .path(request.getRequestURI())
+        .message(ex.getMessage())
+        .error(HttpStatus.NOT_FOUND.name())
+        .build();
+
+    log.error(ex.getMessage(), ex);
+
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+
+  }
   @ExceptionHandler(AccessDeniedException.class)
   public ResponseEntity<ErrorResponse> accessDeniedExceptionHandler(AccessDeniedException ex,
       HttpServletRequest request) {
