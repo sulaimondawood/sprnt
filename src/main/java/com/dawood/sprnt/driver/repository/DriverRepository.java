@@ -19,21 +19,26 @@ public interface DriverRepository extends JpaRepository<Driver, UUID> {
     Optional<Driver> findByUser(User user);
 
     @Query(value = """
-    SELECT drivers.*, ST_Distance(location, ST_SetSRID(ST_MakePoint(:lng,:lat),4326)) AS distance
-    FROM drivers
-    WHERE availability_status='ONLINE'
-        AND status = 'ACTIVE'
-        AND location && ST_Expand(
-            ST_SetSRID(ST_MakePoint(:lng,:lat), 4326),
-            :expand
-    )
+    SELECT 
+        d.id, 
+        d.display_name as displayName, 
+        d.profile_image as profileImage,
+        d.rating,
+        d.total_completed_trips as totalCompletedTrips
+        ST_Distance(d.location, ST_SetSRID(ST_MakePoint(:lng,:lat),4326)::geography) AS distance
+    FROM drivers d
+    WHERE d.availability_status='ONLINE'
+        AND d.status = 'ACTIVE'
+        AND d.location && ST_Expand(ST_SetSRID(ST_MakePoint(:lng,:lat), 4326), :expand)
     ORDER BY distance ASC
     LIMIT :limit
 """, nativeQuery = true)
-    List<DriverDistanceProjection> findNearestDrivers(@Param("lng") double lng,
-                                                      @Param("lat") double lat,
-                                                      @Param("expand") double expand,
-                                                      @Param("limit") int limit);
+    List<DriverDistanceProjection> findNearestDrivers(
+            @Param("lng") double lng,
+            @Param("lat") double lat,
+            @Param("expand") double expand,
+            @Param("limit") int limit
+    );
 
     @Modifying
     @Query("""
@@ -43,6 +48,6 @@ public interface DriverRepository extends JpaRepository<Driver, UUID> {
 """)
     int updateDriverAvailabilityStatus(@Param("status") DriverAvailabilityStatus status,
                                           @Param("driverId") UUID driverId);
-    
+
 }
 

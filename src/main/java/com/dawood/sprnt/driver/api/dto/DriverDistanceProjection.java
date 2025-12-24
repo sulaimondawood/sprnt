@@ -16,45 +16,19 @@ import org.locationtech.jts.geom.Point;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Getter
-@Setter
-@AllArgsConstructor
-public class DriverDistanceProjection {
 
-    private UUID id;
+public interface DriverDistanceProjection {
 
-    private String displayName;
+    UUID getId();
 
-    private String profileImage;
+    String getDisplayName();
 
-    private String licenseNumber;
+    String getProfileImage();
 
-    private String licenseExpiry;
+    double getRating();
 
-    private String nin;
+    double getDistance();
 
-    private DriverStatus status;
-
-    private DriverAvailabilityStatus availabilityStatus;
-
-    private double rating;
-
-    private long totalCompletedTrips;
-
-    private DriverKycStatus kycStatus;
-
-    private boolean completedProfile = false;
-
-    private Point location;
-
-    private double distance;
-
-    private User user;
-
-    private Vehicle vehicle;
-
-    private LocalDateTime createdAt;
-
-    private LocalDateTime updatedAt;
+    long getTotalCompletedTrips();
 
 }

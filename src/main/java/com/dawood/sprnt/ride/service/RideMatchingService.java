@@ -5,6 +5,7 @@ import com.dawood.sprnt.driver.api.dto.DriverDistanceProjection;
 import com.dawood.sprnt.driver.model.Driver;
 import com.dawood.sprnt.driver.model.DriverAvailabilityStatus;
 import com.dawood.sprnt.driver.repository.DriverRepository;
+import com.dawood.sprnt.ride.api.dto.DriverRideRequest;
 import com.dawood.sprnt.ride.mapper.RideMapper;
 import com.dawood.sprnt.ride.model.Ride;
 import com.dawood.sprnt.ride.repository.RideRepository;
@@ -53,6 +54,7 @@ public class RideMatchingService {
         return  candidates.stream().sorted(Comparator.
                 comparingDouble(DriverDistanceProjection::getDistance)
                 .thenComparing(Comparator.comparingDouble(DriverDistanceProjection::getRating).reversed())
+                .thenComparing(Comparator.comparingLong(DriverDistanceProjection::getTotalCompletedTrips))
 
         ).toList();
 
@@ -60,9 +62,10 @@ public class RideMatchingService {
 
     public DriverDistanceProjection assignDriver(Ride ride, List<DriverDistanceProjection> candidates){
 
-        List<Driver> drivers = candidates.stream()
-                .map(RideMapper::fromDriverDistanceProjection)
-                .toList();
+        List<Driver> drivers = driverRepository.findAllById(candidates
+                .stream()
+                .map(DriverDistanceProjection::getId)
+                .toList());
 
         for(Driver driver: drivers ){
 
@@ -70,7 +73,7 @@ public class RideMatchingService {
 
             if(!isLocked) continue;
 
-            boolean isAccepted = kafkaProducer.sendRideRequestToDriver();
+
 
         }
 

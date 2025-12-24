@@ -55,9 +55,4 @@ public class KafkaProducer {
 
   }
 
-  public void sendRideRequestToDriver(DriverRideRequest message){
-
-    kafkaTemplate.send
-
-  }
 }
