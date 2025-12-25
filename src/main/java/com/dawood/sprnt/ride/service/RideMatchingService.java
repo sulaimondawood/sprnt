@@ -6,13 +6,17 @@ import com.dawood.sprnt.driver.model.Driver;
 import com.dawood.sprnt.driver.model.DriverAvailabilityStatus;
 import com.dawood.sprnt.driver.repository.DriverRepository;
 import com.dawood.sprnt.ride.api.dto.DriverRideRequest;
-import com.dawood.sprnt.ride.exception.DriverNotFoundException;
+import com.dawood.sprnt.ride.exception.RideNotFoundException;
 import com.dawood.sprnt.ride.model.Ride;
+import com.dawood.sprnt.ride.model.RideCancelledTask;
 import com.dawood.sprnt.ride.model.RideStatus;
 import com.dawood.sprnt.ride.repository.RideRepository;
+import com.dawood.sprnt.ride.scheduler.RideTimeoutScheduler;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Point;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,11 +28,14 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class RideMatchingService {
 
     private final RideRepository rideRepository;
     private final DriverRepository driverRepository;
     private final KafkaProducer kafkaProducer;
+    private final RideTimeoutScheduler rideTimeoutScheduler;
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
     @Transactional
     public void findAndDispatch(Ride ride, double[] expandSteps, int limit){
@@ -48,11 +55,12 @@ public class RideMatchingService {
             List<DriverDistanceProjection>  candidates = driverRepository.findNearestDrivers(lng,lat,expansion,limit);
 
             List<DriverDistanceProjection> validCandidates = candidates.stream()
-                    .filter(candidate->rejectedDriversIds.contains(candidate.getId()))
+                    .filter(candidate->!rejectedDriversIds.contains(candidate.getId()))
                     .toList();
 
             if(!validCandidates.isEmpty()){
                 dispatchToBestDriver(ride,rankDrivers(validCandidates));
+                return;
             }
 
         }
@@ -75,21 +83,23 @@ public class RideMatchingService {
     }
 
 
-
     public void dispatchToBestDriver(Ride ride, List<DriverDistanceProjection> candidates){
 
         for(DriverDistanceProjection candidate: candidates ){
             boolean isLocked = lockDriver(candidate.getId());
 
             if(isLocked){
-                sendRideRequestToDriver(ride, candidate);
                 Driver driver = driverRepository.findById(candidate.getId())
-                                .orElseThrow(DriverNotFoundException::new);
+                                .orElseThrow(RideNotFoundException::new);
 
                 ride.setDriver(driver);
                 ride.setRideStatus(RideStatus.REQUESTED);
                 rideRepository.save(ride);
 
+                //Schedule timeout for 15secs
+               RideCancelledTask task = rideTimeoutScheduler.scheduleTimeout(ride.getId(),driver.getId());
+
+               sendRideRequestToDriver(ride, candidate, task.getProcessAt());
                 return;
             }
 
@@ -98,20 +108,43 @@ public class RideMatchingService {
         return;
     }
 
-    private void sendRideRequestToDriver(Ride ride, DriverDistanceProjection driverDistanceProjection){
+    private void sendRideRequestToDriver(Ride ride,
+                                         DriverDistanceProjection driverDistanceProjection,
+                                         LocalDateTime expiresAt){
+
+        UUID driverId = driverDistanceProjection.getId();
 
         DriverRideRequest request = new DriverRideRequest();
-        request.setDriverId(driverDistanceProjection.getId());
+        request.setDriverId(driverId);
         request.setRideId(ride.getId());
         request.setPickupLocation(ride.getPickupLocation().getCoords());
         request.setEstimatedFare(BigDecimal.valueOf(5000));
+        request.setExpiresAt(expiresAt);
 
-        request.setExpiresAt(LocalDateTime.now().plusSeconds(15));
-
-        kafkaProducer.sendRideRequestToDriver(request);
+        simpMessagingTemplate.convertAndSendToUser(
+                driverId.toString(),
+                "/queue/ride-request",
+                request
+                 );
 
     }
 
+    @Transactional
+    public void handleDriverRejectOrTimeout(UUID rideId, UUID driverId){
+        log.info("Driver {} rejected/timed-out for Ride {}", driverId, rideId);
+
+        Ride ride = rideRepository.findById(rideId).orElseThrow(RideNotFoundException::new);
+
+        //Free Driver for future ride request
+        driverRepository.updateDriverAvailabilityStatus(DriverAvailabilityStatus.ONLINE, driverId);
+
+        ride.getRejectedDrivers().add(driverId);
+        ride.setDriver(null);
+        rideRepository.save(ride);
+
+        findAndDispatch(ride,null,10);
+
+    }
 
     protected boolean lockDriver(UUID driverId){
         try{

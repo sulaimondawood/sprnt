@@ -69,11 +69,4 @@ public class KafkaConsumer {
     rideMatchingService.findAndDispatch(ride,null,10);
   }
 
-  @KafkaListener(topics = KafkaConfig.RIDE_REQUEST_TO_DRIVER, groupId = "driver-ride-request-group")
-  public void consumeRideRequestToDriver(DriverRideRequest message){
-
-//      WEB SOCKET NOTIFICATION
-
-
-  }
 }
