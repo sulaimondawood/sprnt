@@ -1,5 +1,6 @@
 package com.dawood.sprnt.common.service;
 
+import com.dawood.sprnt.ride.api.dto.DriverRideRequest;
 import com.dawood.sprnt.ride.event.CreateRideEvent;
 import com.dawood.sprnt.ride.model.Ride;
 import com.dawood.sprnt.ride.service.RideMatchingService;
@@ -65,7 +66,13 @@ public class KafkaConsumer {
   public  void consumeCreateRideRequest(CreateRideEvent message){
 
     Ride ride = message.getRide();
-
     rideMatchingService.getNearestDriversAndMatch(ride,null,10);
+  }
+
+  @KafkaListener(topics = KafkaConfig.RIDE_REQUEST_TO_DRIVER, groupId = "driver-ride-request-group")
+  public void consumeRideRequestToDriver(DriverRideRequest message){
+
+
+
   }
 }

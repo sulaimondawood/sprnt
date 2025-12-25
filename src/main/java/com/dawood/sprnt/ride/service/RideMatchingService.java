@@ -102,7 +102,7 @@ public class RideMatchingService {
 
         request.setExpiresAt(LocalDateTime.now().plusSeconds(15));
 
-        kafkaProducer.send
+        kafkaProducer.sendRideRequestToDriver(request);
 
     }
 

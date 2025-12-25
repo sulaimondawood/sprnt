@@ -2,6 +2,7 @@ package com.dawood.sprnt.common.service;
 
 import com.dawood.sprnt.common.config.KafkaConfig;
 import com.dawood.sprnt.identity.api.dto.UserAccountDTO;
+import com.dawood.sprnt.ride.api.dto.DriverRideRequest;
 import com.dawood.sprnt.ride.event.CreateRideEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,4 +51,17 @@ public class KafkaProducer {
 
   }
 
+  public void sendRideRequestToDriver(DriverRideRequest request){
+
+    CompletableFuture<SendResult<String, Object>> future=  kafkaTemplate.send(KafkaConfig.RIDE_REQUEST_TO_DRIVER, request);
+
+    future.whenComplete((result, err)->{
+      if(err==null){
+        log.info("Ride request sent to driver: {}", request.getDriverId());
+      }else {
+        log.error("Failed to send message: {}", err.getMessage());
+      }
+    });
+
+  }
 }
