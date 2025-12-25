@@ -8,6 +8,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -44,6 +45,9 @@ public class Ride {
 
     @ManyToOne
     private Driver driver;
+
+    @Column(name = "driver_id")
+    private List<UUID> rejectedDrivers;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)

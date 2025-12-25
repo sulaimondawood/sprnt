@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Table(
-        name = "ride_cancelled_timeout",
+        name = "ride_cancelled_timeouts",
         indexes = @Index(name = "idx_ride_cancelled_timeout",columnList = "status, process_at")
 )
 @Entity

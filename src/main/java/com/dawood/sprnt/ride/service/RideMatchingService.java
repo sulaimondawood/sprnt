@@ -30,7 +30,10 @@ public class RideMatchingService {
     private final DriverRepository driverRepository;
     private final KafkaProducer kafkaProducer;
 
-    public List<DriverDistanceProjection> getNearestDriversAndMatch(Ride ride, double[] expandSteps, int limit){
+    @Transactional
+    public void findAndDispatch(Ride ride, double[] expandSteps, int limit){
+
+        List<UUID> rejectedDriversIds = ride.getRejectedDrivers();
 
         Point point = ride.getPickupLocation().getCoords();
 
@@ -42,15 +45,22 @@ public class RideMatchingService {
 
         for(double expansion: expansionProgression){
 
-            List<DriverDistanceProjection> foundDrivers = driverRepository.findNearestDrivers(lng,lat,expansion,limit);
+            List<DriverDistanceProjection>  candidates = driverRepository.findNearestDrivers(lng,lat,expansion,limit);
 
-            if(!foundDrivers.isEmpty()){
-                return  foundDrivers;
+            List<DriverDistanceProjection> validCandidates = candidates.stream()
+                    .filter(candidate->rejectedDriversIds.contains(candidate.getId()))
+                    .toList();
+
+            if(!validCandidates.isEmpty()){
+                dispatchToBestDriver(ride,rankDrivers(validCandidates));
             }
 
         }
 
-        return List.of();
+//       handle no driver found here
+//       handle no driver found here
+//       handle no driver found here
+//       handle no driver found here
 
     }
 
@@ -66,30 +76,26 @@ public class RideMatchingService {
 
 
 
-    public boolean dispatchToBestDriver(Ride ride, List<DriverDistanceProjection> candidates){
+    public void dispatchToBestDriver(Ride ride, List<DriverDistanceProjection> candidates){
 
         for(DriverDistanceProjection candidate: candidates ){
             boolean isLocked = lockDriver(candidate.getId());
 
             if(isLocked){
                 sendRideRequestToDriver(ride, candidate);
-
                 Driver driver = driverRepository.findById(candidate.getId())
-                                .orElseThrow(()->new DriverNotFoundException());
+                                .orElseThrow(DriverNotFoundException::new);
 
                 ride.setDriver(driver);
                 ride.setRideStatus(RideStatus.REQUESTED);
-
                 rideRepository.save(ride);
 
-                return  true;
+                return;
             }
-
 
         }
 
-        return  false;
-
+        return;
     }
 
     private void sendRideRequestToDriver(Ride ride, DriverDistanceProjection driverDistanceProjection){
@@ -106,7 +112,7 @@ public class RideMatchingService {
 
     }
 
-    @Transactional
+
     protected boolean lockDriver(UUID driverId){
         try{
         driverRepository.updateDriverAvailabilityStatus(DriverAvailabilityStatus.RESERVED,driverId);
