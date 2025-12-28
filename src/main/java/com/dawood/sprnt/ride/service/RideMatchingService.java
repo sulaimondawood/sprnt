@@ -140,6 +140,7 @@ public class RideMatchingService {
 
         ride.getRejectedDrivers().add(driverId);
         ride.setDriver(null);
+        ride.setRideStatus(RideStatus.SEARCHING);
         rideRepository.save(ride);
 
         findAndDispatch(ride,null,10);

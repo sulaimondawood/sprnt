@@ -1,5 +1,6 @@
 package com.dawood.sprnt.common.exception;
 
+import com.dawood.sprnt.ride.exception.RideException;
 import com.dawood.sprnt.ride.exception.RideNotFoundException;
 import com.dawood.sprnt.rider.exception.RiderException;
 import org.springframework.http.HttpStatus;
@@ -19,6 +20,23 @@ import lombok.extern.slf4j.Slf4j;
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
+
+  @ExceptionHandler(RideException.class)
+  public ResponseEntity<ErrorResponse> rideExceptionHandler(RideException ex,
+                                                                      HttpServletRequest request) {
+
+    ErrorResponse errorResponse = ErrorResponse.builder()
+        .status(HttpStatus.BAD_REQUEST.value())
+        .path(request.getRequestURI())
+        .message(ex.getMessage())
+        .error(HttpStatus.BAD_REQUEST.name())
+        .build();
+
+    log.error(ex.getMessage(), ex);
+
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+
+  }
 
   @ExceptionHandler(RideNotFoundException.class)
   public ResponseEntity<ErrorResponse> driverNotFoundExceptionHandler(RideNotFoundException ex,

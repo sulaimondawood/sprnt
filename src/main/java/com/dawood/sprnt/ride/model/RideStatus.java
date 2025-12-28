@@ -2,6 +2,9 @@ package com.dawood.sprnt.ride.model;
 
 
 public enum RideStatus {
+
+    SEARCHING,
+
     REQUESTED,
 
     NO_DRIVER_FOUND,

@@ -25,14 +25,14 @@ public class RideTimeoutScheduler {
     private final RideRepository rideRepository;
     private final RideMatchingService rideMatchingService;
 
-    public RideCancelledTask scheduleTimeout(UUID rideId, UUID driverId){
+    public RideCancelledTask scheduleTimeout(UUID rideId, UUID driverId) {
         RideCancelledTask task = new RideCancelledTask();
         task.setRideId(rideId);
         task.setDriverId(driverId);
         task.setStatus(TaskStatus.PENDING);
         task.setProcessAt(LocalDateTime.now().plusSeconds(15));
 
-       return rideCancelledTaskRepository.save(task);
+        return rideCancelledTaskRepository.save(task);
     }
 
     @Scheduled(fixedDelay = 1000)
@@ -50,7 +50,9 @@ public class RideTimeoutScheduler {
 
             try {
 
-                if (ride == null) {
+                if (ride == null ||
+                        task.getStatus().equals(TaskStatus.PROCESSED) ||
+                        task.getStatus().equals(TaskStatus.CANCELLED)) {
                     task.setStatus(TaskStatus.PROCESSED);
                     continue;
                 }

@@ -49,6 +49,8 @@ public class Ride {
     @Column(name = "driver_id")
     private List<UUID> rejectedDrivers;
 
+    private LocalDateTime acceptedAt;
+
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
