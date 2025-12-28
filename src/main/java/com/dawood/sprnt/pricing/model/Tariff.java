@@ -1,22 +1,18 @@
 package com.dawood.sprnt.pricing.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.dawood.sprnt.ride.model.RideType;
+import jakarta.persistence.*;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
-@Table
+@Table(name = "tariffs", uniqueConstraints = {@UniqueConstraint(columnNames = {"city", "ride_type"})})
 @Getter
 @Setter
 @NoArgsConstructor
+@Builder
 @AllArgsConstructor
 public class Tariff {
 
@@ -26,14 +22,20 @@ public class Tariff {
 
     private String city;
 
-    private String rideType;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private RideType rideType;
 
+    @Column(nullable = false)
     private BigDecimal baseFare;
 
+    @Column(nullable = false)
     private BigDecimal perKmRate;
 
+    @Column(nullable = false)
     private BigDecimal perMinuteRate;
 
+    @Column(nullable = false)
     private BigDecimal minimumFare;
 
 }

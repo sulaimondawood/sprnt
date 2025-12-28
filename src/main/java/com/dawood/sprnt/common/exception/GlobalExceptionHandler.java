@@ -1,5 +1,6 @@
 package com.dawood.sprnt.common.exception;
 
+import com.dawood.sprnt.pricing.exception.TariffNotFoundException;
 import com.dawood.sprnt.ride.exception.RideException;
 import com.dawood.sprnt.ride.exception.RideNotFoundException;
 import com.dawood.sprnt.rider.exception.RiderException;
@@ -38,6 +39,22 @@ public class GlobalExceptionHandler {
 
   }
 
+  @ExceptionHandler(TariffNotFoundException.class)
+  public ResponseEntity<ErrorResponse> tariffNotFoundExceptionHandler(TariffNotFoundException ex,
+                                                                      HttpServletRequest request) {
+
+    ErrorResponse errorResponse = ErrorResponse.builder()
+        .status(HttpStatus.NOT_FOUND.value())
+        .path(request.getRequestURI())
+        .message(ex.getMessage())
+        .error(HttpStatus.NOT_FOUND.name())
+        .build();
+
+    log.error(ex.getMessage(), ex);
+
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+
+  }
   @ExceptionHandler(RideNotFoundException.class)
   public ResponseEntity<ErrorResponse> driverNotFoundExceptionHandler(RideNotFoundException ex,
                                                                       HttpServletRequest request) {
