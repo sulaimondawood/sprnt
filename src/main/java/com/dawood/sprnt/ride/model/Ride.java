@@ -7,6 +7,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -39,6 +40,10 @@ public class Ride {
 
     @Enumerated(EnumType.STRING)
     private RideStatus rideStatus;
+
+    private BigInteger estimatedFare;
+
+    private Currency currency = Currency.NGN;
 
     @ManyToOne
     private Rider rider;

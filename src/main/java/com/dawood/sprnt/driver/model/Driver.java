@@ -69,8 +69,6 @@ public class Driver {
   @Column(columnDefinition = "geography(Point,4326)")
   private Point location;
 
-
-
   @OneToOne
   private User user;
 

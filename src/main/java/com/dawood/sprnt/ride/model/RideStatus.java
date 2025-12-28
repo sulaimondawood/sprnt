@@ -11,6 +11,7 @@ public enum RideStatus {
 
     DRIVER_ASSIGNED,
     DRIVER_ACCEPTED,
+    DRIVER_REJECTED,
     DRIVER_EN_ROUTE,
     DRIVER_ARRIVED,
 
