@@ -19,6 +19,8 @@ import org.locationtech.jts.geom.Point;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -38,7 +40,7 @@ public class RideMatchingService {
     private final SimpMessagingTemplate simpMessagingTemplate;
 
     @Transactional
-    public void findAndDispatch(Ride ride, double[] expandSteps, int limit){
+    public void findAndDispatch(Ride ride, double[] expandSteps, int limit) {
 
         List<UUID> rejectedDriversIds = ride.getRejectedDrivers();
 
@@ -48,19 +50,19 @@ public class RideMatchingService {
         double lng = coords.getX();
         double lat = coords.getY();
 
-        double[] expansionProgression = expandSteps != null? expandSteps: new double[]{0.002,0.005,0.01};
+        double[] expansionProgression = expandSteps != null ? expandSteps : new double[]{0.002, 0.005, 0.01};
 
-        for(double expansion: expansionProgression){
+        for (double expansion : expansionProgression) {
 
-            List<DriverDistanceProjection>  candidates = driverRepository.findNearestDrivers(lng,lat,expansion,limit);
+            List<DriverDistanceProjection> candidates = driverRepository.findNearestDrivers(lng, lat, expansion, limit);
 
             List<DriverDistanceProjection> validCandidates = candidates.stream()
-                    .filter(candidate->!rejectedDriversIds.contains(candidate.getId()))
+                    .filter(candidate -> !rejectedDriversIds.contains(candidate.getId()))
                     .toList();
 
-            if(!validCandidates.isEmpty()){
-                dispatchToBestDriver(ride,rankDrivers(validCandidates));
-                return;
+            if (!validCandidates.isEmpty()) {
+                boolean dispatched = dispatchToBestDriver(ride, rankDrivers(validCandidates));
+                if (dispatched) return;
             }
 
         }
@@ -72,9 +74,9 @@ public class RideMatchingService {
 
     }
 
-    public List<DriverDistanceProjection> rankDrivers(List<DriverDistanceProjection> candidates ){
+    public List<DriverDistanceProjection> rankDrivers(List<DriverDistanceProjection> candidates) {
 
-        return  candidates.stream().sorted(Comparator.
+        return candidates.stream().sorted(Comparator.
                 comparingDouble(DriverDistanceProjection::getDistance)
                 .thenComparing(Comparator.comparingDouble(DriverDistanceProjection::getRating).reversed())
                 .thenComparing(Comparator.comparingLong(DriverDistanceProjection::getTotalCompletedTrips).reversed())
@@ -83,34 +85,41 @@ public class RideMatchingService {
     }
 
 
-    public void dispatchToBestDriver(Ride ride, List<DriverDistanceProjection> candidates){
+    public boolean dispatchToBestDriver(Ride ride, List<DriverDistanceProjection> candidates) {
 
-        for(DriverDistanceProjection candidate: candidates ){
+        for (DriverDistanceProjection candidate : candidates) {
             boolean isLocked = lockDriver(candidate.getId());
 
-            if(isLocked){
+            if (isLocked) {
                 Driver driver = driverRepository.findById(candidate.getId())
-                                .orElseThrow(RideNotFoundException::new);
+                        .orElseThrow(RideNotFoundException::new);
 
                 ride.setDriver(driver);
                 ride.setRideStatus(RideStatus.REQUESTED);
                 rideRepository.save(ride);
 
                 //Schedule timeout for 15secs
-               RideCancelledTask task = rideTimeoutScheduler.scheduleTimeout(ride.getId(),driver.getId());
+                RideCancelledTask task = rideTimeoutScheduler.scheduleTimeout(ride.getId(), driver.getId());
 
-               sendRideRequestToDriver(ride, candidate, task.getProcessAt());
-                return;
+                TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                    @Override
+                    public void afterCommit() {
+                        sendRideRequestToDriver(ride, candidate, task.getProcessAt());
+
+                    }
+                });
+                return true;
+
             }
 
         }
 
-        return;
+        return false;
     }
 
     private void sendRideRequestToDriver(Ride ride,
                                          DriverDistanceProjection driverDistanceProjection,
-                                         LocalDateTime expiresAt){
+                                         LocalDateTime expiresAt) {
 
         UUID driverId = driverDistanceProjection.getId();
 
@@ -118,19 +127,19 @@ public class RideMatchingService {
         request.setDriverId(driverId);
         request.setRideId(ride.getId());
         request.setPickupLocation(ride.getPickupLocation().getCoords());
-        request.setEstimatedFare(BigDecimal.valueOf(5000));
+        request.setEstimatedFare(ride.getEstimatedFare());
         request.setExpiresAt(expiresAt);
 
         simpMessagingTemplate.convertAndSendToUser(
-                driverId.toString(),
+                ride.getDriver().getUser().getEmail(),
                 "/queue/ride-request",
                 request
-                 );
+        );
 
     }
 
     @Transactional
-    public void handleDriverRejectOrTimeout(UUID rideId, UUID driverId){
+    public void handleDriverRejectOrTimeout(UUID rideId, UUID driverId) {
         log.info("Driver {} rejected/timed-out for Ride {}", driverId, rideId);
 
         Ride ride = rideRepository.findById(rideId).orElseThrow(RideNotFoundException::new);
@@ -143,16 +152,31 @@ public class RideMatchingService {
         ride.setRideStatus(RideStatus.SEARCHING);
         rideRepository.save(ride);
 
-        findAndDispatch(ride,null,10);
+        findAndDispatch(ride, null, 10);
 
     }
 
-    protected boolean lockDriver(UUID driverId){
-        try{
-        driverRepository.updateDriverAvailabilityStatus(DriverAvailabilityStatus.RESERVED,driverId);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
+    private void handleNoDriverFound(Ride ride) {
+        log.info("No drivers found for ride {}", ride.getId());
+
+
+        ride.setRideStatus(RideStatus.NO_DRIVER_FOUND);
+        ride.setDriver(null);
+        rideRepository.save(ride);
+
+        simpMessagingTemplate.convertAndSendToUser(
+                ride.getRider().getUser().getEmail(),
+                "/queue/no-driver-found",
+                "No drivers available at the moment."
+        );
+    }
+
+    protected boolean lockDriver(UUID driverId) {
+        int rowsUpdated = driverRepository.updateDriverAvailabilityStatus(
+                DriverAvailabilityStatus.RESERVED,
+                driverId
+        );
+        return rowsUpdated > 0;
+
     }
 }

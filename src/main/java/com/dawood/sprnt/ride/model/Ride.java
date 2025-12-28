@@ -10,6 +10,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -58,8 +59,10 @@ public class Ride {
     @ManyToOne
     private Driver driver;
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "ride_rejected_drivers", joinColumns = @JoinColumn(name = "ride_id"))
     @Column(name = "driver_id")
-    private List<UUID> rejectedDrivers;
+    private List<UUID> rejectedDrivers = new ArrayList<>();
 
     private LocalDateTime acceptedAt;
 
