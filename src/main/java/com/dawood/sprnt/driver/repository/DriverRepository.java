@@ -49,5 +49,7 @@ public interface DriverRepository extends JpaRepository<Driver, UUID> {
     int updateDriverAvailabilityStatus(@Param("status") DriverAvailabilityStatus status,
                                           @Param("driverId") UUID driverId);
 
+    boolean existsByUser(User user);
+
 }
 

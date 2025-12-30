@@ -1,20 +1,15 @@
 package com.dawood.sprnt.vehicle.model;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
-
 import jakarta.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
-@Table(name = "vehicles")
+@Table(name = "vehicles_documents")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -38,7 +33,7 @@ public class VehicleDocument {
 
   private LocalDateTime expiresAt;
 
-  @OneToOne(mappedBy = "vehicleDocument")
+  @ManyToOne(fetch = FetchType.LAZY)
   private Vehicle vehicle;
 
   @CreationTimestamp

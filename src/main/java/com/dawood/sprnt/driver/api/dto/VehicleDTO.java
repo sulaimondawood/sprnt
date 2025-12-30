@@ -7,6 +7,8 @@ import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 public class VehicleDTO {
@@ -32,6 +34,7 @@ public class VehicleDTO {
     private VehicleType type;
 
     @Valid
-    private VehicleDocumentDTO vehicleDocument;
+    @NotEmpty(message = "Vehicle document is required")
+    private List<VehicleDocumentDTO> vehicleDocument;
 
 }

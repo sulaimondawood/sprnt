@@ -2,11 +2,14 @@ package com.dawood.sprnt.driver.api.dto;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class OnboardingRequest {
 
-    private String displayName;
-
+    @NotBlank(message = "A clear driver profile photo is required for verification")
     private String profileImage;
 
     @NotBlank(message = "Enter your license number")
