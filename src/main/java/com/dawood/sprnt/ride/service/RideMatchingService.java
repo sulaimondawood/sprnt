@@ -39,7 +39,7 @@ public class RideMatchingService {
     private final RideTimeoutScheduler rideTimeoutScheduler;
     private final SimpMessagingTemplate simpMessagingTemplate;
 
-    @Transactional
+
     public void findAndDispatch(Ride ride, double[] expandSteps, int limit) {
 
         List<UUID> rejectedDriversIds = ride.getRejectedDrivers();
@@ -67,10 +67,7 @@ public class RideMatchingService {
 
         }
 
-//       handle no driver found here
-//       handle no driver found here
-//       handle no driver found here
-//       handle no driver found here
+        handleNoDriverFound(ride);
 
     }
 
@@ -138,7 +135,7 @@ public class RideMatchingService {
 
     }
 
-    @Transactional
+
     public void handleDriverRejectOrTimeout(UUID rideId, UUID driverId) {
         log.info("Driver {} rejected/timed-out for Ride {}", driverId, rideId);
 

@@ -9,6 +9,7 @@ import com.dawood.sprnt.ride.repository.RideRepository;
 import com.dawood.sprnt.ride.service.RideMatchingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -21,9 +22,19 @@ import java.util.UUID;
 @Slf4j
 public class RideTimeoutScheduler {
 
-    private final RideCancelledTaskRepository rideCancelledTaskRepository;
-    private final RideRepository rideRepository;
-    private final RideMatchingService rideMatchingService;
+    private RideMatchingService rideMatchingService;
+    private RideRepository rideRepository;
+    private RideCancelledTaskRepository rideCancelledTaskRepository;
+
+    public RideTimeoutScheduler(
+            RideCancelledTaskRepository rideCancelledTaskRepository,
+            RideRepository rideRepository,
+            @Lazy RideMatchingService rideMatchingService
+    ){
+        this.rideCancelledTaskRepository = rideCancelledTaskRepository;
+        this.rideRepository= rideRepository;
+        this.rideMatchingService=rideMatchingService;
+    }
 
     public RideCancelledTask scheduleTimeout(UUID rideId, UUID driverId) {
         RideCancelledTask task = new RideCancelledTask();
