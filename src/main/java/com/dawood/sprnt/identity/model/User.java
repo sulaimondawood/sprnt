@@ -35,8 +35,6 @@ public class User {
 
   private String password;
 
-  private boolean active;
-
   private LocalDateTime lastLogin;
 
   @Enumerated(EnumType.STRING)

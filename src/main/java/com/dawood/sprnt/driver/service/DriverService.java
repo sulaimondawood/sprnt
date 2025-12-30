@@ -31,6 +31,11 @@ public class DriverService {
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final RideMatchingService rideMatchingService;
 
+
+    public void completeOnboarding(){
+
+    }
+
     @Transactional
     public void driverAcceptsRequest(UUID rideId){
 

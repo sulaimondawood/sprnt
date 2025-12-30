@@ -45,10 +45,12 @@ public class IdentityService {
   private final RiderRepository riderRepository;
   private final DriverRepository driverRepository;
 
+  @Transactional
   public RegisterResponseDTO createDriverAccount(RegisterRequestDTO request) {
     return createAccount(request, Role.DRIVER);
   }
 
+  @Transactional
   public RegisterResponseDTO createRiderAccount(RegisterRequestDTO request) {
     return createAccount(request, Role.RIDER);
   }
@@ -66,12 +68,11 @@ public class IdentityService {
 
     User existingUser = existingToken.getUser();
 
-    if (existingUser.isActive() && existingUser.getStatus().equals(Status.ACTIVE)) {
+    if (existingUser.getStatus().equals(Status.ACTIVE)) {
       tokenRepository.delete(existingToken);
       throw new TokenException("Account already verified");
     }
 
-    existingUser.setActive(true);
     existingUser.setStatus(Status.ACTIVE);
 
     existingToken.setUser(null);
@@ -91,7 +92,7 @@ public class IdentityService {
       throw new IdentityException("Email or password is incorrect");
     }
 
-    if (!user.isActive() || user.getStatus().equals(Status.UNVERIFIED)) {
+    if (user.getStatus().equals(Status.UNVERIFIED)) {
       throw new IdentityException("Your account is unverified");
     }
 
@@ -135,7 +136,6 @@ public class IdentityService {
     return response;
   }
 
-
   public User getCurrentLoggedInUser(){
     String username = SecurityContextHolder.getContext()
             .getAuthentication()
@@ -150,7 +150,6 @@ public class IdentityService {
             .orElseThrow(UserNotFoundException::new);
   }
 
-  @Transactional
   protected RegisterResponseDTO createAccount(RegisterRequestDTO request, Role role) {
     if (userRepository.existsByEmailIgnoreCase(request.getEmail())) {
       throw new UserAlreadyExistsException();
@@ -160,7 +159,6 @@ public class IdentityService {
         .fullname(request.getFullname())
         .email(request.getEmail())
         .password(passwordEncoder.encode(request.getPassword()))
-        .active(false)
         .status(Status.UNVERIFIED)
         .role(Role.DRIVER)
         .build();

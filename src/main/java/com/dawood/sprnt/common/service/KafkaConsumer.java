@@ -34,7 +34,6 @@ public class KafkaConsumer {
   public void consumeSendAccountActivationEmail(UserAccountDTO message) {
 
     try {
-
       log.info("Email service group subscribes to the published event");
 
       String token = message.getToken();
