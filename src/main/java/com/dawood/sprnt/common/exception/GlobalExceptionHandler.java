@@ -1,5 +1,6 @@
 package com.dawood.sprnt.common.exception;
 
+import com.dawood.sprnt.identity.exception.IdentityException;
 import com.dawood.sprnt.pricing.exception.TariffNotFoundException;
 import com.dawood.sprnt.ride.exception.RideException;
 import com.dawood.sprnt.ride.exception.RideNotFoundException;
@@ -136,6 +137,22 @@ public class GlobalExceptionHandler {
 
   }
 
+  @ExceptionHandler(IdentityException.class)
+  public ResponseEntity<ErrorResponse> handleIdentityException(IdentityException ex,
+      HttpServletRequest request) {
+
+    ErrorResponse errorResponse = ErrorResponse.builder()
+        .status(HttpStatus.BAD_REQUEST.value())
+        .path(request.getRequestURI())
+        .message(ex.getMessage())
+        .error(HttpStatus.BAD_REQUEST.name())
+        .build();
+
+    log.error(ex.getMessage(), ex);
+
+    return ResponseEntity.badRequest().body(errorResponse);
+
+  }
   @ExceptionHandler(UserAlreadyExistsException.class)
   public ResponseEntity<ErrorResponse> handleUserAlreadyExistsException(UserAlreadyExistsException ex,
       HttpServletRequest request) {
@@ -159,7 +176,7 @@ public class GlobalExceptionHandler {
     ErrorResponse errorResponse = ErrorResponse.builder()
         .status(HttpStatus.BAD_REQUEST.value())
         .path(request.getRequestURI())
-        .message(ex.getMessage())
+        .message("Something went wrong")
         .error(HttpStatus.BAD_REQUEST.name())
         .build();
 

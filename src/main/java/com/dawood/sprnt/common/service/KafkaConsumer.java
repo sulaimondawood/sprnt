@@ -51,6 +51,8 @@ public class KafkaConsumer {
 
       context.setVariable("activationLink", activationUrl);
 
+      context.setVariable("expiresIn", "15mins");
+
       String emailBody = templateEngine.process("/account/email-verification.html", context);
 
       emailService.sendEmail(email, "Sprnt Account Activation", emailBody);
