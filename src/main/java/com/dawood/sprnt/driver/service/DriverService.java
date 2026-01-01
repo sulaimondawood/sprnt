@@ -1,11 +1,9 @@
 package com.dawood.sprnt.driver.service;
 
 import com.dawood.sprnt.driver.api.dto.OnboardingRequest;
+import com.dawood.sprnt.driver.api.dto.OnboardingResponse;
 import com.dawood.sprnt.driver.exception.DriverAlreadyExistsException;
-import com.dawood.sprnt.driver.model.Driver;
-import com.dawood.sprnt.driver.model.DriverAvailabilityStatus;
-import com.dawood.sprnt.driver.model.DriverKycStatus;
-import com.dawood.sprnt.driver.model.DriverStatus;
+import com.dawood.sprnt.driver.model.*;
 import com.dawood.sprnt.driver.repository.DriverRepository;
 import com.dawood.sprnt.identity.model.User;
 import com.dawood.sprnt.identity.service.IdentityService;
@@ -44,7 +42,7 @@ public class DriverService {
 
 
     @Transactional
-    public void completeOnboarding(OnboardingRequest  request){
+    public OnboardingResponse completeOnboarding(OnboardingRequest  request){
 
         User user = identityService.getCurrentLoggedInUser();
 
@@ -101,11 +99,29 @@ public class DriverService {
                     return  newVehicleDoc;
                 }).toList();
 
-        driverRepository.save(driver);
+     Driver savedDriver =  driverRepository.save(driver);
 
         vehicleRepository.save(vehicle);
 
         vehicleDocumentRepository.saveAll(vehicleDocuments);
+
+       return OnboardingResponse.builder()
+                .driverId(savedDriver.getId())
+                .kycStatus(savedDriver.getKycStatus())
+                .message("Application submitted successfully. We will review your documents shortly.")
+                .nextAction(determineNextAction(driver.getKycStatus()))
+                .build();
+
+    }
+
+    private String determineNextAction(DriverKycStatus status){
+
+        return switch (status) {
+            case PENDING -> NextActionStatus.WAITING_FOR_APPROVAL.name();
+            case REJECTED -> NextActionStatus.RESUBMIT_DOCUMENTS.name();
+            case VERIFIED -> NextActionStatus.GO_ONLINE.name();
+            default -> NextActionStatus.WAITING_FOR_APPROVAL.name();
+        };
 
     }
 
