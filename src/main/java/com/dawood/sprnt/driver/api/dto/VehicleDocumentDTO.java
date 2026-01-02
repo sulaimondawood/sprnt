@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -19,9 +19,9 @@ public class VehicleDocumentDTO {
     private String documentUrl;
 
     @NotNull(message = "Issued date is required")
-    private LocalDateTime issuedAt;
+    private LocalDate issuedAt;
 
     @NotNull(message = "Expiry date is required")
-    private LocalDateTime expiresAt;
+    private LocalDate expiresAt;
 
 }

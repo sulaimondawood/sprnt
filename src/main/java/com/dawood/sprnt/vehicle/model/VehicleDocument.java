@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -29,9 +30,9 @@ public class VehicleDocument {
   @Enumerated(EnumType.STRING)
   private VehicleDocumentStatus status;
 
-  private LocalDateTime issuedAt;
+  private LocalDate issuedAt;
 
-  private LocalDateTime expiresAt;
+  private LocalDate expiresAt;
 
   @ManyToOne(fetch = FetchType.LAZY)
   private Vehicle vehicle;

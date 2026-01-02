@@ -2,6 +2,7 @@ package com.dawood.sprnt.common.config;
 
 import java.util.List;
 
+import com.dawood.sprnt.identity.model.Role;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -32,6 +33,7 @@ public class SecurityConfig {
         .authorizeHttpRequests(authRequest -> authRequest
             .requestMatchers("/auth/**").permitAll()
             .requestMatchers("/email/**").permitAll()
+                .requestMatchers("/driver").hasRole(Role.DRIVER.name())
             .anyRequest().authenticated())
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
