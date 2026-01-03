@@ -7,6 +7,8 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
+
 @Getter
 @Setter
 public class DriverRequest {
@@ -17,7 +19,7 @@ public class DriverRequest {
   private String licenseNumber;
 
   @NotBlank(message = "Licesnse expiry date is required")
-  private String licenseExpiry;
+  private LocalDate licenseExpiry;
 
   @NotBlank(message = "NIN is required")
   private String nin;

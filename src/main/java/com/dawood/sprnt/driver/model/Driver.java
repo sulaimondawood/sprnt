@@ -1,5 +1,6 @@
 package com.dawood.sprnt.driver.model;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -46,7 +47,7 @@ public class Driver {
   private String licenseNumber;
 
   @Column(nullable = false)
-  private String licenseExpiry;
+  private LocalDate licenseExpiry;
 
   @Column(nullable = false, unique = true)
   private String nin;

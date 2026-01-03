@@ -4,6 +4,7 @@ import com.dawood.sprnt.common.dto.ApiResponse;
 import com.dawood.sprnt.driver.api.dto.OnboardingRequest;
 import com.dawood.sprnt.driver.api.dto.OnboardingResponse;
 import com.dawood.sprnt.driver.service.DriverService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,7 +20,7 @@ public class DriverController {
     private final DriverService driverService;
 
     @PostMapping("/onboard")
-    public ResponseEntity<ApiResponse<OnboardingResponse>> completeOnboarding(@RequestBody OnboardingRequest request){
+    public ResponseEntity<ApiResponse<OnboardingResponse>> completeOnboarding(@Valid @RequestBody OnboardingRequest request){
 
         return ApiResponse.created(
                 driverService.completeOnboarding(request),

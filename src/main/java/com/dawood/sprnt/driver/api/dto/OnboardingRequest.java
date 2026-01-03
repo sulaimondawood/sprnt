@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
+
 @Getter
 @Setter
 public class OnboardingRequest {
@@ -16,7 +18,7 @@ public class OnboardingRequest {
     private String licenseNumber;
 
     @NotBlank(message = "Enter your license expiry")
-    private String licenseExpiry;
+    private LocalDate licenseExpiry;
 
     @NotBlank(message = "Enter your nin")
     private String nin;
