@@ -1,7 +1,7 @@
 package com.dawood.sprnt.vehicle.model;
 
 public enum VehicleDocumentType {
-  INSURANCE,
+  INSURANCE_CERTIFICATE,
   ROAD_WORTHINESS,
-  REGISTRATION
+  VEHICLE_LICENSE
 }
