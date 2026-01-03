@@ -63,11 +63,15 @@ public class Rider {
 
   public void completeProfile(String imageUrl, String defaultLocation, String displayName){
 
-    this.status=RiderStatus.ACTIVE;
+    if (this.status == null) {
+      this.status = RiderStatus.ACTIVE;
+    }
+
     this.profileImage= imageUrl;
     this.defaultPickupLocation=defaultLocation;
     this.displayName=displayName;
     this.completedProfile=true;
+    this.totalRides=0;
 
   }
 }

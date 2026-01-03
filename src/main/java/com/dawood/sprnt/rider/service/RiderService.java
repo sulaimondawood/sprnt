@@ -10,6 +10,7 @@ import com.dawood.sprnt.rider.model.Rider;
 import com.dawood.sprnt.rider.repository.RiderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -21,6 +22,7 @@ public class RiderService {
     private final UserRepository userRepository;
 
 
+    @Transactional
     public ProfileResponseDTO completeProfileDTO(ProfileRequestDTO profileRequest){
 
         User currentUser = identityService.getCurrentLoggedInUser();
@@ -29,6 +31,7 @@ public class RiderService {
 
         if(rider == null){
             rider = new Rider();
+            rider.setUser(currentUser);
         }
 
         rider.completeProfile(
@@ -36,9 +39,9 @@ public class RiderService {
                 profileRequest.getDefaultPickupLocation(),
                 profileRequest.getDisplayName());
 
-        userRepository.save(currentUser);
+       Rider savedRider = riderRepository.save(rider);
 
-        return RiderMapper.toProfileResponse(rider);
+        return RiderMapper.toProfileResponse(savedRider);
     }
 
     public void createRideQuest(){

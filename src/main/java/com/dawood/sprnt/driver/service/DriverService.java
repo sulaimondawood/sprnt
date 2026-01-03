@@ -114,17 +114,6 @@ public class DriverService {
 
     }
 
-    private String determineNextAction(DriverKycStatus status){
-
-        return switch (status) {
-            case PENDING -> NextActionStatus.WAITING_FOR_APPROVAL.name();
-            case REJECTED -> NextActionStatus.RESUBMIT_DOCUMENTS.name();
-            case VERIFIED -> NextActionStatus.GO_ONLINE.name();
-            default -> NextActionStatus.WAITING_FOR_APPROVAL.name();
-        };
-
-    }
-
     @Transactional
     public void driverAcceptsRequest(UUID rideId){
 
@@ -174,4 +163,14 @@ public class DriverService {
 
     }
 
+    private String determineNextAction(DriverKycStatus status){
+
+        return switch (status) {
+            case PENDING -> NextActionStatus.WAITING_FOR_APPROVAL.name();
+            case REJECTED -> NextActionStatus.RESUBMIT_DOCUMENTS.name();
+            case VERIFIED -> NextActionStatus.GO_ONLINE.name();
+            default -> NextActionStatus.WAITING_FOR_APPROVAL.name();
+        };
+
+    }
 }
