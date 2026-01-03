@@ -32,7 +32,6 @@ public class JwtProvider {
       var token = JWT.create()
           .withIssuer("sprnt")
           .withSubject(subject)
-          .withClaim("claims", claims)
           .withIssuedAt(Instant.now())
           .withExpiresAt(Instant.now().plus(1, ChronoUnit.DAYS));
 
