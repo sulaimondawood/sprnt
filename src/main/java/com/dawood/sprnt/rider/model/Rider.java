@@ -3,6 +3,7 @@ package com.dawood.sprnt.rider.model;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.dawood.sprnt.ride.model.Location;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -39,7 +40,7 @@ public class Rider {
 
   private String profileImage;
 
-  private String defaultPickupLocation;
+  private Location defaultPickupLocation;
 
   private long totalRides;
 
@@ -61,7 +62,7 @@ public class Rider {
   @UpdateTimestamp
   private LocalDateTime updatedAt;
 
-  public void completeProfile(String imageUrl, String defaultLocation, String displayName){
+  public void completeProfile(String imageUrl, Location defaultLocation, String displayName){
 
     if (this.status == null) {
       this.status = RiderStatus.ACTIVE;

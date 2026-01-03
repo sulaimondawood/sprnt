@@ -11,7 +11,6 @@ import org.locationtech.jts.geom.Point;
 public class Location {
 
     @NotNull(message = "Coordinates is required")
-    @NotBlank(message =  "Coordinates is required")
     private Point coords;
 
     @NotBlank(message = "Descriptive address is required")

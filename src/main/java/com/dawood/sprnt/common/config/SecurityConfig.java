@@ -33,7 +33,8 @@ public class SecurityConfig {
         .authorizeHttpRequests(authRequest -> authRequest
             .requestMatchers("/auth/**").permitAll()
             .requestMatchers("/email/**").permitAll()
-                .requestMatchers("/driver").hasRole(Role.DRIVER.name())
+                .requestMatchers("/driver/**").hasRole(Role.DRIVER.name())
+                .requestMatchers("/rider/**").hasRole(Role.RIDER.name())
             .anyRequest().authenticated())
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
