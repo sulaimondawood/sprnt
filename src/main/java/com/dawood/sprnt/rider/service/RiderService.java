@@ -5,7 +5,10 @@ import com.dawood.sprnt.identity.model.Role;
 import com.dawood.sprnt.identity.model.User;
 import com.dawood.sprnt.identity.repository.UserRepository;
 import com.dawood.sprnt.identity.service.IdentityService;
+import com.dawood.sprnt.ride.api.dto.CreateRideRequest;
 import com.dawood.sprnt.ride.model.Location;
+import com.dawood.sprnt.ride.service.RideMatchingService;
+import com.dawood.sprnt.ride.service.RideService;
 import com.dawood.sprnt.rider.api.dto.ProfileRequestDTO;
 import com.dawood.sprnt.rider.api.dto.ProfileResponseDTO;
 import com.dawood.sprnt.rider.mapper.RiderMapper;
@@ -25,6 +28,7 @@ public class RiderService {
     private final RiderRepository riderRepository;
     private final IdentityService identityService;
     private final UserRepository userRepository;
+    private final RideService rideService
 
 
     @Transactional
@@ -62,8 +66,8 @@ public class RiderService {
         return RiderMapper.toProfileResponse(savedRider);
     }
 
-    public void createRideQuest() {
-
+    public void createRideQuest(CreateRideRequest request) {
+        rideService.createRideRequest(request);
     }
 
 
