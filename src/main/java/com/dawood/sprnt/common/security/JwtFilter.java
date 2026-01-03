@@ -83,7 +83,7 @@ public class JwtFilter extends OncePerRequestFilter {
     return request.getRequestURI().contains("/api/v1/email") || request.getRequestURI().contains("api/v1/auth");
   }
 
-  private void buildResponse(HttpServletResponse response, String message, HttpStatus status, String path)
+  public void buildResponse(HttpServletResponse response, String message, HttpStatus status, String path)
       throws JsonProcessingException, IOException {
 
     ErrorResponse error = new ErrorResponse();

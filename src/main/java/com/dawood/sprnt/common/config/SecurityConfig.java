@@ -5,6 +5,7 @@ import java.util.List;
 import com.dawood.sprnt.identity.model.Role;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -31,13 +32,28 @@ public class SecurityConfig {
         .csrf(csrf -> csrf.disable())
         .cors(cors -> cors.configurationSource(corsConfigurationSource()))
         .authorizeHttpRequests(authRequest -> authRequest
-            .requestMatchers("/auth/**").permitAll()
-            .requestMatchers("/email/**").permitAll()
+            .requestMatchers("/auth/**", "/email/**").permitAll()
+//            .requestMatchers("/email/**").permitAll()
                 .requestMatchers("/driver/**").hasRole(Role.DRIVER.name())
                 .requestMatchers("/rider/**").hasRole(Role.RIDER.name())
             .anyRequest().authenticated())
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+            .exceptionHandling(ex->ex
+                    .authenticationEntryPoint((request, response, authException) -> {
+                      jwtFilter.buildResponse(response,
+                              "You need to log in to access this resource",
+                              HttpStatus.UNAUTHORIZED,
+                              request.getRequestURI());
+                    })
+                    .accessDeniedHandler((request, response, accessDeniedException) -> {
+                      jwtFilter.buildResponse(response,
+                              "You do not have permission to perform this action",
+                              HttpStatus.FORBIDDEN,
+                              request.getRequestURI());
+                    })
+            )
+
         .build();
 
   }
