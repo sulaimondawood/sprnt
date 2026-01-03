@@ -33,8 +33,6 @@ public class RideService {
     @Transactional
     public CreateRideResponse createRideRequest(CreateRideRequest request) {
 
-        RideType rideType = request.getRideType() == null ? RideType.STANDARD : request.getRideType();
-
         User currenUser = identityService.getCurrentLoggedInUser();
 
         if (!currenUser.getRole().equals(Role.RIDER)) {
@@ -44,6 +42,8 @@ public class RideService {
         if (!currenUser.getRider().isCompletedProfile()) {
             throw new RiderException("Rider profile is incomplete. Kindly complete your profile setup");
         }
+
+        RideType rideType = request.getRideType() == null ? RideType.STANDARD : request.getRideType();
 
         Location pickupLocation = new Location();
         pickupLocation.setAddress(request.getPickupLocation().getAddress());

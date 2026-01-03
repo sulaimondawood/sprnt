@@ -1,6 +1,8 @@
 package com.dawood.sprnt.rider.api.controller;
 
 import com.dawood.sprnt.common.dto.ApiResponse;
+import com.dawood.sprnt.ride.api.dto.CreateRideRequest;
+import com.dawood.sprnt.ride.api.dto.CreateRideResponse;
 import com.dawood.sprnt.rider.api.dto.ProfileRequestDTO;
 import com.dawood.sprnt.rider.api.dto.ProfileResponseDTO;
 import com.dawood.sprnt.rider.service.RiderService;
@@ -23,10 +25,14 @@ public class RiderController {
     public ResponseEntity<ApiResponse<ProfileResponseDTO>> completeProfileSetup(@Valid
                                                                                 @RequestBody
                                                                                 ProfileRequestDTO request) {
-
-        return ApiResponse.created(
-                riderService.completeProfileDTO(request),
+        return ApiResponse.created(riderService.completeProfileDTO(request),
                 "Your profile setup was successful");
     }
+
+    public ResponseEntity<ApiResponse<CreateRideResponse>> createRideRequest(@Valid @RequestBody CreateRideRequest request){
+
+        return ApiResponse.created(riderService.createRideQuest(request),"Ride request was sent successfully");
+    }
+
 
 }
