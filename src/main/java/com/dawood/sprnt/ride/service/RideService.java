@@ -91,11 +91,11 @@ public class RideService {
         newRide.setEstimatedDurationMins(rideEstimate.getEstimatedDurationMins());
         newRide.setRider(currenUser.getRider());
 
-        rideRepository.save(newRide);
+        Ride savedRide = rideRepository.save(newRide);
 
-        applicationEventPublisher.publishEvent(new CreateRideEvent(newRide));
+        applicationEventPublisher.publishEvent(new CreateRideEvent(savedRide));
 
-        return RideMapper.toCreateRideResponse(newRide);
+        return RideMapper.toCreateRideResponse(savedRide);
 
     }
 
