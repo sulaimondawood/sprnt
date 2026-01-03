@@ -29,9 +29,11 @@ public class RiderController {
                 "Your profile setup was successful");
     }
 
-    public ResponseEntity<ApiResponse<CreateRideResponse>> createRideRequest(@Valid @RequestBody CreateRideRequest request){
+    @PostMapping("/create-ride-request")
+    public ResponseEntity<ApiResponse<CreateRideResponse>> createRideRequest(@Valid @RequestBody CreateRideRequest request) {
 
-        return ApiResponse.created(riderService.createRideQuest(request),"Ride request was sent successfully");
+        return ApiResponse.created(riderService.createRideQuest(request), "Ride request was sent successfully");
+
     }
 
 

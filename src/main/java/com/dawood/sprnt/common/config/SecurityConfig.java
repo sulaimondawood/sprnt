@@ -33,6 +33,7 @@ public class SecurityConfig {
         .cors(cors -> cors.configurationSource(corsConfigurationSource()))
         .authorizeHttpRequests(authRequest -> authRequest
             .requestMatchers("/auth/**", "/email/**").permitAll()
+                .requestMatchers("/ws/**").permitAll()
 //            .requestMatchers("/email/**").permitAll()
                 .requestMatchers("/driver/**").hasRole(Role.DRIVER.name())
                 .requestMatchers("/rider/**").hasRole(Role.RIDER.name())

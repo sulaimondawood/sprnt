@@ -4,5 +4,4 @@ public enum RideType {
     STANDARD,
     PREMIUM,
     SUV,
-    VAN
 }
