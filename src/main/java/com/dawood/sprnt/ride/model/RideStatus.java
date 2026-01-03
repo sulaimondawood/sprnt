@@ -15,7 +15,7 @@ public enum RideStatus {
     DRIVER_EN_ROUTE,
     DRIVER_ARRIVED,
 
-    IN_PROGRESS,
+    ON_TRIP,
     COMPLETED,
 
     RIDER_CANCELLED,

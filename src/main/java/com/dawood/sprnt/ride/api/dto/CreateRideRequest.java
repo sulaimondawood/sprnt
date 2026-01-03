@@ -10,10 +10,10 @@ import lombok.Setter;
 public class CreateRideRequest {
 
     @Valid
-    private Location pickupLocation;
+    private LocationDTO pickupLocation;
 
     @Valid
-    private Location dropoffLocation;
+    private LocationDTO dropoffLocation;
 
     private RideType rideType;
 }
