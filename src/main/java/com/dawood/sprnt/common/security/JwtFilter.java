@@ -35,14 +35,11 @@ public class JwtFilter extends OncePerRequestFilter {
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException {
 
-    String auth = request.getHeader(HttpHeaders.AUTHORIZATION);
+    String token = extractToken(request);
 
     try {
 
-      if (auth != null && auth.startsWith("Bearer ")) {
-
-        String token = auth.substring(7);
-
+      if (token != null) {
         // verify and decode
         DecodedJWT decodedJWT = jwtProvider.parseToken(token);
         String subject = decodedJWT.getSubject();
@@ -78,6 +75,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
   }
 
+
   @Override
   protected boolean shouldNotFilter(HttpServletRequest request) {
     return request.getRequestURI().contains("/api/v1/email") || request.getRequestURI().contains("api/v1/auth");
@@ -100,4 +98,20 @@ public class JwtFilter extends OncePerRequestFilter {
     response.getWriter().write(mapper.writeValueAsString(error));
   }
 
+  private String extractToken(HttpServletRequest request) {
+
+    String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+
+    if (authHeader != null && authHeader.startsWith("Bearer ")) {
+      return authHeader.substring(7);
+    }
+
+    String paramToken = request.getParameter("token");
+
+    if (paramToken != null) {
+      return paramToken;
+    }
+
+    return null;
+  }
 }

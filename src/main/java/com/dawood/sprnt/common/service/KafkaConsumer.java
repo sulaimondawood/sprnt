@@ -2,7 +2,9 @@ package com.dawood.sprnt.common.service;
 
 import com.dawood.sprnt.ride.api.dto.DriverRideRequest;
 import com.dawood.sprnt.ride.event.CreateRideEvent;
+import com.dawood.sprnt.ride.exception.RideNotFoundException;
 import com.dawood.sprnt.ride.model.Ride;
+import com.dawood.sprnt.ride.repository.RideRepository;
 import com.dawood.sprnt.ride.service.RideMatchingService;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Point;
@@ -29,6 +31,8 @@ public class KafkaConsumer {
   private final EmailService emailService;
   private final TemplateEngine templateEngine;
   private final RideMatchingService rideMatchingService;
+  private final RideRepository rideRepository;
+
 
   @KafkaListener(topics = KafkaConfig.EMAIL_TOPIC_NAME, groupId = "email-service-group")
   public void consumeSendAccountActivationEmail(UserAccountDTO message) {
@@ -63,10 +67,13 @@ public class KafkaConsumer {
 
   }
 
-  @KafkaListener(topics = KafkaConfig.RIDE_REQUEST_TOPIC, groupId = "ride-request-group")
+  @KafkaListener(topics = KafkaConfig.RIDE_REQUEST_TOPIC, groupId = "ride-request-grooup")
   public  void consumeCreateRideRequest(CreateRideEvent message){
 
-    Ride ride = message.getRide();
+
+    Ride ride = rideRepository.findById(message.getRideId())
+                    .orElseThrow(RideNotFoundException::new);
+
     rideMatchingService.findAndDispatch(ride,null,10);
   }
 

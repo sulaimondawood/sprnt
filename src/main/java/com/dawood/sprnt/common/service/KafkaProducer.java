@@ -41,7 +41,7 @@ public class KafkaProducer {
 
    future.whenComplete((result, err)->{
      if(err==null){
-       log.info("Ride {} - request message sent successfully", rideEvent.getRide().getId());
+       log.info("Ride {} - request message sent successfully", rideEvent.getRideId());
      }
      else{
        log.error("Failed to send ride request: ERROR({})", err.getMessage());

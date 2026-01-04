@@ -93,7 +93,7 @@ public class RideService {
 
         Ride savedRide = rideRepository.save(newRide);
 
-        applicationEventPublisher.publishEvent(new CreateRideEvent(savedRide));
+        applicationEventPublisher.publishEvent(new CreateRideEvent(savedRide.getId()));
 
         return RideMapper.toCreateRideResponse(savedRide);
 

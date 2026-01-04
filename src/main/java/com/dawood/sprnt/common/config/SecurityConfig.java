@@ -29,18 +29,18 @@ public class SecurityConfig {
   public SecurityFilterChain filterChain(HttpSecurity httpSecurity) {
 
     return httpSecurity
-        .csrf(csrf -> csrf.disable())
-        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-        .authorizeHttpRequests(authRequest -> authRequest
-            .requestMatchers("/auth/**", "/email/**").permitAll()
-                .requestMatchers("/ws/**").permitAll()
+            .csrf(csrf -> csrf.disable())
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .authorizeHttpRequests(authRequest -> authRequest
+                    .requestMatchers("/auth/**", "/email/**").permitAll()
+                    .requestMatchers("/ws/**").permitAll()
 //            .requestMatchers("/email/**").permitAll()
-                .requestMatchers("/driver/**").hasRole(Role.DRIVER.name())
-                .requestMatchers("/rider/**").hasRole(Role.RIDER.name())
-            .anyRequest().authenticated())
-        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-            .exceptionHandling(ex->ex
+                    .requestMatchers("/driver/**").hasRole(Role.DRIVER.name())
+                    .requestMatchers("/rider/**").hasRole(Role.RIDER.name())
+                    .anyRequest().authenticated())
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+            .exceptionHandling(ex -> ex
                     .authenticationEntryPoint((request, response, authException) -> {
                       jwtFilter.buildResponse(response,
                               "You need to log in to access this resource",
@@ -55,7 +55,7 @@ public class SecurityConfig {
                     })
             )
 
-        .build();
+            .build();
 
   }
 
