@@ -21,7 +21,10 @@ public class TariffSeeder implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
-        if (tariffRepository.count() == 0) {
+        long count = tariffRepository.count();
+
+
+        if (count == 0) {
             log.info("Seeding Default Tariffs...");
             seedLagos();
         }
