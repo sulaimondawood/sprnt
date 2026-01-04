@@ -6,14 +6,14 @@ import com.dawood.sprnt.ride.model.RideType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 @RequiredArgsConstructor
 @Slf4j
-@Configuration
+@Component
 public class TariffSeeder implements CommandLineRunner {
 
     private final TariffRepository tariffRepository;
