@@ -13,7 +13,6 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @RequiredArgsConstructor
 public class CreateRideListener {
 
-    private final RideMatchingService rideMatchingService;
     private final KafkaProducer kafkaProducer;
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)

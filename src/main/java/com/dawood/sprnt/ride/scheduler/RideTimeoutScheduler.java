@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class RideTimeoutScheduler {
 
@@ -73,6 +72,7 @@ public class RideTimeoutScheduler {
             } catch (Exception e) {
                 log.error("Error processing timeout task {}", task.getId(), e);
                 ride.setRideStatus(RideStatus.FAILED);
+                rideRepository.save(ride);
             }
 
         }

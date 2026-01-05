@@ -39,7 +39,7 @@ public class RideMatchingService {
     private final RideTimeoutScheduler rideTimeoutScheduler;
     private final SimpMessagingTemplate simpMessagingTemplate;
 
-
+    @Transactional
     public void findAndDispatch(Ride ride, double[] expandSteps, int limit) {
 
         List<UUID> rejectedDriversIds = ride.getRejectedDrivers();
@@ -123,7 +123,8 @@ public class RideMatchingService {
         DriverRideRequest request = new DriverRideRequest();
         request.setDriverId(driverId);
         request.setRideId(ride.getId());
-        request.setPickupLocation(ride.getPickupLocation().getCoords());
+        request.setPickupLng(ride.getPickupLocation().getCoords().getX());
+        request.setPickupLat(ride.getPickupLocation().getCoords().getY());
         request.setEstimatedFare(ride.getEstimatedFare());
         request.setExpiresAt(expiresAt);
 
@@ -136,6 +137,7 @@ public class RideMatchingService {
     }
 
 
+    @Transactional
     public void handleDriverRejectOrTimeout(UUID rideId, UUID driverId) {
         log.info("Driver {} rejected/timed-out for Ride {}", driverId, rideId);
 
@@ -155,7 +157,6 @@ public class RideMatchingService {
 
     private void handleNoDriverFound(Ride ride) {
         log.info("No drivers found for ride {}", ride.getId());
-
 
         ride.setRideStatus(RideStatus.NO_DRIVER_FOUND);
         ride.setDriver(null);

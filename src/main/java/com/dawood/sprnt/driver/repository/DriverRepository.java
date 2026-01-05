@@ -24,7 +24,7 @@ public interface DriverRepository extends JpaRepository<Driver, UUID> {
         d.display_name as displayName, 
         d.profile_image as profileImage,
         d.rating,
-        d.total_completed_trips as totalCompletedTrips
+        d.total_completed_trips as totalCompletedTrips,
         ST_Distance(d.location, ST_SetSRID(ST_MakePoint(:lng,:lat),4326)::geography) AS distance
     FROM drivers d
     WHERE d.availability_status='ONLINE'

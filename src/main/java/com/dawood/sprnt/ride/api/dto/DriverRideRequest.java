@@ -21,5 +21,7 @@ public class DriverRideRequest {
 
     private BigDecimal estimatedFare;
 
-    private Point pickupLocation;
+    private double pickupLng;
+
+    private double pickupLat;
 }
