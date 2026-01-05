@@ -67,7 +67,7 @@ public class KafkaConsumer {
 
   }
 
-  @KafkaListener(topics = KafkaConfig.RIDE_REQUEST_TOPIC, groupId = "ride-request-grooup")
+  @KafkaListener(topics = KafkaConfig.RIDE_REQUEST_TOPIC, groupId = "ride-request-grooFixedup")
   public  void consumeCreateRideRequest(CreateRideEvent message){
 
 
