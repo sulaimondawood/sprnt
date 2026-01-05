@@ -29,7 +29,7 @@ public interface DriverRepository extends JpaRepository<Driver, UUID> {
     FROM drivers d
     WHERE d.availability_status='ONLINE'
         AND d.status = 'ACTIVE'
-        AND d.location && ST_Expand(ST_SetSRID(ST_MakePoint(:lng,:lat), 4326), :expand)
+        AND d.location::geometry && ST_Expand(ST_SetSRID(ST_MakePoint(:lng,:lat), 4326), :expand)
     ORDER BY distance ASC
     LIMIT :limit
 """, nativeQuery = true)

@@ -50,7 +50,8 @@ public class RideMatchingService {
         double lng = coords.getX();
         double lat = coords.getY();
 
-        double[] expansionProgression = expandSteps != null ? expandSteps : new double[]{0.002, 0.005, 0.01};
+        double[] expansionProgression = expandSteps != null ? expandSteps : new double[]{0.01, 0.05, 0.1,1,2};
+//        double[] expansionProgression = expandSteps != null ? expandSteps : new double[]{0.002, 0.005, 0.01};
 
         for (double expansion : expansionProgression) {
 
