@@ -50,8 +50,7 @@ public class RideMatchingService {
         double lng = coords.getX();
         double lat = coords.getY();
 
-        double[] expansionProgression = expandSteps != null ? expandSteps : new double[]{0.01, 0.05, 0.1,1,2};
-//        double[] expansionProgression = expandSteps != null ? expandSteps : new double[]{0.002, 0.005, 0.01};
+        double[] expansionProgression = expandSteps != null ? expandSteps : new double[]{0.002, 0.005, 0.01,0.05, 0.1};
 
         for (double expansion : expansionProgression) {
 
@@ -128,6 +127,8 @@ public class RideMatchingService {
         request.setPickupLat(ride.getPickupLocation().getCoords().getY());
         request.setEstimatedFare(ride.getEstimatedFare());
         request.setExpiresAt(expiresAt);
+
+        log.info("Ride request sent to subscribers");
 
         simpMessagingTemplate.convertAndSendToUser(
                 ride.getDriver().getUser().getEmail(),

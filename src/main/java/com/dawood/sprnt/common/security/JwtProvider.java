@@ -19,48 +19,45 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class JwtProvider {
 
-  @Value("${jwt.secret}")
-  private String secretKey;
+    @Value("${jwt.secret}")
+    private String secretKey;
 
-  public Algorithm getAlgorithm() {
-    return Algorithm.HMAC256(secretKey);
-  }
+    public Algorithm getAlgorithm() {
+        return Algorithm.HMAC256(secretKey);
+    }
 
-  public String generateToken(String subject, Map<String, Object> claims) {
-    try {
+    public String generateToken(String subject, Map<String, Object> claims) {
+        try {
 
-      var token = JWT.create()
-          .withIssuer("sprnt")
-          .withSubject(subject)
-          .withIssuedAt(Instant.now())
-          .withExpiresAt(Instant.now().plus(1, ChronoUnit.DAYS));
+            var token = JWT.create()
+                    .withIssuer("sprnt")
+                    .withSubject(subject)
+                    .withIssuedAt(Instant.now())
+                    .withExpiresAt(Instant.now().plus(1, ChronoUnit.DAYS));
 
-      claims.forEach((k, v) -> token.withClaim(k, String.valueOf(v)));
+            claims.forEach((k, v) -> token.withClaim(k, String.valueOf(v)));
 
-      return token.sign(getAlgorithm());
+            return token.sign(getAlgorithm());
 
-    } catch (JWTCreationException exception) {
-      log.error(exception.getMessage(), exception);
-      throw new RuntimeException("Token creation failed");
+        } catch (JWTCreationException exception) {
+            log.error(exception.getMessage(), exception);
+            throw new RuntimeException("Token creation failed");
+
+        }
+    }
+
+    public DecodedJWT parseToken(String token) {
+
+        JWTVerifier verifier = JWT.require(getAlgorithm())
+                .withIssuer("sprnt")
+                .build();
+
+        return verifier.verify(token);
 
     }
-  }
 
-  public DecodedJWT parseToken(String token) {
-    try {
-      JWTVerifier verifier = JWT.require(getAlgorithm())
-          .withIssuer("sprnt")
-          .build();
-
-      return verifier.verify(token);
-    } catch (Exception e) {
-      log.error(e.getMessage(), e);
-      throw new RuntimeException("Invalid or expired token");
+    public String getSubject(String token) {
+        return parseToken(token).getSubject();
     }
-  }
-
-  public String getSubject(String token) {
-    return parseToken(token).getSubject();
-  }
 
 }
