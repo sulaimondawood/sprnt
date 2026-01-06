@@ -1,5 +1,6 @@
 package com.dawood.sprnt.common.service;
 
+import com.dawood.sprnt.driver.api.dto.DriverLocationDTO;
 import com.dawood.sprnt.ride.api.dto.DriverRideRequest;
 import com.dawood.sprnt.ride.event.CreateRideEvent;
 import com.dawood.sprnt.ride.exception.RideNotFoundException;
@@ -75,6 +76,14 @@ public class KafkaConsumer {
                     .orElseThrow(RideNotFoundException::new);
 
     rideMatchingService.findAndDispatch(ride,null,10);
+  }
+
+  @KafkaListener(topics = KafkaConfig.DRIVER_LOCATION_TOPIC, groupId = "driver-location-group")
+  public void consumeDriverLocationUpdate(DriverLocationDTO message){
+
+
+
+
   }
 
 }
