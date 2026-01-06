@@ -11,7 +11,7 @@ public class KafkaConfig {
   public static final String RIDE_REQUEST_TOPIC="ride-request-topic";
   public static final String EMAIL_TOPIC_NAME = "email-topic";
   public static final String RIDE_REQUEST_TO_DRIVER = "driver-request-topic";
-
+  public static final String DRIVER_LOCATION_TOPIC = "driver-location-topic";
 
   @Bean
   public NewTopic newTopic() {

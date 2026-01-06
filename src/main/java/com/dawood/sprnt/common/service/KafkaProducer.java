@@ -1,6 +1,7 @@
 package com.dawood.sprnt.common.service;
 
 import com.dawood.sprnt.common.config.KafkaConfig;
+import com.dawood.sprnt.driver.api.dto.DriverLocationDTO;
 import com.dawood.sprnt.identity.api.dto.UserAccountDTO;
 import com.dawood.sprnt.ride.api.dto.DriverRideRequest;
 import com.dawood.sprnt.ride.event.CreateRideEvent;
@@ -48,6 +49,21 @@ public class KafkaProducer {
      }
    });
 
+
+  }
+
+  public void sendDriverLocationUpdate(DriverLocationDTO message){
+
+  CompletableFuture<SendResult<String,Object>> future = kafkaTemplate.send(KafkaConfig.DRIVER_LOCATION_TOPIC, message);
+
+    future.whenComplete((res, err) -> {
+
+      if (err == null) {
+        log.info("Driver {} location - request message sent successfully", message.getDriverId());
+      } else {
+        log.error("Failed to send driver {} location: ERROR({})", message.getDriverId(), err.getMessage());
+      }
+    });
 
   }
 
