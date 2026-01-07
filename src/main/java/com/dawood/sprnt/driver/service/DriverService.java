@@ -1,5 +1,7 @@
 package com.dawood.sprnt.driver.service;
 
+import com.dawood.sprnt.common.service.KafkaProducer;
+import com.dawood.sprnt.driver.api.dto.DriverLocationDTO;
 import com.dawood.sprnt.driver.api.dto.OnboardingRequest;
 import com.dawood.sprnt.driver.api.dto.OnboardingResponse;
 import com.dawood.sprnt.driver.exception.DriverAlreadyExistsException;
@@ -39,6 +41,7 @@ public class DriverService {
     private final RideMatchingService rideMatchingService;
     private final VehicleRepository vehicleRepository;
     private final VehicleDocumentRepository vehicleDocumentRepository;
+    private final KafkaProducer kafkaProducer;
 
 
     @Transactional
@@ -172,5 +175,9 @@ public class DriverService {
             default -> NextActionStatus.WAITING_FOR_APPROVAL.name();
         };
 
+    }
+
+    public void processLocationUpdate(DriverLocationDTO location){
+        kafkaProducer.sendDriverLocationUpdate(location);
     }
 }

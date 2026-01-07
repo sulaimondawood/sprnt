@@ -21,6 +21,5 @@ public class DriverLocationDTO {
 
     private UUID activeRideId;
 
-    private String userEmail;
 
 }

@@ -52,9 +52,9 @@ public class KafkaProducer {
 
   }
 
-  public void sendDriverLocationUpdate(DriverLocationDTO message){
+  public void sendDriverLocationUpdate(DriverLocationDTO message) {
 
-  CompletableFuture<SendResult<String,Object>> future = kafkaTemplate.send(KafkaConfig.DRIVER_LOCATION_TOPIC, message);
+    CompletableFuture<SendResult<String, Object>> future = kafkaTemplate.send(KafkaConfig.DRIVER_LOCATION_TOPIC, message);
 
     future.whenComplete((res, err) -> {
 

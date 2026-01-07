@@ -84,24 +84,20 @@ public class KafkaConsumer {
   }
 
   @KafkaListener(topics = KafkaConfig.DRIVER_LOCATION_TOPIC, groupId = "driver-location-group")
-  public void consumeDriverLocationUpdate(DriverLocationDTO message){
+  public void consumeDriverLocationUpdate(DriverLocationDTO message) {
 
-    if(message.getActiveRideId() != null){
-      simpMessagingTemplate.convertAndSendToUser(
-              message.getUserEmail(),
-              "/queue/ride/driver-location",
+    if (message.getActiveRideId() != null) {
+      simpMessagingTemplate.convertAndSend(
+              "/queue/driver-location/ride/" + message.getActiveRideId().toString(),
               message);
     }
 
     try {
-      driverRepository.updateLocation(message.getDriverId(),message.getLng(),message.getLat());
-    }catch (Exception e){
+      driverRepository.updateLocation(message.getDriverId(), message.getLng(), message.getLat());
+    } catch (Exception e) {
       log.error("Error updating DB location for driver {}", message.getDriverId(), e);
-      throw new LocationException("Error updating driver: " +message.getDriverId().toString()+ " location");
+      throw new LocationException("Error updating driver: " + message.getDriverId().toString() + " location");
     }
-
-
-
 
   }
 

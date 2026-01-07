@@ -65,6 +65,5 @@ public interface DriverRepository extends JpaRepository<Driver, UUID> {
 """,nativeQuery = true)
     void updateLocation(@Param("id") UUID id, @Param("lng") double lng, @Param("lat") double lat);
 
-    List<Driver> findAllByIdIn(Collection<UUID> ids);
 }
 
