@@ -1,5 +1,6 @@
 package com.dawood.sprnt.driver.repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -7,12 +8,14 @@ import java.util.UUID;
 import com.dawood.sprnt.driver.api.dto.DriverDistanceProjection;
 import com.dawood.sprnt.driver.model.DriverAvailabilityStatus;
 import com.dawood.sprnt.identity.model.User;
+import org.springframework.data.domain.Limit;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.dawood.sprnt.driver.model.Driver;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 public interface DriverRepository extends JpaRepository<Driver, UUID> {
 
@@ -51,6 +54,7 @@ public interface DriverRepository extends JpaRepository<Driver, UUID> {
 
     boolean existsByUser(User user);
 
+    @Transactional
     @Modifying
     @Query(value = """
     UPDATE drivers
@@ -61,5 +65,6 @@ public interface DriverRepository extends JpaRepository<Driver, UUID> {
 """,nativeQuery = true)
     void updateLocation(@Param("id") UUID id, @Param("lng") double lng, @Param("lat") double lat);
 
+    List<Driver> findAllByIdIn(Collection<UUID> ids);
 }
 

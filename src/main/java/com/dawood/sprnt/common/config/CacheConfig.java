@@ -21,7 +21,7 @@ public class CacheConfig {
 
     private final RedisTemplate<String,String> redisTemplate;
 
-    public static final String DRIVER_GEO_KEY = "drivers:geo_index";
+    public static final String DRIVER_GEO_KEY = "drivers:geo:online";
 
     @Bean
     public RedisCacheManager cacheManager(RedisConnectionFactory redisConnectionFactory){
