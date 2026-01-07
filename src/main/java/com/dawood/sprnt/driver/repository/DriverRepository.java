@@ -51,5 +51,15 @@ public interface DriverRepository extends JpaRepository<Driver, UUID> {
 
     boolean existsByUser(User user);
 
+    @Modifying
+    @Query(value = """
+    UPDATE drivers
+    SET location = ST_SetSRID(ST_MakePoint(:lng,:lat),4326)::geography,
+        updated_at=NOW()
+    where id=:id
+    
+""",nativeQuery = true)
+    void updateLocation(@Param("id") UUID id, @Param("lng") double lng, @Param("lat") double lat);
+
 }
 

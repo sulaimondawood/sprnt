@@ -29,4 +29,8 @@ public class DriverLocationService {
 
     }
 
+    public void removeDriverFromMap(String driverID){
+        redisTemplate.opsForZSet().remove(CacheConfig.DRIVER_GEO_KEY, driverID);
+    }
+
 }

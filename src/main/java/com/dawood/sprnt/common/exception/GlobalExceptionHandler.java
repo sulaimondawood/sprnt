@@ -2,6 +2,7 @@ package com.dawood.sprnt.common.exception;
 
 import com.dawood.sprnt.identity.exception.IdentityException;
 import com.dawood.sprnt.pricing.exception.TariffNotFoundException;
+import com.dawood.sprnt.ride.exception.LocationException;
 import com.dawood.sprnt.ride.exception.RideException;
 import com.dawood.sprnt.ride.exception.RideNotFoundException;
 import com.dawood.sprnt.rider.exception.RiderException;
@@ -27,6 +28,22 @@ import java.util.Map;
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
+
+  @ExceptionHandler(LocationException.class)
+  public ResponseEntity<ErrorResponse> handleLocationException(LocationException ex, HttpServletRequest request) {
+
+    ErrorResponse errorResponse = ErrorResponse.builder()
+            .status(HttpStatus.BAD_REQUEST.value())
+            .path(request.getRequestURI())
+            .message(ex.getMessage())
+            .error(HttpStatus.BAD_REQUEST.name())
+            .build();
+
+    log.error(ex.getMessage(), ex);
+
+    return ResponseEntity.badRequest().body(errorResponse);
+
+  }
 
   @ExceptionHandler(RideException.class)
   public ResponseEntity<ErrorResponse> rideExceptionHandler(RideException ex,
@@ -199,6 +216,7 @@ public class GlobalExceptionHandler {
     return ResponseEntity.badRequest().body(errorResponse);
 
   }
+
 
   @ExceptionHandler(HttpMessageNotReadableException.class)
   public ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex, HttpServletRequest request) {

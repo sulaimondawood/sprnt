@@ -1,8 +1,10 @@
 package com.dawood.sprnt.common.service;
 
 import com.dawood.sprnt.driver.api.dto.DriverLocationDTO;
+import com.dawood.sprnt.driver.repository.DriverRepository;
 import com.dawood.sprnt.ride.api.dto.DriverRideRequest;
 import com.dawood.sprnt.ride.event.CreateRideEvent;
+import com.dawood.sprnt.ride.exception.LocationException;
 import com.dawood.sprnt.ride.exception.RideNotFoundException;
 import com.dawood.sprnt.ride.model.Ride;
 import com.dawood.sprnt.ride.repository.RideRepository;
@@ -27,6 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class KafkaConsumer {
 
+  private final DriverRepository driverRepository;
   @Value("${app.client-url}")
   private String clientUrl;
 
@@ -90,6 +93,12 @@ public class KafkaConsumer {
               message);
     }
 
+    try {
+      driverRepository.updateLocation(message.getDriverId(),message.getLng(),message.getLat());
+    }catch (Exception e){
+      log.error("Error updating DB location for driver {}", message.getDriverId(), e);
+      throw new LocationException("Error updating driver: " +message.getDriverId().toString()+ " location");
+    }
 
 
 
