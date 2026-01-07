@@ -11,6 +11,7 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -33,6 +34,7 @@ public class KafkaConsumer {
   private final TemplateEngine templateEngine;
   private final RideMatchingService rideMatchingService;
   private final RideRepository rideRepository;
+  private final SimpMessagingTemplate simpMessagingTemplate;
 
 
   @KafkaListener(topics = KafkaConfig.EMAIL_TOPIC_NAME, groupId = "email-service-group")
@@ -80,6 +82,14 @@ public class KafkaConsumer {
 
   @KafkaListener(topics = KafkaConfig.DRIVER_LOCATION_TOPIC, groupId = "driver-location-group")
   public void consumeDriverLocationUpdate(DriverLocationDTO message){
+
+    if(message.getActiveRideId() != null){
+      simpMessagingTemplate.convertAndSendToUser(
+              message.getUserEmail(),
+              "/queue/ride/driver-location",
+              message);
+    }
+
 
 
 
