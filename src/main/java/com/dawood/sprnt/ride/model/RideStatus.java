@@ -9,7 +9,6 @@ public enum RideStatus {
 
     NO_DRIVER_FOUND,
 
-    DRIVER_ASSIGNED,
     DRIVER_ACCEPTED,
     DRIVER_REJECTED,
     DRIVER_EN_ROUTE,
@@ -21,7 +20,6 @@ public enum RideStatus {
     RIDER_CANCELLED,
     DRIVER_CANCELLED,
 
-    EXPIRED,
     FAILED
 
 }

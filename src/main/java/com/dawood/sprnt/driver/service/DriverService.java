@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -134,6 +135,7 @@ public class DriverService {
             throw new RideException("Ride is no longer available (Timed out or Taken)");
         }
 
+
         ride.setRideStatus(RideStatus.DRIVER_ACCEPTED);
         ride.setAcceptedAt(LocalDateTime.now());
         ride.setDriver(driver);
@@ -162,6 +164,10 @@ public class DriverService {
             throw new RideException("You are not the authorized driver for this request");
         }
 
+        if(ride.getRideStatus().equals(RideStatus.ON_TRIP)){
+            throw new RideException("Ride is already in progress");
+        }
+
         rideMatchingService.handleDriverRejectOrTimeout(ride.getId(),driver.getId());
 
     }
@@ -179,5 +185,54 @@ public class DriverService {
 
     public void processLocationUpdate(DriverLocationDTO location){
         kafkaProducer.sendDriverLocationUpdate(location);
+    }
+
+    public void arrivedAtDestination(UUID rideId){
+
+        Ride ride = rideRepository.findById(rideId)
+                .orElseThrow(RideNotFoundException::new);
+
+        if(ride.getRideStatus().equals(RideStatus.))
+
+    }
+
+    public boolean isValidTransition(RideStatus currentStatus, RideStatus newStatus) {
+        return switch (currentStatus) {
+
+            case SEARCHING -> Set.of(
+                    RideStatus.REQUESTED,
+                    RideStatus.NO_DRIVER_FOUND
+
+            ).contains(newStatus);
+
+            case REQUESTED -> Set.of(
+                    RideStatus.DRIVER_ACCEPTED,
+                    RideStatus.SEARCHING,
+                    RideStatus.DRIVER_CANCELLED
+            ).contains(newStatus);
+
+
+            case DRIVER_ACCEPTED -> Set.of(
+                    RideStatus.DRIVER_ARRIVED,
+                    RideStatus.ON_TRIP,
+                    RideStatus.DRIVER_CANCELLED
+            ).contains(newStatus);
+
+
+            case DRIVER_ARRIVED -> Set.of(
+                    RideStatus.ON_TRIP,
+                    RideStatus.DRIVER_CANCELLED
+            ).contains(newStatus);
+
+
+            case ON_TRIP -> Set.of(
+                    RideStatus.COMPLETED
+            ).contains(newStatus);
+
+
+            case COMPLETED, DRIVER_CANCELLED, NO_DRIVER_FOUND -> false;
+
+            default -> false;
+        };
     }
 }
