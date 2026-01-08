@@ -113,7 +113,7 @@ public class KafkaConsumer {
   public void consumeAndProcessRatings(RatingMessage message) {
 
     double avgRating = ratingRepository.getAverageRatingsForUser(message.getRatedUser());
-    double ratingCounts = ratingRepository.countRatingsForUser(message.getRatedUser());
+    long ratingCounts = ratingRepository.countRatingsForUser(message.getRatedUser());
 
     Ride ride = rideRepository.findById(message.getRideId())
             .orElseThrow(RideNotFoundException::new);
