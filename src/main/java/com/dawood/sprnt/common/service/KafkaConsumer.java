@@ -1,8 +1,11 @@
 package com.dawood.sprnt.common.service;
 
 import com.dawood.sprnt.driver.api.dto.DriverLocationDTO;
+import com.dawood.sprnt.driver.model.Driver;
 import com.dawood.sprnt.driver.repository.DriverRepository;
 import com.dawood.sprnt.rating.api.dto.RatingMessage;
+import com.dawood.sprnt.rating.model.RatingSource;
+import com.dawood.sprnt.rating.repository.RatingRepository;
 import com.dawood.sprnt.ride.api.dto.DriverRideRequest;
 import com.dawood.sprnt.ride.event.CreateRideEvent;
 import com.dawood.sprnt.ride.exception.LocationException;
@@ -10,6 +13,8 @@ import com.dawood.sprnt.ride.exception.RideNotFoundException;
 import com.dawood.sprnt.ride.model.Ride;
 import com.dawood.sprnt.ride.repository.RideRepository;
 import com.dawood.sprnt.ride.service.RideMatchingService;
+import com.dawood.sprnt.rider.model.Rider;
+import com.dawood.sprnt.rider.repository.RiderRepository;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,82 +35,99 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class KafkaConsumer {
 
-  private final DriverRepository driverRepository;
-  @Value("${app.client-url}")
-  private String clientUrl;
+    @Value("${app.client-url}")
+    private String clientUrl;
 
-  private final EmailService emailService;
-  private final TemplateEngine templateEngine;
-  private final RideMatchingService rideMatchingService;
-  private final RideRepository rideRepository;
-  private final SimpMessagingTemplate simpMessagingTemplate;
+    private final DriverRepository driverRepository;
+    private final EmailService emailService;
+    private final TemplateEngine templateEngine;
+    private final RideMatchingService rideMatchingService;
+    private final RideRepository rideRepository;
+    private final SimpMessagingTemplate simpMessagingTemplate;
+    private final RatingRepository ratingRepository;
+    private final RiderRepository riderRepository;
 
 
-  @KafkaListener(topics = KafkaConfig.EMAIL_TOPIC_NAME, groupId = "email-service-group")
-  public void consumeSendAccountActivationEmail(UserAccountDTO message) {
+    @KafkaListener(topics = KafkaConfig.EMAIL_TOPIC_NAME, groupId = "email-service-group")
+    public void consumeSendAccountActivationEmail(UserAccountDTO message) {
 
-    try {
-      log.info("Email service group subscribes to the published event");
+        try {
+            log.info("Email service group subscribes to the published event");
 
-      String token = message.getToken();
-      String fullname = message.getFullname();
-      String email = message.getEmail();
+            String token = message.getToken();
+            String fullname = message.getFullname();
+            String email = message.getEmail();
 
-      String[] nameParts = fullname.split(" ");
-      String username = nameParts.length > 0 ? nameParts[0] : fullname;
+            String[] nameParts = fullname.split(" ");
+            String username = nameParts.length > 0 ? nameParts[0] : fullname;
 
-      String activationUrl = String.format("%s?token=%s", clientUrl, token);
+            String activationUrl = String.format("%s?token=%s", clientUrl, token);
 
-      Context context = new Context();
+            Context context = new Context();
 
-      context.setVariable("username", username);
+            context.setVariable("username", username);
 
-      context.setVariable("activationLink", activationUrl);
+            context.setVariable("activationLink", activationUrl);
 
-      context.setVariable("expiresIn", "15mins");
+            context.setVariable("expiresIn", "15mins");
 
-      String emailBody = templateEngine.process("/account/email-verification.html", context);
+            String emailBody = templateEngine.process("/account/email-verification.html", context);
 
-      emailService.sendEmail(email, "Sprnt Account Activation", emailBody);
-    } catch (Exception e) {
-      log.error("Error processing Kafka message", e);
-      throw new RuntimeException("Failed to process email", e);
+            emailService.sendEmail(email, "Sprnt Account Activation", emailBody);
+        } catch (Exception e) {
+            log.error("Error processing Kafka message", e);
+            throw new RuntimeException("Failed to process email", e);
+        }
+
     }
 
-  }
+    @KafkaListener(topics = KafkaConfig.RIDE_REQUEST_TOPIC, groupId = "ride-request-grooFixedup")
+    public void consumeCreateRideRequest(CreateRideEvent message) {
 
-  @KafkaListener(topics = KafkaConfig.RIDE_REQUEST_TOPIC, groupId = "ride-request-grooFixedup")
-  public  void consumeCreateRideRequest(CreateRideEvent message){
 
+        Ride ride = rideRepository.findById(message.getRideId())
+                .orElseThrow(RideNotFoundException::new);
+
+        rideMatchingService.findAndDispatch(ride, null, 10);
+    }
+
+    @KafkaListener(topics = KafkaConfig.DRIVER_LOCATION_TOPIC, groupId = "driver-location-group")
+    public void consumeDriverLocationUpdate(DriverLocationDTO message) {
+
+        if (message.getActiveRideId() != null) {
+            simpMessagingTemplate.convertAndSend(
+                    "/queue/ride/" + message.getActiveRideId().toString(),
+                    message);
+        }
+
+        try {
+            driverRepository.updateLocation(message.getDriverId(), message.getLng(), message.getLat());
+        } catch (Exception e) {
+            log.error("Error updating DB location for driver {}", message.getDriverId(), e);
+            throw new LocationException("Error updating driver: " + message.getDriverId().toString() + " location");
+        }
+
+    }
+
+  @KafkaListener(topics = KafkaConfig.RIDE_RATING_TOPIC, groupId = "ratings-group")
+  public void consumeAndProcessRatings(RatingMessage message) {
+
+    double avgRating = ratingRepository.getAverageRatingsForUser(message.getRatedUser());
+    double ratingCounts = ratingRepository.countRatingsForUser(message.getRatedUser());
 
     Ride ride = rideRepository.findById(message.getRideId())
-                    .orElseThrow(RideNotFoundException::new);
+            .orElseThrow(RideNotFoundException::new);
 
-    rideMatchingService.findAndDispatch(ride,null,10);
-  }
+    if (message.getRatingSource().equals(RatingSource.RIDER)) {
+      Driver driver = ride.getDriver();
+      driver.setRating(avgRating);
+      driverRepository.save(driver);
+    } else {
+      Rider rider = ride.getRider();
+      rider.setRating(avgRating);
+      riderRepository.save(rider);
 
-  @KafkaListener(topics = KafkaConfig.DRIVER_LOCATION_TOPIC, groupId = "driver-location-group")
-  public void consumeDriverLocationUpdate(DriverLocationDTO message) {
-
-    if (message.getActiveRideId() != null) {
-      simpMessagingTemplate.convertAndSend(
-              "/queue/ride/" + message.getActiveRideId().toString(),
-              message);
     }
-
-    try {
-      driverRepository.updateLocation(message.getDriverId(), message.getLng(), message.getLat());
-    } catch (Exception e) {
-      log.error("Error updating DB location for driver {}", message.getDriverId(), e);
-      throw new LocationException("Error updating driver: " + message.getDriverId().toString() + " location");
-    }
-
-  }
-
-  @KafkaListener(topics = KafkaConfig.RIDE_RATING_TOPIC,groupId = "ratings-group")
-  public void consumeAndProcessRatings(RatingMessage message){
-
-
 
   }
 

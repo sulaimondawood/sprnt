@@ -52,6 +52,9 @@ public class RatingService {
             throw new RatingException("You are not a participant in this ride");
         }
 
+        if (ratingRepository.existsByRideAndRatedBy(ride, source)) {
+            throw new RatingException("You have already rated this ride");
+        }
 
         Rating rating = new Rating();
         rating.setRating(request.getRating());
@@ -72,6 +75,7 @@ public class RatingService {
                 message.setRatingId(savedRating.getId());
                 message.setRideId(savedRating.getRide().getId());
                 message.setRatingScore(rating.getRating());
+                message.setRatingSource(source);
 
                 UUID targetUserId = (source == RatingSource.RIDER)
                         ? ride.getDriver().getId()

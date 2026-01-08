@@ -1,5 +1,6 @@
 package com.dawood.sprnt.rating.api.dto;
 
+import com.dawood.sprnt.rating.model.RatingSource;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,5 +21,7 @@ public class RatingMessage {
     private int ratingScore;
 
     private UUID ratedUser;
+
+    private RatingSource ratingSource;
 
 }

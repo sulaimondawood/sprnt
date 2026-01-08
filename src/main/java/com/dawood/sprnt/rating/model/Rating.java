@@ -11,7 +11,9 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "ratings")
+@Table(name = "ratings", uniqueConstraints ={
+        @UniqueConstraint(columnNames = {"ride_id", "rated_by"})
+})
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter

@@ -1,6 +1,8 @@
 package com.dawood.sprnt.rating.repository;
 
 import com.dawood.sprnt.rating.model.Rating;
+import com.dawood.sprnt.rating.model.RatingSource;
+import com.dawood.sprnt.ride.model.Ride;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -25,4 +27,5 @@ public interface RatingRepository extends JpaRepository<Rating, UUID> {
     """)
     long countRatingsForUser(@Param("userId") UUID userId);
 
+    boolean existsByRideAndRatedBy(Ride ride, RatingSource ratingSource);
 }
