@@ -10,6 +10,7 @@ import com.dawood.sprnt.driver.repository.DriverRepository;
 import com.dawood.sprnt.identity.model.User;
 import com.dawood.sprnt.identity.service.IdentityService;
 import com.dawood.sprnt.ride.api.dto.RideAccepted;
+import com.dawood.sprnt.ride.api.dto.RideStatusUpdateDTO;
 import com.dawood.sprnt.ride.exception.RideException;
 import com.dawood.sprnt.ride.exception.RideNotFoundException;
 import com.dawood.sprnt.ride.model.Ride;
@@ -24,6 +25,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -43,7 +46,6 @@ public class DriverService {
     private final VehicleRepository vehicleRepository;
     private final VehicleDocumentRepository vehicleDocumentRepository;
     private final KafkaProducer kafkaProducer;
-
 
     @Transactional
     public OnboardingResponse completeOnboarding(OnboardingRequest  request){
@@ -172,37 +174,65 @@ public class DriverService {
 
     }
 
-    private String determineNextAction(DriverKycStatus status){
-
-        return switch (status) {
-            case PENDING -> NextActionStatus.WAITING_FOR_APPROVAL.name();
-            case REJECTED -> NextActionStatus.RESUBMIT_DOCUMENTS.name();
-            case VERIFIED -> NextActionStatus.GO_ONLINE.name();
-            default -> NextActionStatus.WAITING_FOR_APPROVAL.name();
-        };
-
-    }
-
     public void processLocationUpdate(DriverLocationDTO location){
         kafkaProducer.sendDriverLocationUpdate(location);
     }
 
-    public void arrivedAtDestination(UUID rideId){
+    @Transactional
+    public void driverArrivedAtPickup(UUID rideId) {
 
         Driver currentDriver = identityService.getCurrentLoggedInUser().getDriver();
 
         Ride ride = rideRepository.findById(rideId)
                 .orElseThrow(RideNotFoundException::new);
 
-        if(!isValidTransition(ride.getRideStatus(), RideStatus.DRIVER_ARRIVED)){
-            throw new RideException("Invalid ride state transition from "+ride.getRideStatus());
+        if (!isValidTransition(ride.getRideStatus(), RideStatus.DRIVER_ARRIVED)) {
+            throw new RideException("Invalid ride state transition from " + ride.getRideStatus());
         }
 
-        if(!ride.getDriver().getId().equals(currentDriver.getId())){
+        if (!ride.getDriver().getId().equals(currentDriver.getId())) {
             throw new RideException("You are not the authorized driver for this request");
         }
 
         ride.setRideStatus(RideStatus.DRIVER_ARRIVED);
+        ride.setArrivalTime(LocalDateTime.now());
+
+        rideRepository.save(ride);
+
+        RideStatusUpdateDTO message = new RideStatusUpdateDTO();
+        message.setRideId(ride.getId().toString());
+        message.setMessage("Your driver has arrived!");
+        message.setStatus(RideStatus.DRIVER_ARRIVED.name());
+
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                simpMessagingTemplate.convertAndSend(
+                        "/queue/ride/" + ride.getId().toString(),
+                        message
+                );
+            }
+        });
+
+    }
+
+    public void driverArrivedAtDestination(UUID rideId){
+
+        Driver currentDriver = identityService.getCurrentLoggedInUser().getDriver();
+
+        Ride ride = rideRepository.findById(rideId)
+                .orElseThrow(RideNotFoundException::new);
+
+        if (!isValidTransition(ride.getRideStatus(), RideStatus.COMPLETED)) {
+            throw new RideException("Invalid ride state transition from " + ride.getRideStatus());
+        }
+
+        if (!ride.getDriver().getId().equals(currentDriver.getId())) {
+            throw new RideException("You are not the authorized driver for this request");
+        }
+
+        ride.setRideStatus(RideStatus.COMPLETED);
+        ride.setDropOffTime(LocalDateTime.now());
 
         rideRepository.save(ride);
 
@@ -241,4 +271,16 @@ public class DriverService {
             default -> false;
         };
     }
+
+    private String determineNextAction(DriverKycStatus status){
+
+        return switch (status) {
+            case PENDING -> NextActionStatus.WAITING_FOR_APPROVAL.name();
+            case REJECTED -> NextActionStatus.RESUBMIT_DOCUMENTS.name();
+            case VERIFIED -> NextActionStatus.GO_ONLINE.name();
+            default -> NextActionStatus.WAITING_FOR_APPROVAL.name();
+        };
+
+    }
+
 }

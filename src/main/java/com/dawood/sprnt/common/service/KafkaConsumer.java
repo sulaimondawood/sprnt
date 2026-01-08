@@ -88,7 +88,7 @@ public class KafkaConsumer {
 
     if (message.getActiveRideId() != null) {
       simpMessagingTemplate.convertAndSend(
-              "/queue/driver-location/ride/" + message.getActiveRideId().toString(),
+              "/queue/ride/" + message.getActiveRideId().toString(),
               message);
     }
 

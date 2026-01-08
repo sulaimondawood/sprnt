@@ -50,6 +50,10 @@ public class Ride {
 
     private LocalDateTime estimatedArrivalTime;
 
+    private LocalDateTime arrivalTime;
+
+    private LocalDateTime dropOffTime;
+
     private double estimatedDistance;
 
     private int estimatedDurationMins;
