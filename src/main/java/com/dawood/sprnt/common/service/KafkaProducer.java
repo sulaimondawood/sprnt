@@ -3,6 +3,8 @@ package com.dawood.sprnt.common.service;
 import com.dawood.sprnt.common.config.KafkaConfig;
 import com.dawood.sprnt.driver.api.dto.DriverLocationDTO;
 import com.dawood.sprnt.identity.api.dto.UserAccountDTO;
+import com.dawood.sprnt.rating.api.dto.RatingMessage;
+import com.dawood.sprnt.rating.api.dto.RideRatingRequest;
 import com.dawood.sprnt.ride.api.dto.DriverRideRequest;
 import com.dawood.sprnt.ride.event.CreateRideEvent;
 import lombok.RequiredArgsConstructor;
@@ -62,6 +64,21 @@ public class KafkaProducer {
         log.info("Driver {} location - request message sent successfully", message.getDriverId());
       } else {
         log.error("Failed to send driver {} location: ERROR({})", message.getDriverId(), err.getMessage());
+      }
+    });
+
+  }
+
+  public void sendRatings(RatingMessage message) {
+
+    CompletableFuture<SendResult<String, Object>> future = kafkaTemplate.send(KafkaConfig.RIDE_RATING_TOPIC, message);
+
+    future.whenComplete((res, err) -> {
+
+      if (err == null) {
+        log.info("Ratings for ride: {} request message sent successfully", message.getRideId());
+      } else {
+        log.error("Failed to send ride {} ratings: ERROR({})", message.getRideId(), err.getMessage());
       }
     });
 
