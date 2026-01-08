@@ -189,10 +189,22 @@ public class DriverService {
 
     public void arrivedAtDestination(UUID rideId){
 
+        Driver currentDriver = identityService.getCurrentLoggedInUser().getDriver();
+
         Ride ride = rideRepository.findById(rideId)
                 .orElseThrow(RideNotFoundException::new);
 
-        if(ride.getRideStatus().equals(RideStatus.))
+        if(!isValidTransition(ride.getRideStatus(), RideStatus.DRIVER_ARRIVED)){
+            throw new RideException("Invalid ride state transition from "+ride.getRideStatus());
+        }
+
+        if(!ride.getDriver().getId().equals(currentDriver.getId())){
+            throw new RideException("You are not the authorized driver for this request");
+        }
+
+        ride.setRideStatus(RideStatus.DRIVER_ARRIVED);
+
+        rideRepository.save(ride);
 
     }
 
@@ -211,24 +223,18 @@ public class DriverService {
                     RideStatus.DRIVER_CANCELLED
             ).contains(newStatus);
 
-
             case DRIVER_ACCEPTED -> Set.of(
                     RideStatus.DRIVER_ARRIVED,
                     RideStatus.ON_TRIP,
                     RideStatus.DRIVER_CANCELLED
             ).contains(newStatus);
 
-
             case DRIVER_ARRIVED -> Set.of(
                     RideStatus.ON_TRIP,
                     RideStatus.DRIVER_CANCELLED
             ).contains(newStatus);
 
-
-            case ON_TRIP -> Set.of(
-                    RideStatus.COMPLETED
-            ).contains(newStatus);
-
+            case ON_TRIP -> RideStatus.COMPLETED.equals(newStatus);
 
             case COMPLETED, DRIVER_CANCELLED, NO_DRIVER_FOUND -> false;
 
