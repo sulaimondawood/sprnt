@@ -2,6 +2,7 @@ package com.dawood.sprnt.common.service;
 
 import com.dawood.sprnt.driver.api.dto.DriverLocationDTO;
 import com.dawood.sprnt.driver.repository.DriverRepository;
+import com.dawood.sprnt.rating.api.dto.RatingMessage;
 import com.dawood.sprnt.ride.api.dto.DriverRideRequest;
 import com.dawood.sprnt.ride.event.CreateRideEvent;
 import com.dawood.sprnt.ride.exception.LocationException;
@@ -98,6 +99,13 @@ public class KafkaConsumer {
       log.error("Error updating DB location for driver {}", message.getDriverId(), e);
       throw new LocationException("Error updating driver: " + message.getDriverId().toString() + " location");
     }
+
+  }
+
+  @KafkaListener(topics = KafkaConfig.RIDE_RATING_TOPIC,groupId = "ratings-group")
+  public void consumeAndProcessRatings(RatingMessage message){
+
+
 
   }
 
