@@ -51,6 +51,8 @@ public class Rider {
 
   private double rating;
 
+  private long totalRatings;
+
   private boolean completedProfile = false;
 
   @OneToOne

@@ -65,5 +65,10 @@ public interface DriverRepository extends JpaRepository<Driver, UUID> {
 """,nativeQuery = true)
     void updateLocation(@Param("id") UUID id, @Param("lng") double lng, @Param("lat") double lat);
 
+    @Modifying
+    @Transactional
+    @Query("UPDATE Driver d SET d.rating = :rating, d.totalRatings = :count WHERE d.id = :id")
+    void updateRating(@Param("id") UUID id, @Param("rating") Double rating, @Param("count") long count);
+
 }
 

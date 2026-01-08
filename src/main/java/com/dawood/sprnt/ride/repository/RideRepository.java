@@ -1,6 +1,5 @@
 package com.dawood.sprnt.ride.repository;
 
-import com.dawood.sprnt.driver.model.Driver;
 import com.dawood.sprnt.ride.model.Ride;
 import com.dawood.sprnt.ride.model.RideStatus;
 import jakarta.persistence.LockModeType;
@@ -20,4 +19,5 @@ public interface RideRepository extends JpaRepository<Ride, UUID> {
     Optional<Ride> findByIdWithLock(@Param("id") UUID rideId);
 
     boolean existsByRiderIdAndRideStatusIn(UUID riderId, List<RideStatus> statuses);
+
 }

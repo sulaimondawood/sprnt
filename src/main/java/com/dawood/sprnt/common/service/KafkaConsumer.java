@@ -118,15 +118,15 @@ public class KafkaConsumer {
     Ride ride = rideRepository.findById(message.getRideId())
             .orElseThrow(RideNotFoundException::new);
 
-    if (message.getRatingSource().equals(RatingSource.RIDER)) {
-      Driver driver = ride.getDriver();
-      driver.setRating(avgRating);
-      driverRepository.save(driver);
-    } else {
-      Rider rider = ride.getRider();
-      rider.setRating(avgRating);
-      riderRepository.save(rider);
+    if (message.getRatingSource() == RatingSource.RIDER) {
 
+      driverRepository.updateRating(message.getRatedUser(), avgRating, ratingCounts);
+      log.info("Updated Driver {} rating to {}", message.getRatedUser(), avgRating);
+
+    } else {
+      // If the DRIVER submitted the review, we update the RIDER's profile.
+      riderRepository.updateRating(message.getRatedUser(), avgRating, ratingCounts);
+      log.info("Updated Rider {} rating to {}", message.getRatedUser(), avgRating);
     }
 
   }

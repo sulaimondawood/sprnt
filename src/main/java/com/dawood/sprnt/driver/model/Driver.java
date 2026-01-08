@@ -60,6 +60,8 @@ public class Driver {
 
   private double rating;
 
+  private long totalRatings;
+
   private long totalCompletedTrips;
 
   @Enumerated(EnumType.STRING)
