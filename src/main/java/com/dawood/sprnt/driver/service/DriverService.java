@@ -4,6 +4,7 @@ import com.dawood.sprnt.common.service.KafkaProducer;
 import com.dawood.sprnt.driver.api.dto.DriverLocationDTO;
 import com.dawood.sprnt.driver.api.dto.OnboardingRequest;
 import com.dawood.sprnt.driver.api.dto.OnboardingResponse;
+import com.dawood.sprnt.driver.api.dto.RideCompleted;
 import com.dawood.sprnt.driver.exception.DriverAlreadyExistsException;
 import com.dawood.sprnt.driver.model.*;
 import com.dawood.sprnt.driver.repository.DriverRepository;
@@ -216,7 +217,7 @@ public class DriverService {
 
     }
 
-    public void driverArrivedAtDestination(UUID rideId){
+    public RideCompleted driverArrivedAtDestination(UUID rideId){
 
         Driver currentDriver = identityService.getCurrentLoggedInUser().getDriver();
 
@@ -234,7 +235,28 @@ public class DriverService {
         ride.setRideStatus(RideStatus.COMPLETED);
         ride.setDropOffTime(LocalDateTime.now());
 
-        rideRepository.save(ride);
+       Ride savedRide = rideRepository.save(ride);
+
+       TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+           @Override
+           public void afterCommit() {
+               RideStatusUpdateDTO message = new RideStatusUpdateDTO();
+               message.setRideId(ride.getId().toString());
+               message.setMessage("VOILA! Your ride completed successfully");
+               message.setStatus(RideStatus.COMPLETED.name());
+
+               simpMessagingTemplate.convertAndSend(
+                       "/queue/ride/" + ride.getId().toString(),
+                       message
+               );
+           }
+       });
+
+       return RideCompleted.builder()
+               .rideId(savedRide.getId())
+               .nextAction("RATE_RIDER")
+               .message("Ride completed successfully")
+               .build();
 
     }
 
