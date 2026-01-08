@@ -1,7 +1,6 @@
 package com.dawood.sprnt.rating.model;
 
 import com.dawood.sprnt.driver.model.Driver;
-import com.dawood.sprnt.identity.model.User;
 import com.dawood.sprnt.ride.model.Ride;
 import com.dawood.sprnt.rider.model.Rider;
 import jakarta.persistence.*;
@@ -37,7 +36,8 @@ public class Rating {
     @ManyToOne(fetch = FetchType.LAZY)
     private Rider rider;
 
-    private UUID ratedBy;
+    @Enumerated(EnumType.STRING)
+    private RatingSource ratedBy;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

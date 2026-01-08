@@ -17,4 +17,8 @@ public class RatingMessage {
 
     private UUID rideId;
 
+    private int ratingScore;
+
+    private UUID ratedUser;
+
 }
