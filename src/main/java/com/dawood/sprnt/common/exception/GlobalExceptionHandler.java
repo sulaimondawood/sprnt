@@ -2,6 +2,7 @@ package com.dawood.sprnt.common.exception;
 
 import com.dawood.sprnt.identity.exception.IdentityException;
 import com.dawood.sprnt.pricing.exception.TariffNotFoundException;
+import com.dawood.sprnt.rating.exception.RatingException;
 import com.dawood.sprnt.ride.exception.LocationException;
 import com.dawood.sprnt.ride.exception.RideException;
 import com.dawood.sprnt.ride.exception.RideNotFoundException;
@@ -29,6 +30,21 @@ import java.util.Map;
 @Slf4j
 public class GlobalExceptionHandler {
 
+  @ExceptionHandler(RatingException.class)
+  public ResponseEntity<ErrorResponse> handleRatingException(RatingException ex, HttpServletRequest request) {
+
+    ErrorResponse errorResponse = ErrorResponse.builder()
+            .status(HttpStatus.BAD_REQUEST.value())
+            .path(request.getRequestURI())
+            .message(ex.getMessage())
+            .error(HttpStatus.BAD_REQUEST.name())
+            .build();
+
+    log.error(ex.getMessage(), ex);
+
+    return ResponseEntity.badRequest().body(errorResponse);
+
+  }
   @ExceptionHandler(LocationException.class)
   public ResponseEntity<ErrorResponse> handleLocationException(LocationException ex, HttpServletRequest request) {
 
