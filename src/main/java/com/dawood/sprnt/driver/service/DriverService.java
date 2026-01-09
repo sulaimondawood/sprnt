@@ -217,6 +217,7 @@ public class DriverService {
 
     }
 
+    @Transactional
     public RideCompleted driverArrivedAtDestination(UUID rideId){
 
         Driver currentDriver = identityService.getCurrentLoggedInUser().getDriver();

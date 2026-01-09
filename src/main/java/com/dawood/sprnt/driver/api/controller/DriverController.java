@@ -57,5 +57,30 @@ public class DriverController {
 
     }
 
+    @GetMapping("/ride/{rideId}/arrived")
+    public ResponseEntity<ApiResponse<String>> driverArrivedAtPickup(@PathVariable UUID rideId){
+        if(rideId == null){
+            return ApiResponse.error("Ride ID is missing");
+        }
+
+        driverService.driverArrivedAtPickup(rideId);
+
+        return  ApiResponse.success("Request was successful");
+
+    }
+
+
+    @GetMapping("/ride/{rideId}/completed")
+    public ResponseEntity<ApiResponse<String>> driverArrivedAtDestination(@PathVariable UUID rideId){
+        if(rideId == null){
+            return ApiResponse.error("Ride ID is missing");
+        }
+
+        driverService.driverArrivedAtDestination(rideId);
+
+        return  ApiResponse.success("You have successful completed the ride");
+
+    }
+
 
 }
