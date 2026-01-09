@@ -83,4 +83,11 @@ public class ApiResponse<T> {
 
   }
 
+  public static <M> ResponseEntity<ApiResponse<M>> error(String message){
+    ApiResponse<M> response = ApiResponse.<M>builder()
+            .status(HttpStatus.BAD_REQUEST.value())
+            .message(message)
+            .build();
+  }
+
 }

@@ -12,10 +12,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/driver")
@@ -41,6 +42,19 @@ public class DriverController {
         dto.setDriverId(driver.getId());
 
         driverService.processLocationUpdate(dto);
+    }
+
+    @GetMapping("/ride/{rideId}/reject")
+    public ResponseEntity<ApiResponse<Object>> rejectRide(@PathVariable UUID rideId){
+
+        if(rideId == null){
+            return ApiResponse.error("Ride ID is missing");
+        }
+
+        driverService.rejectRide(rideId);
+
+        return ApiResponse.success("Ride was successfully rejected");
+
     }
 
 
