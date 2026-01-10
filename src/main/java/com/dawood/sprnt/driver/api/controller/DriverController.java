@@ -44,40 +44,27 @@ public class DriverController {
         driverService.processLocationUpdate(dto);
     }
 
-    @GetMapping("/ride/{rideId}/reject")
+    @PatchMapping("/ride/{rideId}/reject")
     public ResponseEntity<ApiResponse<Object>> rejectRide(@PathVariable UUID rideId){
 
-        if(rideId == null){
-            return ApiResponse.error("Ride ID is missing");
-        }
-
         driverService.rejectRide(rideId);
-
         return ApiResponse.success("Ride was successfully rejected");
 
     }
 
-    @GetMapping("/ride/{rideId}/arrived")
+    @PatchMapping("/ride/{rideId}/arrived")
     public ResponseEntity<ApiResponse<String>> driverArrivedAtPickup(@PathVariable UUID rideId){
-        if(rideId == null){
-            return ApiResponse.error("Ride ID is missing");
-        }
 
         driverService.driverArrivedAtPickup(rideId);
-
         return  ApiResponse.success("Request was successful");
 
     }
 
 
-    @GetMapping("/ride/{rideId}/completed")
+    @PatchMapping("/ride/{rideId}/completed")
     public ResponseEntity<ApiResponse<String>> driverArrivedAtDestination(@PathVariable UUID rideId){
-        if(rideId == null){
-            return ApiResponse.error("Ride ID is missing");
-        }
 
         driverService.driverArrivedAtDestination(rideId);
-
         return  ApiResponse.success("You have successful completed the ride");
 
     }
