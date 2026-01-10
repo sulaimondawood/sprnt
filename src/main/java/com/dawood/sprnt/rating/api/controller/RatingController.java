@@ -23,7 +23,7 @@ public class RatingController {
 
         ratingService.submitRating(request);
 
-        return ApiResponse.created("You have successfully rated the ride");
+        return ApiResponse.created("Rating submitted successfully");
 
 
     }
