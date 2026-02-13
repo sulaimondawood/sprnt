@@ -49,21 +49,19 @@ public class DriverService {
     private final KafkaProducer kafkaProducer;
 
     @Transactional
-    public OnboardingResponse completeOnboarding(OnboardingRequest  request){
+    public OnboardingResponse completeOnboarding(OnboardingRequest request) {
 
         User user = identityService.getCurrentLoggedInUser();
 
-        if(driverRepository.existsByUser(user)){
+        if (driverRepository.existsByUser(user)) {
             throw new DriverAlreadyExistsException("Driver already exists");
         }
 
-        String fullname = user.getFullname() != null? user.getFullname().trim():"";
+        String fullname = user.getFullname() != null ? user.getFullname().trim() : "";
         String[] nameParts = fullname.split("\\s+");
 
-        String displayName = nameParts.length>1?
-                nameParts[0] + " "+nameParts[1].charAt(0) +"."
-                :nameParts[0];
-
+        String displayName = nameParts.length > 1 ? nameParts[0] + " " + nameParts[1].charAt(0) + "."
+                : nameParts[0];
 
         Driver driver = new Driver();
         driver.setDisplayName(displayName);
@@ -94,25 +92,25 @@ public class DriverService {
 
         List<VehicleDocument> vehicleDocuments = request.getVehicle().getVehicleDocument()
                 .stream()
-                .map(vehicleDoc->{
+                .map(vehicleDoc -> {
                     VehicleDocument newVehicleDoc = new VehicleDocument();
                     newVehicleDoc.setDocumentType(vehicleDoc.getDocumentType());
                     newVehicleDoc.setDocumentUrl(vehicleDoc.getDocumentUrl());
                     newVehicleDoc.setStatus(VehicleDocumentStatus.PENDING);
-                    newVehicleDoc.setIssuedAt(vehicleDoc.getIssuedAt());
-                    newVehicleDoc.setExpiresAt(vehicleDoc.getExpiresAt());
+                    // newVehicleDoc.setIssuedAt(vehicleDoc.getIssuedAt());
+                    // newVehicleDoc.setExpiresAt(vehicleDoc.getExpiresAt());
                     newVehicleDoc.setVehicle(vehicle);
 
-                    return  newVehicleDoc;
+                    return newVehicleDoc;
                 }).toList();
 
-     Driver savedDriver =  driverRepository.save(driver);
+        Driver savedDriver = driverRepository.save(driver);
 
         vehicleRepository.save(vehicle);
 
         vehicleDocumentRepository.saveAll(vehicleDocuments);
 
-       return OnboardingResponse.builder()
+        return OnboardingResponse.builder()
                 .driverId(savedDriver.getId())
                 .kycStatus(savedDriver.getKycStatus())
                 .message("Application submitted successfully. We will review your documents shortly.")
@@ -122,22 +120,21 @@ public class DriverService {
     }
 
     @Transactional
-    public void driverAcceptsRequest(UUID rideId){
+    public void driverAcceptsRequest(UUID rideId) {
 
         Driver driver = identityService.getCurrentLoggedInUser().getDriver();
 
         Ride ride = rideRepository.findByIdWithLock(rideId)
                 .orElseThrow(RideNotFoundException::new);
 
-        if(!driver.getId().equals(ride.getDriver().getId())){
+        if (!driver.getId().equals(ride.getDriver().getId())) {
             throw new RideException("You are not the authorized driver for this request");
         }
 
-        //Checks if the ride already timeout for the driver
-        if(ride.getRideStatus().equals(RideStatus.SEARCHING)){
+        // Checks if the ride already timeout for the driver
+        if (ride.getRideStatus().equals(RideStatus.SEARCHING)) {
             throw new RideException("Ride is no longer available (Timed out or Taken)");
         }
-
 
         ride.setRideStatus(RideStatus.DRIVER_ACCEPTED);
         ride.setAcceptedAt(LocalDateTime.now());
@@ -156,26 +153,26 @@ public class DriverService {
     }
 
     @Transactional
-    public void rejectRide(UUID rideId){
+    public void rejectRide(UUID rideId) {
 
         Driver driver = identityService.getCurrentLoggedInUser().getDriver();
 
         Ride ride = rideRepository.findById(rideId)
                 .orElseThrow(RideNotFoundException::new);
 
-        if(!ride.getDriver().getId().equals(driver.getId())){
+        if (!ride.getDriver().getId().equals(driver.getId())) {
             throw new RideException("You are not the authorized driver for this request");
         }
 
-        if(ride.getRideStatus().equals(RideStatus.ON_TRIP)){
+        if (ride.getRideStatus().equals(RideStatus.ON_TRIP)) {
             throw new RideException("Ride is already in progress");
         }
 
-        rideMatchingService.handleDriverRejectOrTimeout(ride.getId(),driver.getId());
+        rideMatchingService.handleDriverRejectOrTimeout(ride.getId(), driver.getId());
 
     }
 
-    public void processLocationUpdate(DriverLocationDTO location){
+    public void processLocationUpdate(DriverLocationDTO location) {
         kafkaProducer.sendDriverLocationUpdate(location);
     }
 
@@ -210,15 +207,14 @@ public class DriverService {
             public void afterCommit() {
                 simpMessagingTemplate.convertAndSend(
                         "/queue/ride/" + ride.getId().toString(),
-                        message
-                );
+                        message);
             }
         });
 
     }
 
     @Transactional
-    public RideCompleted driverArrivedAtDestination(UUID rideId){
+    public RideCompleted driverArrivedAtDestination(UUID rideId) {
 
         Driver currentDriver = identityService.getCurrentLoggedInUser().getDriver();
 
@@ -236,28 +232,27 @@ public class DriverService {
         ride.setRideStatus(RideStatus.COMPLETED);
         ride.setDropOffTime(LocalDateTime.now());
 
-       Ride savedRide = rideRepository.save(ride);
+        Ride savedRide = rideRepository.save(ride);
 
-       TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-           @Override
-           public void afterCommit() {
-               RideStatusUpdateDTO message = new RideStatusUpdateDTO();
-               message.setRideId(ride.getId().toString());
-               message.setMessage("VOILA! Your ride completed successfully");
-               message.setStatus(RideStatus.COMPLETED.name());
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                RideStatusUpdateDTO message = new RideStatusUpdateDTO();
+                message.setRideId(ride.getId().toString());
+                message.setMessage("VOILA! Your ride completed successfully");
+                message.setStatus(RideStatus.COMPLETED.name());
 
-               simpMessagingTemplate.convertAndSend(
-                       "/queue/ride/" + ride.getId().toString(),
-                       message
-               );
-           }
-       });
+                simpMessagingTemplate.convertAndSend(
+                        "/queue/ride/" + ride.getId().toString(),
+                        message);
+            }
+        });
 
-       return RideCompleted.builder()
-               .rideId(savedRide.getId())
-               .nextAction("RATE_RIDER")
-               .message("Ride completed successfully")
-               .build();
+        return RideCompleted.builder()
+                .rideId(savedRide.getId())
+                .nextAction("RATE_RIDER")
+                .message("Ride completed successfully")
+                .build();
 
     }
 
@@ -268,24 +263,21 @@ public class DriverService {
                     RideStatus.REQUESTED,
                     RideStatus.NO_DRIVER_FOUND
 
-            ).contains(newStatus);
+                ).contains(newStatus);
 
             case REQUESTED -> Set.of(
                     RideStatus.DRIVER_ACCEPTED,
                     RideStatus.SEARCHING,
-                    RideStatus.DRIVER_CANCELLED
-            ).contains(newStatus);
+                    RideStatus.DRIVER_CANCELLED).contains(newStatus);
 
             case DRIVER_ACCEPTED -> Set.of(
                     RideStatus.DRIVER_ARRIVED,
                     RideStatus.ON_TRIP,
-                    RideStatus.DRIVER_CANCELLED
-            ).contains(newStatus);
+                    RideStatus.DRIVER_CANCELLED).contains(newStatus);
 
             case DRIVER_ARRIVED -> Set.of(
                     RideStatus.ON_TRIP,
-                    RideStatus.DRIVER_CANCELLED
-            ).contains(newStatus);
+                    RideStatus.DRIVER_CANCELLED).contains(newStatus);
 
             case ON_TRIP -> RideStatus.COMPLETED.equals(newStatus);
 
@@ -295,7 +287,7 @@ public class DriverService {
         };
     }
 
-    private String determineNextAction(DriverKycStatus status){
+    private String determineNextAction(DriverKycStatus status) {
 
         return switch (status) {
             case PENDING -> NextActionStatus.WAITING_FOR_APPROVAL.name();

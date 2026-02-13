@@ -1,5 +1,17 @@
 package com.dawood.sprnt.driver.api.controller;
 
+import java.util.UUID;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.dawood.sprnt.common.dto.ApiResponse;
 import com.dawood.sprnt.driver.api.dto.DriverLocationDTO;
 import com.dawood.sprnt.driver.api.dto.OnboardingRequest;
@@ -7,16 +19,9 @@ import com.dawood.sprnt.driver.api.dto.OnboardingResponse;
 import com.dawood.sprnt.driver.model.Driver;
 import com.dawood.sprnt.driver.service.DriverService;
 import com.dawood.sprnt.identity.service.IdentityService;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/driver")
@@ -27,7 +32,8 @@ public class DriverController {
     private final IdentityService identityService;
 
     @PostMapping("/onboard")
-    public ResponseEntity<ApiResponse<OnboardingResponse>> completeOnboarding(@Valid @RequestBody OnboardingRequest request){
+    public ResponseEntity<ApiResponse<OnboardingResponse>> completeOnboarding(
+            @Valid @RequestBody OnboardingRequest request) {
 
         return ApiResponse.created(
                 driverService.completeOnboarding(request),
@@ -45,7 +51,7 @@ public class DriverController {
     }
 
     @PatchMapping("/ride/{rideId}/reject")
-    public ResponseEntity<ApiResponse<Object>> rejectRide(@PathVariable UUID rideId){
+    public ResponseEntity<ApiResponse<Object>> rejectRide(@PathVariable UUID rideId) {
 
         driverService.rejectRide(rideId);
         return ApiResponse.success("Ride was successfully rejected");
@@ -53,21 +59,19 @@ public class DriverController {
     }
 
     @PatchMapping("/ride/{rideId}/arrived")
-    public ResponseEntity<ApiResponse<String>> driverArrivedAtPickup(@PathVariable UUID rideId){
+    public ResponseEntity<ApiResponse<String>> driverArrivedAtPickup(@PathVariable UUID rideId) {
 
         driverService.driverArrivedAtPickup(rideId);
-        return  ApiResponse.success("Request was successful");
+        return ApiResponse.success("Request was successful");
 
     }
-
 
     @PatchMapping("/ride/{rideId}/completed")
-    public ResponseEntity<ApiResponse<String>> driverArrivedAtDestination(@PathVariable UUID rideId){
+    public ResponseEntity<ApiResponse<String>> driverArrivedAtDestination(@PathVariable UUID rideId) {
 
         driverService.driverArrivedAtDestination(rideId);
-        return  ApiResponse.success("You have successful completed the ride");
+        return ApiResponse.success("You have successful completed the ride");
 
     }
-
 
 }

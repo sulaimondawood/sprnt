@@ -18,10 +18,10 @@ public class VehicleDocumentDTO {
     @NotBlank(message = "Document upload url is required")
     private String documentUrl;
 
-    @NotNull(message = "Issued date is required")
-    private LocalDate issuedAt;
+    // @NotNull(message = "Issued date is required")
+    // private LocalDate issuedAt;
 
-    @NotNull(message = "Expiry date is required")
-    private LocalDate expiresAt;
+    // @NotNull(message = "Expiry date is required")
+    // private LocalDate expiresAt;
 
 }

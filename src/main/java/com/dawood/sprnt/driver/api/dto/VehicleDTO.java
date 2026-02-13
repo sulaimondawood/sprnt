@@ -1,13 +1,16 @@
 package com.dawood.sprnt.driver.api.dto;
 
-import com.dawood.sprnt.vehicle.model.VehicleDocument;
+import java.util.List;
+
 import com.dawood.sprnt.vehicle.model.VehicleType;
+
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.List;
 
 @Getter
 @Setter

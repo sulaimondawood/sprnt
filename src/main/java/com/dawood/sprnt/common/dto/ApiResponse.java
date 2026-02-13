@@ -83,11 +83,13 @@ public class ApiResponse<T> {
 
   }
 
-  public static <M> ResponseEntity<ApiResponse<M>> error(String message){
+  public static <M> ResponseEntity<ApiResponse<M>> error(String message) {
     ApiResponse<M> response = ApiResponse.<M>builder()
-            .status(HttpStatus.BAD_REQUEST.value())
-            .message(message)
-            .build();
+        .status(HttpStatus.BAD_REQUEST.value())
+        .message(message)
+        .build();
+
+    return ResponseEntity.status(400).body(response);
   }
 
 }
