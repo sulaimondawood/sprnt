@@ -1,5 +1,6 @@
 package com.dawood.sprnt.driver.service;
 
+import com.dawood.sprnt.common.dto.Meta;
 import com.dawood.sprnt.common.security.JwtProvider;
 import com.dawood.sprnt.common.service.KafkaProducer;
 import com.dawood.sprnt.driver.api.dto.DriverLocationDTO;
@@ -13,9 +14,11 @@ import com.dawood.sprnt.identity.model.User;
 import com.dawood.sprnt.identity.service.IdentityService;
 import com.dawood.sprnt.ride.api.dto.RideAccepted;
 import com.dawood.sprnt.ride.api.dto.RideResponseDTO;
+import com.dawood.sprnt.ride.api.dto.RideResponseMetaDTO;
 import com.dawood.sprnt.ride.api.dto.RideStatusUpdateDTO;
 import com.dawood.sprnt.ride.exception.RideException;
 import com.dawood.sprnt.ride.exception.RideNotFoundException;
+import com.dawood.sprnt.ride.mapper.RideMapper;
 import com.dawood.sprnt.ride.model.Ride;
 import com.dawood.sprnt.ride.model.RideStatus;
 import com.dawood.sprnt.ride.repository.RideRepository;
@@ -29,6 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -273,16 +277,59 @@ public class DriverService {
 
     }
 
-    public RideResponseDTO getRideHistory(int pageNo, int pageSize) {
+    public RideResponseMetaDTO getRideHistory(int pageNo, int pageSize) {
+
+        User user = identityService.getCurrentLoggedInUser();
+
+        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by("createdAt").descending());
+
+        Page<Ride> pageRides = rideRepository.findByDriverAndRideStatusIn(user.getDriver(),
+                List.of(RideStatus.COMPLETED, RideStatus.RIDER_CANCELLED, RideStatus.DRIVER_CANCELLED), pageable);
+
+        List<RideResponseDTO> rides = pageRides.getContent().stream()
+                .map(RideMapper::toDTO).toList();
+
+        Meta meta = Meta.builder()
+                .currentPage(pageRides.getNumber())
+                .totalPages(pageRides.getTotalPages())
+                .pageSize(pageRides.getSize())
+                .hasNext(pageRides.hasNext())
+                .hasPrev(pageRides.hasPrevious())
+                .build();
+
+        RideResponseMetaDTO response = new RideResponseMetaDTO();
+        response.setMeta(meta);
+        response.setData(rides);
+
+        return response;
+
+    }
+
+    public RideResponseMetaDTO getRecentRides(int pageNo, int pageSize) {
 
         User user = identityService.getCurrentLoggedInUser();
 
         Pageable pageable = PageRequest.of(pageNo, pageSize);
 
-        Page<Ride> rides = rideRepository.findByDriverAndRideStatusIn(user.getDriver(),
+        Page<Ride> pageRides = rideRepository.findByDriverAndRideStatusIn(user.getDriver(),
                 List.of(RideStatus.COMPLETED, RideStatus.RIDER_CANCELLED, RideStatus.DRIVER_CANCELLED), pageable);
 
-        return null;
+        List<RideResponseDTO> rides = pageRides.getContent().stream()
+                .map(RideMapper::toDTO).toList();
+
+        Meta meta = Meta.builder()
+                .currentPage(pageRides.getNumber())
+                .totalPages(pageRides.getTotalPages())
+                .pageSize(pageRides.getSize())
+                .hasNext(pageRides.hasNext())
+                .hasPrev(pageRides.hasPrevious())
+                .build();
+
+        RideResponseMetaDTO response = new RideResponseMetaDTO();
+        response.setMeta(meta);
+        response.setData(rides);
+
+        return response;
 
     }
 

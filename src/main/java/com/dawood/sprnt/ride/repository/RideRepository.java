@@ -24,6 +24,6 @@ public interface RideRepository extends JpaRepository<Ride, UUID> {
 
     boolean existsByRiderIdAndRideStatusIn(UUID riderId, List<RideStatus> statuses);
 
-    Page<Ride> findByDriverAndRideStatusIn(Driver driver, List<RideStatus> statuses, Pageable pageable);
+    Page<Ride> findByDriverAndRideStatusIn(Driver driver, List<RideStatus> statuses, Pageable p);
 
 }
