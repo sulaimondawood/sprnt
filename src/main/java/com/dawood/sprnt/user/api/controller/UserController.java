@@ -9,6 +9,7 @@ import com.dawood.sprnt.common.dto.ApiResponse;
 import com.dawood.sprnt.identity.model.User;
 import com.dawood.sprnt.identity.service.IdentityService;
 import com.dawood.sprnt.user.api.dto.UserResponseDTO;
+import com.dawood.sprnt.user.mapper.UserMapper;
 
 import lombok.RequiredArgsConstructor;
 
@@ -19,11 +20,13 @@ public class UserController {
 
   private final IdentityService identityService;
 
-  @GetMapping
+  @GetMapping("/profile")
   public ResponseEntity<ApiResponse<UserResponseDTO>> getUserProfile() {
     User user = identityService.getCurrentLoggedInUser();
 
-    return null;
+    UserResponseDTO response = UserMapper.toDTO(user);
+
+    return ApiResponse.success(response, "User profile fetched");
 
   }
 

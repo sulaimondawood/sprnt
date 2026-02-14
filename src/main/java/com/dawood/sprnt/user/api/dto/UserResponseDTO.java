@@ -6,7 +6,7 @@ import java.util.UUID;
 import com.dawood.sprnt.driver.api.dto.DriverResponseDTO;
 import com.dawood.sprnt.identity.model.Role;
 import com.dawood.sprnt.identity.model.Status;
-import com.dawood.sprnt.rider.model.Rider;
+import com.dawood.sprnt.rider.api.dto.RiderResponseDTO;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
@@ -36,6 +36,6 @@ public class UserResponseDTO {
 
   private DriverResponseDTO driver;
 
-  private Rider rider;
+  private RiderResponseDTO rider;
 
 }
