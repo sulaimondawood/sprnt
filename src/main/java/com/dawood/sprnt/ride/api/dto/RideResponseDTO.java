@@ -1,0 +1,43 @@
+package com.dawood.sprnt.ride.api.dto;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+import com.dawood.sprnt.ride.model.Currency;
+import com.dawood.sprnt.ride.model.Location;
+import com.dawood.sprnt.ride.model.RideStatus;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class RideResponseDTO {
+  private UUID id;
+
+  private Location pickupLocation;
+
+  private Location dropoffLocation;
+
+  private RideStatus rideStatus;
+
+  private BigDecimal estimatedFare;
+
+  private Currency currency = Currency.NGN;
+
+  private LocalDateTime estimatedArrivalTime;
+
+  private LocalDateTime arrivalTime;
+
+  private LocalDateTime dropOffTime;
+
+  private double estimatedDistance;
+
+  private int estimatedDurationMins;
+
+  private LocalDateTime acceptedAt;
+
+}

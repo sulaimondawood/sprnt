@@ -12,6 +12,7 @@ import com.dawood.sprnt.driver.repository.DriverRepository;
 import com.dawood.sprnt.identity.model.User;
 import com.dawood.sprnt.identity.service.IdentityService;
 import com.dawood.sprnt.ride.api.dto.RideAccepted;
+import com.dawood.sprnt.ride.api.dto.RideResponseDTO;
 import com.dawood.sprnt.ride.api.dto.RideStatusUpdateDTO;
 import com.dawood.sprnt.ride.exception.RideException;
 import com.dawood.sprnt.ride.exception.RideNotFoundException;
@@ -24,6 +25,10 @@ import com.dawood.sprnt.vehicle.repository.VehicleDocumentRepository;
 import com.dawood.sprnt.vehicle.repository.VehicleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -265,6 +270,19 @@ public class DriverService {
                 .nextAction("RATE_RIDER")
                 .message("Ride completed successfully")
                 .build();
+
+    }
+
+    public RideResponseDTO getRideHistory(int pageNo, int pageSize) {
+
+        User user = identityService.getCurrentLoggedInUser();
+
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+
+        Page<Ride> rides = rideRepository.findByDriverAndRideStatusIn(user.getDriver(),
+                List.of(RideStatus.COMPLETED, RideStatus.RIDER_CANCELLED, RideStatus.DRIVER_CANCELLED), pageable);
+
+        return null;
 
     }
 
