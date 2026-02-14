@@ -26,4 +26,6 @@ public interface RideRepository extends JpaRepository<Ride, UUID> {
 
     Page<Ride> findByDriverAndRideStatusIn(Driver driver, List<RideStatus> statuses, Pageable p);
 
+    List<Ride> findTop5ByDriverAndRideStatusInOrderByCreatedAtDesc(Driver driver, List<RideStatus> statuses);
+
 }

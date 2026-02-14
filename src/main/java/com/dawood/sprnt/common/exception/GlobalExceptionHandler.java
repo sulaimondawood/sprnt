@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.dawood.sprnt.common.dto.ErrorResponse;
+import com.dawood.sprnt.driver.exception.DriverNotFoundException;
 import com.dawood.sprnt.identity.exception.TokenException;
 import com.dawood.sprnt.identity.exception.TokenExpiredException;
 import com.dawood.sprnt.identity.exception.UserAlreadyExistsException;
@@ -30,30 +31,47 @@ import java.util.Map;
 @Slf4j
 public class GlobalExceptionHandler {
 
-  @ExceptionHandler(RatingException.class)
-  public ResponseEntity<ErrorResponse> handleRatingException(RatingException ex, HttpServletRequest request) {
+  @ExceptionHandler(DriverNotFoundException.class)
+  public ResponseEntity<ErrorResponse> handleRatingException(DriverNotFoundException ex, HttpServletRequest request) {
 
     ErrorResponse errorResponse = ErrorResponse.builder()
-            .status(HttpStatus.BAD_REQUEST.value())
-            .path(request.getRequestURI())
-            .message(ex.getMessage())
-            .error(HttpStatus.BAD_REQUEST.name())
-            .build();
+        .status(HttpStatus.BAD_REQUEST.value())
+        .path(request.getRequestURI())
+        .message(ex.getMessage())
+        .error(HttpStatus.BAD_REQUEST.name())
+        .build();
 
     log.error(ex.getMessage(), ex);
 
     return ResponseEntity.badRequest().body(errorResponse);
 
   }
+
+  @ExceptionHandler(RatingException.class)
+  public ResponseEntity<ErrorResponse> handleRatingException(RatingException ex, HttpServletRequest request) {
+
+    ErrorResponse errorResponse = ErrorResponse.builder()
+        .status(HttpStatus.BAD_REQUEST.value())
+        .path(request.getRequestURI())
+        .message(ex.getMessage())
+        .error(HttpStatus.BAD_REQUEST.name())
+        .build();
+
+    log.error(ex.getMessage(), ex);
+
+    return ResponseEntity.badRequest().body(errorResponse);
+
+  }
+
   @ExceptionHandler(LocationException.class)
   public ResponseEntity<ErrorResponse> handleLocationException(LocationException ex, HttpServletRequest request) {
 
     ErrorResponse errorResponse = ErrorResponse.builder()
-            .status(HttpStatus.BAD_REQUEST.value())
-            .path(request.getRequestURI())
-            .message(ex.getMessage())
-            .error(HttpStatus.BAD_REQUEST.name())
-            .build();
+        .status(HttpStatus.BAD_REQUEST.value())
+        .path(request.getRequestURI())
+        .message(ex.getMessage())
+        .error(HttpStatus.BAD_REQUEST.name())
+        .build();
 
     log.error(ex.getMessage(), ex);
 
@@ -63,7 +81,7 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(RideException.class)
   public ResponseEntity<ErrorResponse> rideExceptionHandler(RideException ex,
-                                                                      HttpServletRequest request) {
+      HttpServletRequest request) {
 
     ErrorResponse errorResponse = ErrorResponse.builder()
         .status(HttpStatus.BAD_REQUEST.value())
@@ -80,7 +98,7 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(TariffNotFoundException.class)
   public ResponseEntity<ErrorResponse> tariffNotFoundExceptionHandler(TariffNotFoundException ex,
-                                                                      HttpServletRequest request) {
+      HttpServletRequest request) {
 
     ErrorResponse errorResponse = ErrorResponse.builder()
         .status(HttpStatus.NOT_FOUND.value())
@@ -94,9 +112,10 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
 
   }
+
   @ExceptionHandler(RideNotFoundException.class)
   public ResponseEntity<ErrorResponse> driverNotFoundExceptionHandler(RideNotFoundException ex,
-                                                                      HttpServletRequest request) {
+      HttpServletRequest request) {
 
     ErrorResponse errorResponse = ErrorResponse.builder()
         .status(HttpStatus.NOT_FOUND.value())
@@ -110,6 +129,7 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
 
   }
+
   @ExceptionHandler(AccessDeniedException.class)
   public ResponseEntity<ErrorResponse> accessDeniedExceptionHandler(AccessDeniedException ex,
       HttpServletRequest request) {
@@ -126,6 +146,7 @@ public class GlobalExceptionHandler {
     return ResponseEntity.badRequest().body(errorResponse);
 
   }
+
   @ExceptionHandler(RiderException.class)
   public ResponseEntity<ErrorResponse> riderExceptionExceptionHandler(RiderException ex,
       HttpServletRequest request) {
@@ -142,6 +163,7 @@ public class GlobalExceptionHandler {
     return ResponseEntity.badRequest().body(errorResponse);
 
   }
+
   @ExceptionHandler(TokenExpiredException.class)
   public ResponseEntity<ErrorResponse> tokenExpiredExceptionHandler(TokenExpiredException ex,
       HttpServletRequest request) {
@@ -191,6 +213,7 @@ public class GlobalExceptionHandler {
     return ResponseEntity.badRequest().body(errorResponse);
 
   }
+
   @ExceptionHandler(UserAlreadyExistsException.class)
   public ResponseEntity<ErrorResponse> handleUserAlreadyExistsException(UserAlreadyExistsException ex,
       HttpServletRequest request) {
@@ -209,23 +232,24 @@ public class GlobalExceptionHandler {
   }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
-  public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex, HttpServletRequest request) {
+  public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex,
+      HttpServletRequest request) {
 
     Map<String, String> errors = new HashMap<>();
 
     ex.getBindingResult()
-            .getFieldErrors()
-            .forEach(err->{
-              errors.put(err.getField(), err.getDefaultMessage());
-            });
+        .getFieldErrors()
+        .forEach(err -> {
+          errors.put(err.getField(), err.getDefaultMessage());
+        });
 
     ErrorResponse errorResponse = ErrorResponse.builder()
-            .status(HttpStatus.BAD_REQUEST.value())
-            .path(request.getRequestURI())
-            .message("Validation failed for one or more fields")
-            .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
-            .validationErrors(errors)
-            .build();
+        .status(HttpStatus.BAD_REQUEST.value())
+        .path(request.getRequestURI())
+        .message("Validation failed for one or more fields")
+        .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
+        .validationErrors(errors)
+        .build();
 
     log.warn("Validation failed on {}: {}", request.getRequestURI(), errors);
 
@@ -233,9 +257,9 @@ public class GlobalExceptionHandler {
 
   }
 
-
   @ExceptionHandler(HttpMessageNotReadableException.class)
-  public ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex, HttpServletRequest request) {
+  public ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex,
+      HttpServletRequest request) {
 
     ErrorResponse errorResponse = ErrorResponse.builder()
         .status(HttpStatus.BAD_REQUEST.value())
@@ -249,6 +273,7 @@ public class GlobalExceptionHandler {
     return ResponseEntity.badRequest().body(errorResponse);
 
   }
+
   @ExceptionHandler(Exception.class)
   public ResponseEntity<ErrorResponse> handleException(Exception ex, HttpServletRequest request) {
 

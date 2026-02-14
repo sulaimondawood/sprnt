@@ -8,6 +8,7 @@ import com.dawood.sprnt.driver.api.dto.OnboardingRequest;
 import com.dawood.sprnt.driver.api.dto.OnboardingResponse;
 import com.dawood.sprnt.driver.api.dto.RideCompleted;
 import com.dawood.sprnt.driver.exception.DriverAlreadyExistsException;
+import com.dawood.sprnt.driver.exception.DriverNotFoundException;
 import com.dawood.sprnt.driver.model.*;
 import com.dawood.sprnt.driver.repository.DriverRepository;
 import com.dawood.sprnt.identity.model.User;
@@ -29,6 +30,7 @@ import com.dawood.sprnt.vehicle.repository.VehicleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -281,6 +283,10 @@ public class DriverService {
 
         User user = identityService.getCurrentLoggedInUser();
 
+        if (user.getDriver() == null) {
+            throw new DriverNotFoundException();
+        }
+
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by("createdAt").descending());
 
         Page<Ride> pageRides = rideRepository.findByDriverAndRideStatusIn(user.getDriver(),
@@ -305,31 +311,21 @@ public class DriverService {
 
     }
 
-    public RideResponseMetaDTO getRecentRides(int pageNo, int pageSize) {
+    public List<RideResponseDTO> getRecentRides() {
 
         User user = identityService.getCurrentLoggedInUser();
 
-        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        if (user.getDriver() == null) {
+            throw new DriverNotFoundException();
+        }
 
-        Page<Ride> pageRides = rideRepository.findByDriverAndRideStatusIn(user.getDriver(),
-                List.of(RideStatus.COMPLETED, RideStatus.RIDER_CANCELLED, RideStatus.DRIVER_CANCELLED), pageable);
+        List<Ride> recentRides = rideRepository.findTop5ByDriverAndRideStatusInOrderByCreatedAtDesc(user.getDriver(),
+                List.of(RideStatus.COMPLETED, RideStatus.RIDER_CANCELLED, RideStatus.DRIVER_CANCELLED));
 
-        List<RideResponseDTO> rides = pageRides.getContent().stream()
+        List<RideResponseDTO> rides = recentRides.stream()
                 .map(RideMapper::toDTO).toList();
 
-        Meta meta = Meta.builder()
-                .currentPage(pageRides.getNumber())
-                .totalPages(pageRides.getTotalPages())
-                .pageSize(pageRides.getSize())
-                .hasNext(pageRides.hasNext())
-                .hasPrev(pageRides.hasPrevious())
-                .build();
-
-        RideResponseMetaDTO response = new RideResponseMetaDTO();
-        response.setMeta(meta);
-        response.setData(rides);
-
-        return response;
+        return rides;
 
     }
 
