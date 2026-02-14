@@ -101,32 +101,33 @@ public class IdentityService {
 
     boolean completedProfile;
 
-    switch (user.getRole()){
+    switch (user.getRole()) {
 
-      case RIDER->{
+      case RIDER -> {
         Rider rider = riderRepository.findByUser(user)
-                .orElse(null);
-        if(rider != null){
-          completedProfile=rider.isCompletedProfile();
-        }else{
+            .orElse(null);
+        if (rider != null) {
+          completedProfile = rider.isCompletedProfile();
+        } else {
           completedProfile = false;
         }
       }
 
       case DRIVER -> {
         Driver driver = driverRepository.findByUser(user)
-                .orElse(null);
-        if(driver != null){
-          completedProfile=driver.isCompletedProfile();
-        }else{
+            .orElse(null);
+        if (driver != null) {
+          completedProfile = driver.isCompletedProfile();
+        } else {
           completedProfile = false;
         }
       }
 
-      default -> completedProfile=false;
+      default -> completedProfile = false;
     }
 
-    claims.put("completedProfile",completedProfile );
+    claims.put("completedProfile", completedProfile);
+    claims.put("fullname", user.getFullname());
 
     String token = jwtProvider.generateToken(user.getEmail(), claims);
 
@@ -136,18 +137,18 @@ public class IdentityService {
     return response;
   }
 
-  public User getCurrentLoggedInUser(){
+  public User getCurrentLoggedInUser() {
     String username = SecurityContextHolder.getContext()
-            .getAuthentication()
-            .getName();
+        .getAuthentication()
+        .getName();
 
-    return  getUserByEmail(username);
+    return getUserByEmail(username);
   }
 
   @Cacheable(value = "user", key = "#email")
-  public User getUserByEmail(String email){
+  public User getUserByEmail(String email) {
     return userRepository.findByEmailIgnoreCase(email)
-            .orElseThrow(UserNotFoundException::new);
+        .orElseThrow(UserNotFoundException::new);
   }
 
   protected RegisterResponseDTO createAccount(RegisterRequestDTO request, Role role) {
@@ -177,6 +178,5 @@ public class IdentityService {
 
     return UserMapper.toRegisterResponseDTO(savedUser);
   }
-
 
 }

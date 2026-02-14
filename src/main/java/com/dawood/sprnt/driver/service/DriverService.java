@@ -1,5 +1,6 @@
 package com.dawood.sprnt.driver.service;
 
+import com.dawood.sprnt.common.security.JwtProvider;
 import com.dawood.sprnt.common.service.KafkaProducer;
 import com.dawood.sprnt.driver.api.dto.DriverLocationDTO;
 import com.dawood.sprnt.driver.api.dto.OnboardingRequest;
@@ -30,7 +31,9 @@ import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -47,6 +50,7 @@ public class DriverService {
     private final VehicleRepository vehicleRepository;
     private final VehicleDocumentRepository vehicleDocumentRepository;
     private final KafkaProducer kafkaProducer;
+    private final JwtProvider jwtProvider;
 
     @Transactional
     public OnboardingResponse completeOnboarding(OnboardingRequest request) {
@@ -110,11 +114,19 @@ public class DriverService {
 
         vehicleDocumentRepository.saveAll(vehicleDocuments);
 
+        Map<String, Object> claims = new HashMap<>();
+
+        claims.put("completedProfile", true);
+        claims.put("role", user.getRole().name());
+
+        String token = jwtProvider.generateToken(user.getEmail(), claims);
+
         return OnboardingResponse.builder()
                 .driverId(savedDriver.getId())
                 .kycStatus(savedDriver.getKycStatus())
                 .message("Application submitted successfully. We will review your documents shortly.")
                 .nextAction(determineNextAction(driver.getKycStatus()))
+                .token(token)
                 .build();
 
     }

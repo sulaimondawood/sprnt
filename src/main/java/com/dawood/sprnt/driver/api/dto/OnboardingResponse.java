@@ -1,11 +1,11 @@
 package com.dawood.sprnt.driver.api.dto;
 
+import java.util.UUID;
+
 import com.dawood.sprnt.driver.model.DriverKycStatus;
-import com.dawood.sprnt.driver.model.NextActionStatus;
+
 import lombok.Builder;
 import lombok.Data;
-
-import java.util.UUID;
 
 @Data
 @Builder
@@ -18,4 +18,6 @@ public class OnboardingResponse {
     private String message;
 
     private String nextAction;
+
+    private String token;
 }
