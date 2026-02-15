@@ -5,6 +5,7 @@ import com.dawood.sprnt.ride.api.dto.LocationDTO;
 import com.dawood.sprnt.ride.api.dto.RideResponseDTO;
 import com.dawood.sprnt.ride.model.Ride;
 import com.dawood.sprnt.ride.model.RideStatus;
+import com.dawood.sprnt.user.mapper.UserMapper;
 
 public class RideMapper {
 
@@ -29,9 +30,9 @@ public class RideMapper {
         pickup.setLat(ride.getPickupLocation().getCoords().getY());
 
         LocationDTO dropoff = new LocationDTO();
-        pickup.setAddress(ride.getDropoffLocation().getAddress());
-        pickup.setLng(ride.getDropoffLocation().getCoords().getX());
-        pickup.setLat(ride.getDropoffLocation().getCoords().getY());
+        dropoff.setAddress(ride.getDropoffLocation().getAddress());
+        dropoff.setLng(ride.getDropoffLocation().getCoords().getX());
+        dropoff.setLat(ride.getDropoffLocation().getCoords().getY());
 
         response.setPickupLocation(pickup);
         response.setDropoffLocation(dropoff);
@@ -47,6 +48,8 @@ public class RideMapper {
         response.setRiderName(ride.getRider().getDisplayName());
         response.setDriverName(ride.getDriver().getDisplayName());
         response.setCreatedAt(ride.getCreatedAt());
+        response.setRiderInfo(UserMapper.toDTO(ride.getRider().getUser()));
+        response.setDriverInfo(UserMapper.toDTO(ride.getDriver().getUser()));
 
         return response;
 

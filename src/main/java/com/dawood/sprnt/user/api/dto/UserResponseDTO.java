@@ -26,8 +26,6 @@ public class UserResponseDTO {
 
   private String email;
 
-  private String password;
-
   private LocalDateTime lastLogin;
 
   private Status status;
