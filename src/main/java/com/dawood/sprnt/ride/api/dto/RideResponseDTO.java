@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import com.dawood.sprnt.ride.model.Currency;
-import com.dawood.sprnt.ride.model.Location;
 import com.dawood.sprnt.ride.model.RideStatus;
 
 import lombok.AllArgsConstructor;
@@ -18,9 +17,9 @@ import lombok.NoArgsConstructor;
 public class RideResponseDTO {
   private UUID id;
 
-  private Location pickupLocation;
+  private LocationDTO pickupLocation;
 
-  private Location dropoffLocation;
+  private LocationDTO dropoffLocation;
 
   private RideStatus rideStatus;
 
@@ -39,5 +38,11 @@ public class RideResponseDTO {
   private int estimatedDurationMins;
 
   private LocalDateTime acceptedAt;
+
+  private String riderName;
+
+  private String driverName;
+
+  private LocalDateTime createdAt;
 
 }

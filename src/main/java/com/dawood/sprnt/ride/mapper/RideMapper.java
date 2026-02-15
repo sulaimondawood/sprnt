@@ -1,6 +1,7 @@
 package com.dawood.sprnt.ride.mapper;
 
 import com.dawood.sprnt.ride.api.dto.CreateRideResponse;
+import com.dawood.sprnt.ride.api.dto.LocationDTO;
 import com.dawood.sprnt.ride.api.dto.RideResponseDTO;
 import com.dawood.sprnt.ride.model.Ride;
 import com.dawood.sprnt.ride.model.RideStatus;
@@ -21,8 +22,19 @@ public class RideMapper {
 
         RideResponseDTO response = new RideResponseDTO();
         response.setId(ride.getId());
-        response.setPickupLocation(ride.getPickupLocation());
-        response.setDropoffLocation(ride.getDropoffLocation());
+
+        LocationDTO pickup = new LocationDTO();
+        pickup.setAddress(ride.getPickupLocation().getAddress());
+        pickup.setLng(ride.getPickupLocation().getCoords().getX());
+        pickup.setLat(ride.getPickupLocation().getCoords().getY());
+
+        LocationDTO dropoff = new LocationDTO();
+        pickup.setAddress(ride.getDropoffLocation().getAddress());
+        pickup.setLng(ride.getDropoffLocation().getCoords().getX());
+        pickup.setLat(ride.getDropoffLocation().getCoords().getY());
+
+        response.setPickupLocation(pickup);
+        response.setDropoffLocation(dropoff);
         response.setRideStatus(ride.getRideStatus());
         response.setEstimatedFare(ride.getEstimatedFare());
         response.setCurrency(ride.getCurrency());
@@ -32,6 +44,9 @@ public class RideMapper {
         response.setEstimatedDistance(ride.getEstimatedDistance());
         response.setEstimatedDurationMins(ride.getEstimatedDurationMins());
         response.setAcceptedAt(ride.getAcceptedAt());
+        response.setRiderName(ride.getRider().getDisplayName());
+        response.setDriverName(ride.getDriver().getDisplayName());
+        response.setCreatedAt(ride.getCreatedAt());
 
         return response;
 

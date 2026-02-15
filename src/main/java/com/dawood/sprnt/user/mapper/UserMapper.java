@@ -15,45 +15,49 @@ public class UserMapper {
     response.setId(user.getId());
     response.setFullname(user.getFullname());
     response.setEmail(user.getEmail());
-    response.setPassword(user.getPassword());
     response.setLastLogin(user.getLastLogin());
     response.setStatus(user.getStatus());
     response.setRole(user.getRole());
 
     Driver driver = user.getDriver();
 
-    DriverResponseDTO driverRes = new DriverResponseDTO();
-    driverRes.setId(driver.getId());
-    driverRes.setDisplayName(driver.getDisplayName());
-    driverRes.setProfileImage(driver.getProfileImage());
-    driverRes.setLicenseNumber(driver.getLicenseNumber());
-    driverRes.setLicenseExpiry(driver.getLicenseExpiry());
-    driverRes.setNin(driver.getNin());
-    driverRes.setStatus(driver.getStatus());
-    driverRes.setAvailabilityStatus(driver.getAvailabilityStatus());
-    driverRes.setRating(driver.getRating());
-    driverRes.setTotalRatings(driver.getTotalRatings());
-    driverRes.setTotalCompletedTrips(driver.getTotalCompletedTrips());
-    driverRes.setKycStatus(driver.getKycStatus());
-    driverRes.setCompletedProfile(driver.isCompletedProfile());
-    driverRes.setLocation(driver.getLocation());
+    if (driver != null) {
+      DriverResponseDTO driverRes = new DriverResponseDTO();
+      driverRes.setId(driver.getId());
+      driverRes.setDisplayName(driver.getDisplayName());
+      driverRes.setProfileImage(driver.getProfileImage());
+      driverRes.setLicenseNumber(driver.getLicenseNumber());
+      driverRes.setLicenseExpiry(driver.getLicenseExpiry());
+      driverRes.setNin(driver.getNin());
+      driverRes.setStatus(driver.getStatus());
+      driverRes.setAvailabilityStatus(driver.getAvailabilityStatus());
+      driverRes.setRating(driver.getRating());
+      driverRes.setTotalRatings(driver.getTotalRatings());
+      driverRes.setTotalCompletedTrips(driver.getTotalCompletedTrips());
+      driverRes.setKycStatus(driver.getKycStatus());
+      driverRes.setCompletedProfile(driver.isCompletedProfile());
+      driverRes.setLocation(driver.getLocation());
+
+      response.setDriver(driverRes);
+    }
 
     Rider rider = user.getRider();
 
-    RiderResponseDTO riderRes = new RiderResponseDTO();
-    riderRes.setId(rider.getId());
-    riderRes.setDisplayName(rider.getDisplayName());
-    riderRes.setProfileImage(rider.getProfileImage());
-    riderRes.setDefaultPickupLocation(rider.getDefaultPickupLocation());
-    riderRes.setTotalRides(rider.getTotalRides());
-    riderRes.setReferralCode(rider.getReferralCode());
-    riderRes.setStatus(rider.getStatus());
-    riderRes.setRating(rider.getRating());
-    riderRes.setTotalRatings(rider.getTotalRatings());
-    riderRes.setCompletedProfile(rider.isCompletedProfile());
+    if (rider != null) {
+      RiderResponseDTO riderRes = new RiderResponseDTO();
+      riderRes.setId(rider.getId());
+      riderRes.setDisplayName(rider.getDisplayName());
+      riderRes.setProfileImage(rider.getProfileImage());
+      riderRes.setDefaultPickupLocation(rider.getDefaultPickupLocation());
+      riderRes.setTotalRides(rider.getTotalRides());
+      riderRes.setReferralCode(rider.getReferralCode());
+      riderRes.setStatus(rider.getStatus());
+      riderRes.setRating(rider.getRating());
+      riderRes.setTotalRatings(rider.getTotalRatings());
+      riderRes.setCompletedProfile(rider.isCompletedProfile());
 
-    response.setDriver(driverRes);
-    response.setRider(riderRes);
+      response.setRider(riderRes);
+    }
 
     return response;
 
