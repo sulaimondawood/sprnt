@@ -1,5 +1,6 @@
 package com.dawood.sprnt.driver.api.controller;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -82,10 +83,13 @@ public class DriverController {
     @GetMapping("/rides")
     public ResponseEntity<ApiResponse<RideResponseMetaDTO>> getRideHistory(
             @RequestParam(defaultValue = "20", required = false) int pageSize,
-            @RequestParam(defaultValue = "0", required = false) int pageNo) {
+            @RequestParam(defaultValue = "0", required = false) int pageNo,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) LocalDateTime from,
+            @RequestParam(required = false) LocalDateTime to) {
 
         return ApiResponse.success(
-                driverService.getRideHistory(pageNo, pageSize), "Ride history successfully fetched");
+                driverService.getRideHistory(pageNo, pageSize, keyword, from, to), "Ride history successfully fetched");
 
     }
 

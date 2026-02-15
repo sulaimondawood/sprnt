@@ -31,8 +31,26 @@ import java.util.Map;
 @Slf4j
 public class GlobalExceptionHandler {
 
+  @ExceptionHandler(IllegalArgumentException.class)
+  public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex,
+      HttpServletRequest request) {
+
+    ErrorResponse errorResponse = ErrorResponse.builder()
+        .status(HttpStatus.BAD_REQUEST.value())
+        .path(request.getRequestURI())
+        .message(ex.getMessage())
+        .error(HttpStatus.BAD_REQUEST.name())
+        .build();
+
+    log.error(ex.getMessage(), ex);
+
+    return ResponseEntity.badRequest().body(errorResponse);
+
+  }
+
   @ExceptionHandler(DriverNotFoundException.class)
-  public ResponseEntity<ErrorResponse> handleRatingException(DriverNotFoundException ex, HttpServletRequest request) {
+  public ResponseEntity<ErrorResponse> handleDriverNotFounException(DriverNotFoundException ex,
+      HttpServletRequest request) {
 
     ErrorResponse errorResponse = ErrorResponse.builder()
         .status(HttpStatus.BAD_REQUEST.value())
