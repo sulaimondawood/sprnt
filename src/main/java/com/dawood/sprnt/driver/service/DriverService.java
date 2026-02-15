@@ -366,6 +366,21 @@ public class DriverService {
 
     }
 
+    public RideResponseDTO currentRide() {
+
+        User user = identityService.getCurrentLoggedInUser();
+
+        if (user.getDriver() == null) {
+            throw new DriverNotFoundException();
+        }
+
+        Ride response = rideRepository.findByDriverAndRideStatus(user.getDriver(), RideStatus.ON_TRIP)
+                .orElseThrow(() -> new RideNotFoundException());
+
+        return RideMapper.toDTO(response);
+
+    }
+
     public boolean isValidTransition(RideStatus currentStatus, RideStatus newStatus) {
         return switch (currentStatus) {
 

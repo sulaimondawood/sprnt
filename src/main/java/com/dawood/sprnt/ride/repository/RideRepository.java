@@ -79,4 +79,6 @@ public interface RideRepository extends JpaRepository<Ride, UUID> {
             """)
     long rideCount(@Param("driver") Driver driver, @Param("statuses") List<RideStatus> statuses);
 
+    Optional<Ride> findByDriverAndRideStatus(Driver driver, RideStatus status);
+
 }

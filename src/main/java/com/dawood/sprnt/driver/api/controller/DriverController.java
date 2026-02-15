@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.dawood.sprnt.common.dto.ApiResponse;
 import com.dawood.sprnt.driver.api.dto.DriverLocationDTO;
+import com.dawood.sprnt.driver.api.dto.DriverTripOverview;
 import com.dawood.sprnt.driver.api.dto.OnboardingRequest;
 import com.dawood.sprnt.driver.api.dto.OnboardingResponse;
 import com.dawood.sprnt.driver.model.Driver;
@@ -103,6 +104,22 @@ public class DriverController {
 
         return ApiResponse.success(
                 driverService.getRecentRides(), "Recent rides successfully fetched");
+
+    }
+
+    @GetMapping("/rides/overview")
+    public ResponseEntity<ApiResponse<DriverTripOverview>> getRideOverview() {
+
+        return ApiResponse.success(
+                driverService.driverTripOverview(), "Ride overview successfully fetched");
+
+    }
+
+    @GetMapping("/rides/current")
+    public ResponseEntity<ApiResponse<RideResponseDTO>> getCurrentRide() {
+
+        return ApiResponse.success(
+                driverService.currentRide(), "Current ride successfully fetched");
 
     }
 
