@@ -280,7 +280,7 @@ public class DriverService {
     }
 
     public RideResponseMetaDTO getRideHistory(int pageNo, int pageSize, String keyword, LocalDateTime from,
-            LocalDateTime to) {
+            LocalDateTime to, RideStatus status) {
 
         if (from != null && to != null && from.isAfter(to)) {
             throw new IllegalArgumentException("From date cannot be after To date");
@@ -292,10 +292,18 @@ public class DriverService {
             throw new DriverNotFoundException();
         }
 
-        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by("created_at").descending());
 
-        Page<Ride> pageRides = rideRepository.findByDriverAndRideStatus(user.getDriver(),
-                List.of(RideStatus.COMPLETED, RideStatus.RIDER_CANCELLED, RideStatus.DRIVER_CANCELLED), keyword, from,
+        // List<RideStatus> statusList = List.of(RideStatus.COMPLETED,
+        // RideStatus.RIDER_CANCELLED,
+        // RideStatus.DRIVER_CANCELLED);
+
+        // String[] statuses =
+        // statusList.stream().map(Enum::name).toArray(String[]::new);
+
+        Page<Ride> pageRides = rideRepository.findByDriverAndRideStatus(user.getDriver().getId(),
+                status,
+                keyword, from,
                 to,
                 pageable);
 

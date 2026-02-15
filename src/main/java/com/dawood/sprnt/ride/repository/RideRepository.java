@@ -27,26 +27,48 @@ public interface RideRepository extends JpaRepository<Ride, UUID> {
 
     Page<Ride> findByDriverAndRideStatusIn(Driver driver, List<RideStatus> statuses, Pageable p);
 
-    @Query("""
-            SELECT r FROM Ride r
-            WHERE r.driver=:driver
-            AND(:statuses IS NULL OR r.rideStatus IN :statuses)
-            AND (:keyword IS NULL OR
-                 LOWER(r.pickupLocation.address) LIKE LOWER(CONCAT('%',:keyword,'%')) OR
-                 LOWER(r.dropoffLocation.address) LIKE LOWER(CONCAT('%',:keyword,'%')) OR
-                 LOWER(r.rider.displayName) LIKE LOWER(CONCAT('%',:keyword,'%')) OR
-                 LOWER(r.id) LIKE LOWER(CONCAT('%',:keyword,'%'))
-            )
-            AND(:from IS NULL OR r.createdAt >= :from)
-            AND (:to IS NULL OR r.createdAt <= :to)
-                """)
+    @Query(value = """
+                SELECT r.*
+                FROM rides r
+                LEFT JOIN riders rd ON r.rider_id = rd.id
+                WHERE r.driver_id = :driverId
+                  AND (CAST(:status AS text) IS NULL OR r.ride_status = CAST(:status AS text))
+                  AND (CAST(:keyword AS text) IS NULL OR
+                       r.pick_up_address ILIKE CONCAT('%', :keyword, '%') OR
+                       r.drop_off_address ILIKE CONCAT('%', :keyword, '%') OR
+                       rd.display_name ILIKE CONCAT('%', :keyword, '%')
+                  )
+                  AND (CAST(:from AS timestamp) IS NULL OR r.created_at >= :from)
+                  AND (CAST(:to AS timestamp) IS NULL OR r.created_at <= :to)
+            """, nativeQuery = true)
     Page<Ride> findByDriverAndRideStatus(
-            @Param("driver") Driver driver,
-            @Param("statuses") List<RideStatus> statuses,
+            @Param("driverId") UUID driverId,
+            @Param("status") RideStatus status,
             @Param("keyword") String keyword,
             @Param("from") LocalDateTime from,
             @Param("to") LocalDateTime to,
-            Pageable p);
+            Pageable pageable);
+
+    // @Query("""
+    // SELECT r FROM Ride r
+    // WHERE r.driver=:driver
+    // AND(:statuses IS NULL OR r.rideStatus IN :statuses)
+    // AND (:keyword IS NULL OR
+    // r.pickupLocation.address ILIKE CONCAT('%',CAST(:keyword AS text),'%') OR
+    // r.dropoffLocation.address ILIKE CONCAT('%',CAST(:keyword AS text),'%') OR
+    // r.rider.displayName ILIKE CONCAT('%',CAST(:keyword AS text),'%')
+
+    // )
+    // AND(:from IS NULL OR r.createdAt >= :from)
+    // AND (:to IS NULL OR r.createdAt <= :to)
+    // """)
+    // Page<Ride> findByDriverAndRideStatus(
+    // @Param("driver") Driver driver,
+    // @Param("statuses") List<RideStatus> statuses,
+    // @Param("keyword") String keyword,
+    // @Param("from") LocalDateTime from,
+    // @Param("to") LocalDateTime to,
+    // Pageable p);
 
     List<Ride> findTop5ByDriverAndRideStatusInOrderByCreatedAtDesc(Driver driver, List<RideStatus> statuses);
 

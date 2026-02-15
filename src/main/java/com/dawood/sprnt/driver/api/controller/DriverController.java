@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.format.annotation.DateTimeFormat.ISO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -25,6 +27,7 @@ import com.dawood.sprnt.driver.service.DriverService;
 import com.dawood.sprnt.identity.service.IdentityService;
 import com.dawood.sprnt.ride.api.dto.RideResponseDTO;
 import com.dawood.sprnt.ride.api.dto.RideResponseMetaDTO;
+import com.dawood.sprnt.ride.model.RideStatus;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -85,11 +88,13 @@ public class DriverController {
             @RequestParam(defaultValue = "20", required = false) int pageSize,
             @RequestParam(defaultValue = "0", required = false) int pageNo,
             @RequestParam(required = false) String keyword,
-            @RequestParam(required = false) LocalDateTime from,
-            @RequestParam(required = false) LocalDateTime to) {
+            @RequestParam(required = false) @DateTimeFormat(iso = ISO.DATE_TIME) LocalDateTime from,
+            @RequestParam(required = false) @DateTimeFormat(iso = ISO.DATE_TIME) LocalDateTime to,
+            @RequestParam(required = false) RideStatus status) {
 
         return ApiResponse.success(
-                driverService.getRideHistory(pageNo, pageSize, keyword, from, to), "Ride history successfully fetched");
+                driverService.getRideHistory(pageNo, pageSize, keyword, from, to, status),
+                "Ride history successfully fetched");
 
     }
 
