@@ -5,6 +5,7 @@ import com.dawood.sprnt.driver.model.Driver;
 import com.dawood.sprnt.identity.model.User;
 import com.dawood.sprnt.rider.api.dto.RiderResponseDTO;
 import com.dawood.sprnt.rider.model.Rider;
+import com.dawood.sprnt.user.api.dto.UserDTO;
 import com.dawood.sprnt.user.api.dto.UserResponseDTO;
 
 public class UserMapper {
@@ -58,6 +59,20 @@ public class UserMapper {
 
       response.setRider(riderRes);
     }
+
+    return response;
+
+  }
+
+  public static UserDTO toUserDTO(User user) {
+
+    UserDTO response = new UserDTO();
+    response.setId(user.getId());
+    response.setFullname(user.getFullname());
+    response.setEmail(user.getEmail());
+    response.setLastLogin(user.getLastLogin());
+    response.setStatus(user.getStatus());
+    response.setRole(user.getRole());
 
     return response;
 

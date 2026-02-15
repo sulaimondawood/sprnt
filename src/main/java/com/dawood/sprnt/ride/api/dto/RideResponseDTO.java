@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import com.dawood.sprnt.ride.model.Currency;
 import com.dawood.sprnt.ride.model.RideStatus;
-import com.dawood.sprnt.user.api.dto.UserResponseDTO;
+import com.dawood.sprnt.user.api.dto.UserDTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -46,8 +46,8 @@ public class RideResponseDTO {
 
   private LocalDateTime createdAt;
 
-  private UserResponseDTO driverInfo;
+  private UserDTO driverInfo;
 
-  private UserResponseDTO riderInfo;
+  private UserDTO riderInfo;
 
 }

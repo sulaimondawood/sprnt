@@ -48,8 +48,8 @@ public class RideMapper {
         response.setRiderName(ride.getRider().getDisplayName());
         response.setDriverName(ride.getDriver().getDisplayName());
         response.setCreatedAt(ride.getCreatedAt());
-        response.setRiderInfo(UserMapper.toDTO(ride.getRider().getUser()));
-        response.setDriverInfo(UserMapper.toDTO(ride.getDriver().getUser()));
+        response.setRiderInfo(UserMapper.toUserDTO(ride.getRider().getUser()));
+        response.setDriverInfo(UserMapper.toUserDTO(ride.getDriver().getUser()));
 
         return response;
 
