@@ -4,6 +4,7 @@ import com.dawood.sprnt.common.dto.Meta;
 import com.dawood.sprnt.common.security.JwtProvider;
 import com.dawood.sprnt.common.service.KafkaProducer;
 import com.dawood.sprnt.driver.api.dto.DriverLocationDTO;
+import com.dawood.sprnt.driver.api.dto.DriverTripOverview;
 import com.dawood.sprnt.driver.api.dto.OnboardingRequest;
 import com.dawood.sprnt.driver.api.dto.OnboardingResponse;
 import com.dawood.sprnt.driver.api.dto.RideCompleted;
@@ -294,13 +295,6 @@ public class DriverService {
 
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by("created_at").descending());
 
-        // List<RideStatus> statusList = List.of(RideStatus.COMPLETED,
-        // RideStatus.RIDER_CANCELLED,
-        // RideStatus.DRIVER_CANCELLED);
-
-        // String[] statuses =
-        // statusList.stream().map(Enum::name).toArray(String[]::new);
-
         Page<Ride> pageRides = rideRepository.findByDriverAndRideStatus(user.getDriver().getId(),
                 status,
                 keyword, from,
@@ -341,6 +335,34 @@ public class DriverService {
                 .map(RideMapper::toDTO).toList();
 
         return rides;
+
+    }
+
+    public DriverTripOverview driverTripOverview() {
+        User user = identityService.getCurrentLoggedInUser();
+
+        if (user.getDriver() == null) {
+            throw new DriverNotFoundException();
+        }
+
+        long totalTrips = rideRepository.rideCount(user.getDriver(),
+                List.of(RideStatus.COMPLETED, RideStatus.DRIVER_CANCELLED, RideStatus.RIDER_CANCELLED));
+
+        long totalCompletedTrips = rideRepository.rideCount(user.getDriver(),
+                List.of(RideStatus.COMPLETED));
+
+        long totalCancelledTrips = rideRepository.rideCount(user.getDriver(),
+                List.of(RideStatus.DRIVER_CANCELLED, RideStatus.RIDER_CANCELLED));
+
+        long totalOngoingTrips = rideRepository.rideCount(user.getDriver(),
+                List.of(RideStatus.ON_TRIP));
+
+        return DriverTripOverview.builder()
+                .totalTrips(totalTrips)
+                .totalCancelled(totalCancelledTrips)
+                .totalOngoing(totalOngoingTrips)
+                .totalCompleted(totalCompletedTrips)
+                .build();
 
     }
 

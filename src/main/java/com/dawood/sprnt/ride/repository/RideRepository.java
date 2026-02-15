@@ -72,4 +72,11 @@ public interface RideRepository extends JpaRepository<Ride, UUID> {
 
     List<Ride> findTop5ByDriverAndRideStatusInOrderByCreatedAtDesc(Driver driver, List<RideStatus> statuses);
 
+    @Query("""
+            SELECT COUNT(r) FROM Ride r
+            WHERE r.driver=:driver
+            AND r.rideStatus IN :statuses
+            """)
+    long rideCount(@Param("driver") Driver driver, @Param("statuses") List<RideStatus> statuses);
+
 }
