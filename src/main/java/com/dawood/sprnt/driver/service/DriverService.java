@@ -295,8 +295,10 @@ public class DriverService {
 
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by("created_at").descending());
 
+        String statusStr = status != null ? status.name() : null;
+
         Page<Ride> pageRides = rideRepository.findByDriverAndRideStatus(user.getDriver().getId(),
-                status,
+                statusStr,
                 keyword, from,
                 to,
                 pageable);

@@ -7,6 +7,7 @@ import java.util.UUID;
 import com.dawood.sprnt.driver.api.dto.DriverResponseDTO;
 import com.dawood.sprnt.ride.model.Currency;
 import com.dawood.sprnt.ride.model.RideStatus;
+import com.dawood.sprnt.rider.api.dto.RiderResponseDTO;
 import com.dawood.sprnt.user.api.dto.UserDTO;
 
 import lombok.AllArgsConstructor;
@@ -53,6 +54,6 @@ public class RideResponseDTO {
 
   private DriverResponseDTO driver;
 
-  private DriverResponseDTO rider;
+  private RiderResponseDTO rider;
 
 }

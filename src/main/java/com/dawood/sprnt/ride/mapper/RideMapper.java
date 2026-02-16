@@ -1,10 +1,12 @@
 package com.dawood.sprnt.ride.mapper;
 
+import com.dawood.sprnt.driver.mapper.DriverMapper;
 import com.dawood.sprnt.ride.api.dto.CreateRideResponse;
 import com.dawood.sprnt.ride.api.dto.LocationDTO;
 import com.dawood.sprnt.ride.api.dto.RideResponseDTO;
 import com.dawood.sprnt.ride.model.Ride;
 import com.dawood.sprnt.ride.model.RideStatus;
+import com.dawood.sprnt.rider.mapper.RiderMapper;
 import com.dawood.sprnt.user.mapper.UserMapper;
 
 public class RideMapper {
@@ -50,6 +52,8 @@ public class RideMapper {
         response.setCreatedAt(ride.getCreatedAt());
         response.setRiderInfo(UserMapper.toUserDTO(ride.getRider().getUser()));
         response.setDriverInfo(UserMapper.toUserDTO(ride.getDriver().getUser()));
+        response.setDriver(DriverMapper.toDTO(ride.getDriver()));
+        response.setRider(RiderMapper.toDTO(ride.getRider()));
 
         return response;
 
