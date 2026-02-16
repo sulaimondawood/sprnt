@@ -6,7 +6,9 @@ import com.dawood.sprnt.identity.model.User;
 import com.dawood.sprnt.identity.service.IdentityService;
 import com.dawood.sprnt.pricing.service.PricingService;
 import com.dawood.sprnt.ride.api.dto.RideEstimate;
+import com.dawood.sprnt.ride.api.dto.RideResponseDTO;
 import com.dawood.sprnt.ride.event.CreateRideEvent;
+import com.dawood.sprnt.ride.exception.RideNotFoundException;
 import com.dawood.sprnt.ride.mapper.RideMapper;
 import com.dawood.sprnt.rider.exception.RiderException;
 import com.dawood.sprnt.ride.api.dto.CreateRideRequest;
@@ -25,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -49,9 +52,10 @@ public class RideService {
             throw new RiderException("Rider profile is incomplete. Kindly complete your profile setup");
         }
 
-        boolean hasActiveRide = rideRepository.existsByRiderIdAndRideStatusIn(rider.getId(), List.of(RideStatus.REQUESTED, RideStatus.DRIVER_ACCEPTED, RideStatus.ON_TRIP));
+        boolean hasActiveRide = rideRepository.existsByRiderIdAndRideStatusIn(rider.getId(),
+                List.of(RideStatus.REQUESTED, RideStatus.DRIVER_ACCEPTED, RideStatus.ON_TRIP));
 
-        if(hasActiveRide){
+        if (hasActiveRide) {
             throw new RiderException("You already have a ride in progress.");
         }
 
@@ -63,9 +67,8 @@ public class RideService {
         double pickupLng = request.getPickupLocation().getLng();
         double pickupLat = request.getPickupLocation().getLat();
 
-        Point pickupCoords = GeometryUtils.createPoint(pickupLng,pickupLat);
+        Point pickupCoords = GeometryUtils.createPoint(pickupLng, pickupLat);
         pickupLocation.setCoords(pickupCoords);
-
 
         Location dropoffLocation = new Location();
         dropoffLocation.setAddress(request.getDropoffLocation().getAddress());
@@ -73,7 +76,7 @@ public class RideService {
         double dropOffLng = request.getDropoffLocation().getLng();
         double dropOffLat = request.getDropoffLocation().getLat();
 
-        Point dropOffCoords = GeometryUtils.createPoint(dropOffLng,dropOffLat);
+        Point dropOffCoords = GeometryUtils.createPoint(dropOffLng, dropOffLat);
         dropoffLocation.setCoords(dropOffCoords);
 
         RideEstimate rideEstimate = pricingService.calculateEstimatedFare(
@@ -99,4 +102,11 @@ public class RideService {
 
     }
 
+    public RideResponseDTO getRideDetails(UUID rideId) {
+
+        Ride ride = rideRepository.findById(rideId)
+                .orElseThrow(() -> new RideNotFoundException());
+
+        return RideMapper.toDTO(ride);
+    }
 }
