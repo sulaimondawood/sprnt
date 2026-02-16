@@ -1,5 +1,22 @@
 package com.dawood.sprnt.driver.service;
 
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+
 import com.dawood.sprnt.common.dto.Meta;
 import com.dawood.sprnt.common.security.JwtProvider;
 import com.dawood.sprnt.common.service.KafkaProducer;
@@ -10,7 +27,11 @@ import com.dawood.sprnt.driver.api.dto.OnboardingResponse;
 import com.dawood.sprnt.driver.api.dto.RideCompleted;
 import com.dawood.sprnt.driver.exception.DriverAlreadyExistsException;
 import com.dawood.sprnt.driver.exception.DriverNotFoundException;
-import com.dawood.sprnt.driver.model.*;
+import com.dawood.sprnt.driver.model.Driver;
+import com.dawood.sprnt.driver.model.DriverAvailabilityStatus;
+import com.dawood.sprnt.driver.model.DriverKycStatus;
+import com.dawood.sprnt.driver.model.DriverStatus;
+import com.dawood.sprnt.driver.model.NextActionStatus;
 import com.dawood.sprnt.driver.repository.DriverRepository;
 import com.dawood.sprnt.identity.model.User;
 import com.dawood.sprnt.identity.service.IdentityService;
@@ -25,29 +46,15 @@ import com.dawood.sprnt.ride.model.Ride;
 import com.dawood.sprnt.ride.model.RideStatus;
 import com.dawood.sprnt.ride.repository.RideRepository;
 import com.dawood.sprnt.ride.service.RideMatchingService;
-import com.dawood.sprnt.vehicle.model.*;
+import com.dawood.sprnt.vehicle.model.Vehicle;
+import com.dawood.sprnt.vehicle.model.VehicleDocument;
+import com.dawood.sprnt.vehicle.model.VehicleDocumentStatus;
+import com.dawood.sprnt.vehicle.model.VehicleStatus;
 import com.dawood.sprnt.vehicle.repository.VehicleDocumentRepository;
 import com.dawood.sprnt.vehicle.repository.VehicleRepository;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import org.apache.kafka.common.errors.ResourceNotFoundException;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
-
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor

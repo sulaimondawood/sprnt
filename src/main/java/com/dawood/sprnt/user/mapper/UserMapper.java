@@ -3,6 +3,7 @@ package com.dawood.sprnt.user.mapper;
 import com.dawood.sprnt.driver.api.dto.DriverResponseDTO;
 import com.dawood.sprnt.driver.model.Driver;
 import com.dawood.sprnt.identity.model.User;
+import com.dawood.sprnt.ride.api.dto.LocationDTO;
 import com.dawood.sprnt.rider.api.dto.RiderResponseDTO;
 import com.dawood.sprnt.rider.model.Rider;
 import com.dawood.sprnt.user.api.dto.UserDTO;
@@ -49,7 +50,13 @@ public class UserMapper {
       riderRes.setId(rider.getId());
       riderRes.setDisplayName(rider.getDisplayName());
       riderRes.setProfileImage(rider.getProfileImage());
-      riderRes.setDefaultPickupLocation(rider.getDefaultPickupLocation());
+
+      LocationDTO defaultLocation = new LocationDTO();
+      defaultLocation.setAddress(rider.getDefaultPickupLocation().getAddress());
+      defaultLocation.setLng(rider.getDefaultPickupLocation().getCoords().getX());
+      defaultLocation.setLat(rider.getDefaultPickupLocation().getCoords().getY());
+
+      riderRes.setDefaultPickupLocation(defaultLocation);
       riderRes.setTotalRides(rider.getTotalRides());
       riderRes.setReferralCode(rider.getReferralCode());
       riderRes.setStatus(rider.getStatus());
