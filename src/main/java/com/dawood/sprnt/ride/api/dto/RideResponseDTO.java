@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.dawood.sprnt.driver.api.dto.DriverResponseDTO;
 import com.dawood.sprnt.ride.model.Currency;
 import com.dawood.sprnt.ride.model.RideStatus;
 import com.dawood.sprnt.user.api.dto.UserDTO;
@@ -49,5 +50,9 @@ public class RideResponseDTO {
   private UserDTO driverInfo;
 
   private UserDTO riderInfo;
+
+  private DriverResponseDTO driver;
+
+  private DriverResponseDTO rider;
 
 }

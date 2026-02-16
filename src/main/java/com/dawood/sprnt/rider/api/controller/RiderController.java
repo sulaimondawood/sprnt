@@ -22,19 +22,18 @@ public class RiderController {
     private final RiderService riderService;
 
     @PostMapping("/onboard")
-    public ResponseEntity<ApiResponse<ProfileResponseDTO>> completeProfileSetup(@Valid
-                                                                                @RequestBody
-                                                                                ProfileRequestDTO request) {
+    public ResponseEntity<ApiResponse<ProfileResponseDTO>> completeProfileSetup(
+            @Valid @RequestBody ProfileRequestDTO request) {
         return ApiResponse.created(riderService.completeProfileDTO(request),
                 "Your profile setup was successful");
     }
 
     @PostMapping("/create-ride-request")
-    public ResponseEntity<ApiResponse<CreateRideResponse>> createRideRequest(@Valid @RequestBody CreateRideRequest request) {
+    public ResponseEntity<ApiResponse<CreateRideResponse>> createRideRequest(
+            @Valid @RequestBody CreateRideRequest request) {
 
         return ApiResponse.created(riderService.createRideQuest(request), "Ride request was sent successfully");
 
     }
-
 
 }

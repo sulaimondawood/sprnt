@@ -2,7 +2,7 @@ package com.dawood.sprnt.rider.api.dto;
 
 import java.util.UUID;
 
-import com.dawood.sprnt.ride.model.Location;
+import com.dawood.sprnt.ride.api.dto.LocationDTO;
 import com.dawood.sprnt.rider.model.RiderStatus;
 
 import lombok.AllArgsConstructor;
@@ -20,7 +20,7 @@ public class RiderResponseDTO {
 
   private String profileImage;
 
-  private Location defaultPickupLocation;
+  private LocationDTO defaultPickupLocation;
 
   private long totalRides;
 
