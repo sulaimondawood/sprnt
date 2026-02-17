@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.dawood.sprnt.common.dto.ErrorResponse;
+import com.dawood.sprnt.driver.exception.DriverException;
 import com.dawood.sprnt.driver.exception.DriverNotFoundException;
 import com.dawood.sprnt.identity.exception.TokenException;
 import com.dawood.sprnt.identity.exception.TokenExpiredException;
@@ -33,6 +34,23 @@ import java.util.Map;
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
+
+  @ExceptionHandler(DriverException.class)
+  public ResponseEntity<ErrorResponse> handleDriverException(DriverException ex,
+      HttpServletRequest request) {
+
+    ErrorResponse errorResponse = ErrorResponse.builder()
+        .status(HttpStatus.BAD_REQUEST.value())
+        .path(request.getRequestURI())
+        .message(ex.getMessage())
+        .error(HttpStatus.BAD_REQUEST.name())
+        .build();
+
+    log.error(ex.getMessage(), ex);
+
+    return ResponseEntity.badRequest().body(errorResponse);
+
+  }
 
   @ExceptionHandler(VehicleException.class)
   public ResponseEntity<ErrorResponse> handleVehicleException(VehicleException ex,

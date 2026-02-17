@@ -79,6 +79,8 @@ public class Driver {
   @OneToOne(mappedBy = "driver")
   private Vehicle vehicle;
 
+  private LocalDateTime lastSeenAt;
+
   @CreationTimestamp
   private LocalDateTime createdAt;
 
