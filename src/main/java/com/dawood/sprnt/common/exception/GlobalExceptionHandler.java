@@ -7,6 +7,9 @@ import com.dawood.sprnt.ride.exception.LocationException;
 import com.dawood.sprnt.ride.exception.RideException;
 import com.dawood.sprnt.ride.exception.RideNotFoundException;
 import com.dawood.sprnt.rider.exception.RiderException;
+import com.dawood.sprnt.vehicle.exception.VehicleException;
+import com.dawood.sprnt.vehicle.exception.VehicleNotFoundException;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -30,6 +33,40 @@ import java.util.Map;
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
+
+  @ExceptionHandler(VehicleException.class)
+  public ResponseEntity<ErrorResponse> handleVehicleException(VehicleException ex,
+      HttpServletRequest request) {
+
+    ErrorResponse errorResponse = ErrorResponse.builder()
+        .status(HttpStatus.BAD_REQUEST.value())
+        .path(request.getRequestURI())
+        .message(ex.getMessage())
+        .error(HttpStatus.BAD_REQUEST.name())
+        .build();
+
+    log.error(ex.getMessage(), ex);
+
+    return ResponseEntity.badRequest().body(errorResponse);
+
+  }
+
+  @ExceptionHandler(VehicleNotFoundException.class)
+  public ResponseEntity<ErrorResponse> handleVehicleNotFoundException(VehicleNotFoundException ex,
+      HttpServletRequest request) {
+
+    ErrorResponse errorResponse = ErrorResponse.builder()
+        .status(HttpStatus.BAD_REQUEST.value())
+        .path(request.getRequestURI())
+        .message(ex.getMessage())
+        .error(HttpStatus.BAD_REQUEST.name())
+        .build();
+
+    log.error(ex.getMessage(), ex);
+
+    return ResponseEntity.badRequest().body(errorResponse);
+
+  }
 
   @ExceptionHandler(IllegalArgumentException.class)
   public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex,

@@ -29,6 +29,8 @@ import com.dawood.sprnt.identity.service.IdentityService;
 import com.dawood.sprnt.ride.api.dto.RideResponseDTO;
 import com.dawood.sprnt.ride.api.dto.RideResponseMetaDTO;
 import com.dawood.sprnt.ride.model.RideStatus;
+import com.dawood.sprnt.vehicle.api.dto.VehicleResponseDTO;
+import com.dawood.sprnt.vehicle.service.VehicleService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +42,7 @@ public class DriverController {
 
     private final DriverService driverService;
     private final IdentityService identityService;
+    private final VehicleService vehicleService;
 
     @PostMapping("/onboard")
     public ResponseEntity<ApiResponse<OnboardingResponse>> completeOnboarding(
@@ -120,6 +123,22 @@ public class DriverController {
 
         return ApiResponse.success(
                 driverService.currentRide(), "Current ride successfully fetched");
+
+    }
+
+    @GetMapping("/vehicles")
+    public ResponseEntity<ApiResponse<List<VehicleResponseDTO>>> getDriverVehicles() {
+
+        return ApiResponse.success(
+                vehicleService.getDriverVehicles(), "All vehicles successfully fetched");
+
+    }
+
+    @GetMapping("/vehicle")
+    public ResponseEntity<ApiResponse<VehicleResponseDTO>> getDriverVehicle() {
+
+        return ApiResponse.success(
+                vehicleService.getDriverVehicle(), "Vehicle  details successfully fetched");
 
     }
 
