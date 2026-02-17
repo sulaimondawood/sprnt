@@ -33,7 +33,7 @@ public interface RatingRepository extends JpaRepository<Rating, UUID> {
 
     boolean existsByRideAndRatedBy(Ride ride, RatingSource ratingSource);
 
-    List<Rating> findByDriver(Driver driver);
+    List<Rating> findTop20ByDriverOrderByCreatedAtDesc(Driver driver);
 
-    List<Rating> findByRider(Rider ride);
+    List<Rating> findTop20ByRiderOrderByCreatedAtDesc(Rider rider);
 }

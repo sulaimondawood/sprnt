@@ -1,10 +1,17 @@
 package com.dawood.sprnt.rating.service;
 
+import java.util.List;
+import java.util.UUID;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+
 import com.dawood.sprnt.common.service.KafkaProducer;
 import com.dawood.sprnt.driver.model.Driver;
 import com.dawood.sprnt.identity.model.User;
 import com.dawood.sprnt.identity.service.IdentityService;
-import com.dawood.sprnt.rating.api.dto.RatingDTO;
 import com.dawood.sprnt.rating.api.dto.RatingMessage;
 import com.dawood.sprnt.rating.api.dto.RatingResponseDTO;
 import com.dawood.sprnt.rating.api.dto.RideRatingRequest;
@@ -20,13 +27,6 @@ import com.dawood.sprnt.ride.repository.RideRepository;
 import com.dawood.sprnt.rider.model.Rider;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
-
-import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -101,7 +101,7 @@ public class RatingService {
 
         Driver driver = user.getDriver();
 
-        List<Rating> ratings = ratingRepository.findByDriver(driver);
+        List<Rating> ratings = ratingRepository.findTop20ByDriverOrderByCreatedAtDesc(driver);
 
         return RatingMapper.toRatingResponseDriverDTO(driver, ratings);
 
@@ -113,7 +113,7 @@ public class RatingService {
 
         Rider rider = user.getRider();
 
-        List<Rating> ratings = ratingRepository.findByRider(rider);
+        List<Rating> ratings = ratingRepository.findTop20ByRiderOrderByCreatedAtDesc(rider);
 
         return RatingMapper.toRatingResponseRiderDTO(rider, ratings);
 
