@@ -1,15 +1,17 @@
 package com.dawood.sprnt.rating.repository;
 
-import com.dawood.sprnt.rating.model.Rating;
-import com.dawood.sprnt.rating.model.RatingSource;
-import com.dawood.sprnt.ride.model.Ride;
+import java.util.List;
+import java.util.UUID;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.UUID;
-import java.util.List;
 import com.dawood.sprnt.driver.model.Driver;
+import com.dawood.sprnt.rating.model.Rating;
+import com.dawood.sprnt.rating.model.RatingSource;
+import com.dawood.sprnt.ride.model.Ride;
+import com.dawood.sprnt.rider.model.Rider;
 
 public interface RatingRepository extends JpaRepository<Rating, UUID> {
 
@@ -33,5 +35,5 @@ public interface RatingRepository extends JpaRepository<Rating, UUID> {
 
     List<Rating> findByDriver(Driver driver);
 
-    List<Rating> findByRide(Ride ride);
+    List<Rating> findByRider(Rider ride);
 }

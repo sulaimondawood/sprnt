@@ -1,11 +1,15 @@
 package com.dawood.sprnt.rating.service;
 
 import com.dawood.sprnt.common.service.KafkaProducer;
+import com.dawood.sprnt.driver.model.Driver;
 import com.dawood.sprnt.identity.model.User;
 import com.dawood.sprnt.identity.service.IdentityService;
+import com.dawood.sprnt.rating.api.dto.RatingDTO;
 import com.dawood.sprnt.rating.api.dto.RatingMessage;
+import com.dawood.sprnt.rating.api.dto.RatingResponseDTO;
 import com.dawood.sprnt.rating.api.dto.RideRatingRequest;
 import com.dawood.sprnt.rating.exception.RatingException;
+import com.dawood.sprnt.rating.mapper.RatingMapper;
 import com.dawood.sprnt.rating.model.Rating;
 import com.dawood.sprnt.rating.model.RatingSource;
 import com.dawood.sprnt.rating.repository.RatingRepository;
@@ -13,12 +17,15 @@ import com.dawood.sprnt.ride.exception.RideNotFoundException;
 import com.dawood.sprnt.ride.model.Ride;
 import com.dawood.sprnt.ride.model.RideStatus;
 import com.dawood.sprnt.ride.repository.RideRepository;
+import com.dawood.sprnt.rider.model.Rider;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -64,7 +71,6 @@ public class RatingService {
         rating.setDriver(ride.getDriver());
         rating.setRider(ride.getRider());
 
-
         Rating savedRating = ratingRepository.save(rating);
 
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
@@ -87,6 +93,29 @@ public class RatingService {
             }
         });
 
+    }
+
+    public RatingResponseDTO getDriverRatings() {
+
+        User user = identityService.getCurrentLoggedInUser();
+
+        Driver driver = user.getDriver();
+
+        List<Rating> ratings = ratingRepository.findByDriver(driver);
+
+        return RatingMapper.toRatingResponseDriverDTO(driver, ratings);
+
+    }
+
+    public RatingResponseDTO getRiderRatings() {
+
+        User user = identityService.getCurrentLoggedInUser();
+
+        Rider rider = user.getRider();
+
+        List<Rating> ratings = ratingRepository.findByRider(rider);
+
+        return RatingMapper.toRatingResponseRiderDTO(rider, ratings);
 
     }
 
