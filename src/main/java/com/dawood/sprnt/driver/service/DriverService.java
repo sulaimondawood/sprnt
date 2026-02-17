@@ -390,6 +390,15 @@ public class DriverService {
 
     }
 
+    public void heartBeat() {
+        Driver driver = identityService.getCurrentLoggedInUser().getDriver();
+        if (driver != null && driver.getAvailabilityStatus() == DriverAvailabilityStatus.ONLINE) {
+            driver.setLastSeenAt(LocalDateTime.now());
+            driverRepository.save(driver);
+        }
+
+    }
+
     public boolean isValidTransition(RideStatus currentStatus, RideStatus newStatus) {
         return switch (currentStatus) {
 

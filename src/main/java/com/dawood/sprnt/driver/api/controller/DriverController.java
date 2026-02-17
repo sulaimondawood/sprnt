@@ -29,6 +29,8 @@ import com.dawood.sprnt.identity.service.IdentityService;
 import com.dawood.sprnt.ride.api.dto.RideResponseDTO;
 import com.dawood.sprnt.ride.api.dto.RideResponseMetaDTO;
 import com.dawood.sprnt.ride.model.RideStatus;
+import com.dawood.sprnt.user.api.dto.UserEditDTO;
+import com.dawood.sprnt.user.service.UserService;
 import com.dawood.sprnt.vehicle.api.dto.VehicleEditDTO;
 import com.dawood.sprnt.vehicle.api.dto.VehicleResponseDTO;
 import com.dawood.sprnt.vehicle.service.VehicleService;
@@ -44,6 +46,7 @@ public class DriverController {
     private final DriverService driverService;
     private final IdentityService identityService;
     private final VehicleService vehicleService;
+    private final UserService userService;
 
     @PostMapping("/onboard")
     public ResponseEntity<ApiResponse<OnboardingResponse>> completeOnboarding(
@@ -148,6 +151,15 @@ public class DriverController {
             @RequestBody VehicleEditDTO payload) {
 
         return ApiResponse.created(vehicleService.editVehicle(payload, vehicleId), "Vehicle update was successful");
+
+    }
+
+    @PatchMapping("/profile/update")
+    public ResponseEntity<ApiResponse<VehicleResponseDTO>> updateDriverProfile(
+            @RequestBody UserEditDTO payload) {
+
+        userService.editUserInfo(payload);
+        return ApiResponse.success("Profile update was successful");
 
     }
 
