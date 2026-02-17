@@ -10,7 +10,6 @@ import com.dawood.sprnt.driver.exception.DriverNotFoundException;
 import com.dawood.sprnt.driver.model.DriverAvailabilityStatus;
 import com.dawood.sprnt.identity.model.User;
 import com.dawood.sprnt.identity.service.IdentityService;
-import com.dawood.sprnt.vehicle.api.dto.VehicleDTO;
 import com.dawood.sprnt.vehicle.api.dto.VehicleEditDTO;
 import com.dawood.sprnt.vehicle.api.dto.VehicleResponseDTO;
 import com.dawood.sprnt.vehicle.exception.VehicleException;
@@ -72,7 +71,7 @@ public class VehicleService {
         vehicleId)
         .orElseThrow(() -> new VehicleNotFoundException());
 
-    if (vehicle.getDriver().getAvailabilityStatus().equals(DriverAvailabilityStatus.BUSY)) {
+    if (vehicle.getDriver().getAvailabilityStatus() == DriverAvailabilityStatus.BUSY) {
       throw new VehicleException("Vehicle cannot be edited while on an active trip");
     }
 

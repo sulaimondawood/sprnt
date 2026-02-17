@@ -29,6 +29,7 @@ import com.dawood.sprnt.identity.service.IdentityService;
 import com.dawood.sprnt.ride.api.dto.RideResponseDTO;
 import com.dawood.sprnt.ride.api.dto.RideResponseMetaDTO;
 import com.dawood.sprnt.ride.model.RideStatus;
+import com.dawood.sprnt.vehicle.api.dto.VehicleEditDTO;
 import com.dawood.sprnt.vehicle.api.dto.VehicleResponseDTO;
 import com.dawood.sprnt.vehicle.service.VehicleService;
 
@@ -139,6 +140,14 @@ public class DriverController {
 
         return ApiResponse.success(
                 vehicleService.getDriverVehicle(), "Vehicle  details successfully fetched");
+
+    }
+
+    @PatchMapping("/vehicle/{vehicleId}")
+    public ResponseEntity<ApiResponse<VehicleResponseDTO>> editDriverVehicle(@PathVariable UUID vehicleId,
+            @RequestBody VehicleEditDTO payload) {
+
+        return ApiResponse.created(vehicleService.editVehicle(payload, vehicleId), "Vehicle update was successful");
 
     }
 

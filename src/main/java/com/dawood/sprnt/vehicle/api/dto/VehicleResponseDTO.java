@@ -1,6 +1,7 @@
 package com.dawood.sprnt.vehicle.api.dto;
 
 import java.util.List;
+import java.util.UUID;
 
 import com.dawood.sprnt.driver.api.dto.VehicleDocumentDTO;
 import com.dawood.sprnt.vehicle.model.VehicleType;
@@ -13,6 +14,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class VehicleResponseDTO {
+
+  private UUID id;
 
   private String plateNumber;
 

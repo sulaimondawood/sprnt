@@ -10,6 +10,7 @@ public class VehicleMapper {
 
   public static VehicleResponseDTO toDTO(Vehicle vehicle) {
     VehicleResponseDTO res = new VehicleResponseDTO();
+    res.setId(vehicle.getId());
     res.setPlateNumber(vehicle.getPlateNumber());
     res.setBrand(vehicle.getBrand());
     res.setModel(vehicle.getModel());
