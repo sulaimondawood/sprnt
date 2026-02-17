@@ -67,6 +67,7 @@ public class Driver {
   @Enumerated(EnumType.STRING)
   private DriverKycStatus kycStatus;
 
+  @Builder.Default
   private boolean completedProfile = false;
 
   @Column(columnDefinition = "geography(Point,4326)")
