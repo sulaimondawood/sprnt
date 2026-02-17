@@ -1,5 +1,6 @@
 package com.dawood.sprnt.user.service;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -85,10 +86,11 @@ public class UserService {
       throw new DriverException("No vehicle attached");
     }
 
-    if (driver.getAvailabilityStatus() == DriverAvailabilityStatus.OFFLINE) {
-      driver.setAvailabilityStatus(DriverAvailabilityStatus.ONLINE);
-    } else {
+    if (driver.getAvailabilityStatus() == DriverAvailabilityStatus.ONLINE) {
       driver.setAvailabilityStatus(DriverAvailabilityStatus.OFFLINE);
+    } else {
+      driver.setAvailabilityStatus(DriverAvailabilityStatus.ONLINE);
+      driver.setLastSeenAt(LocalDateTime.now());
     }
 
     driverRepository.save(driver);
