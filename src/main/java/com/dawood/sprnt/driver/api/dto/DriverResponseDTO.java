@@ -8,6 +8,7 @@ import org.locationtech.jts.geom.Point;
 import com.dawood.sprnt.driver.model.DriverAvailabilityStatus;
 import com.dawood.sprnt.driver.model.DriverKycStatus;
 import com.dawood.sprnt.driver.model.DriverStatus;
+import com.dawood.sprnt.ride.api.dto.LocationDTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -44,6 +45,6 @@ public class DriverResponseDTO {
 
   private boolean completedProfile = false;
 
-  private Point location;
+  private LocationDTO location;
 
 }

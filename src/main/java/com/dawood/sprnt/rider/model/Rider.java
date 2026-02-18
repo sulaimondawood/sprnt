@@ -9,6 +9,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import com.dawood.sprnt.identity.model.User;
 
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -40,6 +41,7 @@ public class Rider {
 
   private String profileImage;
 
+  @Embedded
   private Location defaultPickupLocation;
 
   private long totalRides;
@@ -64,17 +66,17 @@ public class Rider {
   @UpdateTimestamp
   private LocalDateTime updatedAt;
 
-  public void completeProfile(String imageUrl, Location defaultLocation, String displayName){
+  public void completeProfile(String imageUrl, Location defaultLocation, String displayName) {
 
     if (this.status == null) {
       this.status = RiderStatus.ACTIVE;
     }
 
-    this.profileImage= imageUrl;
-    this.defaultPickupLocation=defaultLocation;
-    this.displayName=displayName;
-    this.completedProfile=true;
-    this.totalRides=0;
+    this.profileImage = imageUrl;
+    this.defaultPickupLocation = defaultLocation;
+    this.displayName = displayName;
+    this.completedProfile = true;
+    this.totalRides = 0;
 
   }
 }

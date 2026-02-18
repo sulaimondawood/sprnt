@@ -38,7 +38,13 @@ public class UserMapper {
       driverRes.setTotalCompletedTrips(driver.getTotalCompletedTrips());
       driverRes.setKycStatus(driver.getKycStatus());
       driverRes.setCompletedProfile(driver.isCompletedProfile());
-      driverRes.setLocation(driver.getLocation());
+
+      if (driver.getLocation() != null) {
+        LocationDTO location = new LocationDTO();
+        location.setLng(driver.getLocation().getX());
+        location.setLat(driver.getLocation().getY());
+        driverRes.setLocation(location);
+      }
 
       response.setDriver(driverRes);
     }
@@ -51,12 +57,14 @@ public class UserMapper {
       riderRes.setDisplayName(rider.getDisplayName());
       riderRes.setProfileImage(rider.getProfileImage());
 
-      LocationDTO defaultLocation = new LocationDTO();
-      defaultLocation.setAddress(rider.getDefaultPickupLocation().getAddress());
-      defaultLocation.setLng(rider.getDefaultPickupLocation().getCoords().getX());
-      defaultLocation.setLat(rider.getDefaultPickupLocation().getCoords().getY());
+      if (rider.getDefaultPickupLocation() != null) {
+        LocationDTO defaultLocation = new LocationDTO();
+        defaultLocation.setAddress(rider.getDefaultPickupLocation().getAddress());
+        defaultLocation.setLng(rider.getDefaultPickupLocation().getCoords().getX());
+        defaultLocation.setLat(rider.getDefaultPickupLocation().getCoords().getY());
+        riderRes.setDefaultPickupLocation(defaultLocation);
+      }
 
-      riderRes.setDefaultPickupLocation(defaultLocation);
       riderRes.setTotalRides(rider.getTotalRides());
       riderRes.setReferralCode(rider.getReferralCode());
       riderRes.setStatus(rider.getStatus());
