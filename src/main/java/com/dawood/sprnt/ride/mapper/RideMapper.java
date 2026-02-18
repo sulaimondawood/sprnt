@@ -47,13 +47,16 @@ public class RideMapper {
         response.setEstimatedDistance(ride.getEstimatedDistance());
         response.setEstimatedDurationMins(ride.getEstimatedDurationMins());
         response.setAcceptedAt(ride.getAcceptedAt());
-        response.setRiderName(ride.getRider().getDisplayName());
-        response.setDriverName(ride.getDriver().getDisplayName());
+        response.setRiderName(ride.getRider() != null ? ride.getRider().getDisplayName() : null);
         response.setCreatedAt(ride.getCreatedAt());
         response.setRiderInfo(UserMapper.toUserDTO(ride.getRider().getUser()));
-        response.setDriverInfo(UserMapper.toUserDTO(ride.getDriver().getUser()));
-        response.setDriver(DriverMapper.toDTO(ride.getDriver()));
-        response.setRider(RiderMapper.toDTO(ride.getRider()));
+
+        if (ride.getDriver() != null) {
+            response.setDriverName(ride.getDriver().getDisplayName());
+            response.setDriverInfo(UserMapper.toUserDTO(ride.getDriver().getUser()));
+            response.setDriver(DriverMapper.toDTO(ride.getDriver()));
+        }
+        response.setRider(RiderMapper.toDTO(ride.getRider() != null ? ride.getRider() : null));
 
         return response;
 

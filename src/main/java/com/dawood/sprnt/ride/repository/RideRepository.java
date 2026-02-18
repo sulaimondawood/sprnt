@@ -3,6 +3,8 @@ package com.dawood.sprnt.ride.repository;
 import com.dawood.sprnt.driver.model.Driver;
 import com.dawood.sprnt.ride.model.Ride;
 import com.dawood.sprnt.ride.model.RideStatus;
+import com.dawood.sprnt.rider.model.Rider;
+
 import jakarta.persistence.LockModeType;
 
 import org.springframework.data.domain.Page;
@@ -81,6 +83,6 @@ public interface RideRepository extends JpaRepository<Ride, UUID> {
 
         Optional<Ride> findByDriverAndRideStatus(Driver driver, RideStatus status);
 
-        List<Ride> findTop5ByRiderOrderByCreatedAtDesc(Driver driver);
+        List<Ride> findTop5ByRiderOrderByCreatedAtDesc(Rider driver);
 
 }

@@ -70,7 +70,7 @@ public interface DriverRepository extends JpaRepository<Driver, UUID> {
 
     @Query("""
             SELECT d FROM Driver d
-            d.availabilityStatus = 'ONLINE'
+            WHERE d.availabilityStatus = 'ONLINE'
             AND d.lastSeenAt < :cutoff
             """)
     List<Driver> findOnlineBefore(@Param("cutoff") LocalDateTime cutoff);

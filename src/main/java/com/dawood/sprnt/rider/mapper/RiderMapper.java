@@ -19,22 +19,24 @@ public class RiderMapper {
     public static RiderResponseDTO toDTO(Rider rider) {
 
         RiderResponseDTO response = new RiderResponseDTO();
-        response.setId(rider.getId());
-        response.setDisplayName(rider.getDisplayName());
-        response.setProfileImage(rider.getProfileImage());
+        if (rider != null) {
+            response.setId(rider.getId());
+            response.setDisplayName(rider.getDisplayName());
+            response.setProfileImage(rider.getProfileImage());
 
-        LocationDTO pickup = new LocationDTO();
-        pickup.setAddress(rider.getDefaultPickupLocation().getAddress());
-        pickup.setLng(rider.getDefaultPickupLocation().getCoords().getX());
-        pickup.setLat(rider.getDefaultPickupLocation().getCoords().getY());
+            LocationDTO pickup = new LocationDTO();
+            pickup.setAddress(rider.getDefaultPickupLocation().getAddress());
+            pickup.setLng(rider.getDefaultPickupLocation().getCoords().getX());
+            pickup.setLat(rider.getDefaultPickupLocation().getCoords().getY());
 
-        response.setDefaultPickupLocation(pickup);
-        response.setTotalRides(rider.getTotalRides());
-        response.setReferralCode(rider.getReferralCode());
-        response.setStatus(rider.getStatus());
-        response.setRating(rider.getRating());
-        response.setTotalRatings(rider.getTotalRatings());
-        response.setCompletedProfile(rider.isCompletedProfile());
+            response.setDefaultPickupLocation(pickup);
+            response.setTotalRides(rider.getTotalRides());
+            response.setReferralCode(rider.getReferralCode());
+            response.setStatus(rider.getStatus());
+            response.setRating(rider.getRating());
+            response.setTotalRatings(rider.getTotalRatings());
+            response.setCompletedProfile(rider.isCompletedProfile());
+        }
 
         return response;
     }

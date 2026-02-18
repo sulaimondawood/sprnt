@@ -78,7 +78,7 @@ public class RiderService {
             throw new RiderNotFoundException();
         }
 
-        List<Ride> recentRides = rideRepository.findTop5ByRiderOrderByCreatedAtDesc(user.getDriver());
+        List<Ride> recentRides = rideRepository.findTop5ByRiderOrderByCreatedAtDesc(user.getRider());
 
         List<RideResponseDTO> rides = recentRides.stream()
                 .map(RideMapper::toDTO).toList();

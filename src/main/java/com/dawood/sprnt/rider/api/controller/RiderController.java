@@ -3,19 +3,24 @@ package com.dawood.sprnt.rider.api.controller;
 import com.dawood.sprnt.common.dto.ApiResponse;
 import com.dawood.sprnt.ride.api.dto.CreateRideRequest;
 import com.dawood.sprnt.ride.api.dto.CreateRideResponse;
+import com.dawood.sprnt.ride.api.dto.RideResponseDTO;
 import com.dawood.sprnt.rider.api.dto.ProfileRequestDTO;
 import com.dawood.sprnt.rider.api.dto.ProfileResponseDTO;
 import com.dawood.sprnt.rider.service.RiderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/rider")
+@RequestMapping("/riders")
 @RequiredArgsConstructor
 public class RiderController {
 
@@ -33,6 +38,13 @@ public class RiderController {
             @Valid @RequestBody CreateRideRequest request) {
 
         return ApiResponse.created(riderService.createRideQuest(request), "Ride request was sent successfully");
+
+    }
+
+    @GetMapping("/rides/recent")
+    public ResponseEntity<ApiResponse<List<RideResponseDTO>>> getRecentRides() {
+
+        return ApiResponse.created(riderService.getRecentRides(), "Ride request was sent successfully");
 
     }
 
