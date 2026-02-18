@@ -154,12 +154,38 @@ public class DriverController {
 
     }
 
-    @PatchMapping("/profile/update")
-    public ResponseEntity<ApiResponse<VehicleResponseDTO>> updateDriverProfile(
+    @PatchMapping("/me")
+    public ResponseEntity<ApiResponse<Void>> updateDriverProfile(
             @RequestBody UserEditDTO payload) {
 
         userService.editUserInfo(payload);
         return ApiResponse.success("Profile update was successful");
+
+    }
+
+    @PatchMapping("/me/profile-image")
+    public ResponseEntity<ApiResponse<Void>> updateDriverProfileImage(
+            @RequestBody UserEditDTO payload) {
+
+        userService.uploadUserProfileImage(payload);
+        return ApiResponse.success("Profile update was successful");
+
+    }
+
+    @GetMapping("/me/heartbeat")
+    public ResponseEntity<ApiResponse<Void>> getDriverHeartBeat() {
+
+        driverService.heartBeat();
+        return ApiResponse.success(null);
+
+    }
+
+    @PatchMapping("/me/availibilty-status")
+    public ResponseEntity<ApiResponse<Void>> toggleAvailabilityStatus() {
+
+        driverService.toggleAvailabilityStatus();
+
+        return ApiResponse.success("Updated availability status");
 
     }
 

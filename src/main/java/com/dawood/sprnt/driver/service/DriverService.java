@@ -26,6 +26,7 @@ import com.dawood.sprnt.driver.api.dto.OnboardingRequest;
 import com.dawood.sprnt.driver.api.dto.OnboardingResponse;
 import com.dawood.sprnt.driver.api.dto.RideCompleted;
 import com.dawood.sprnt.driver.exception.DriverAlreadyExistsException;
+import com.dawood.sprnt.driver.exception.DriverException;
 import com.dawood.sprnt.driver.exception.DriverNotFoundException;
 import com.dawood.sprnt.driver.model.Driver;
 import com.dawood.sprnt.driver.model.DriverAvailabilityStatus;
@@ -92,9 +93,9 @@ public class DriverService {
         driver.setLicenseNumber(request.getLicenseNumber());
         driver.setLicenseExpiry(request.getLicenseExpiry());
         driver.setNin(request.getNin());
-        driver.setStatus(DriverStatus.INACTIVE);
+        driver.setStatus(DriverStatus.ACTIVE);
         driver.setAvailabilityStatus(DriverAvailabilityStatus.OFFLINE);
-        driver.setKycStatus(DriverKycStatus.PENDING);
+        driver.setKycStatus(DriverKycStatus.VERIFIED);
         driver.setCompletedProfile(true);
         driver.setTotalCompletedTrips(0);
         driver.setRating(5.0);
@@ -387,6 +388,44 @@ public class DriverService {
                 .orElseThrow(() -> new RideNotFoundException());
 
         return RideMapper.toDTO(response);
+
+    }
+
+    public void toggleAvailabilityStatus() {
+
+        User user = identityService.getCurrentLoggedInUser();
+
+        Driver driver = user.getDriver();
+
+        if (driver == null) {
+            throw new DriverNotFoundException();
+        }
+
+        if (!driver.isCompletedProfile()) {
+            throw new DriverException("Please complete your profile details.");
+        }
+
+        if (!driver.getStatus().equals(DriverStatus.ACTIVE)) {
+            throw new DriverException("Your account is " +
+                    driver.getStatus().toString().toLowerCase() + ".");
+        }
+
+        if (driver.getKycStatus() != DriverKycStatus.VERIFIED) {
+            throw new DriverException("Your KYC documents are pending approval.");
+        }
+
+        if (driver.getVehicle() == null) {
+            throw new DriverException("Please register a vehicle before going online.");
+        }
+
+        if (driver.getAvailabilityStatus() == DriverAvailabilityStatus.ONLINE) {
+            driver.setAvailabilityStatus(DriverAvailabilityStatus.OFFLINE);
+        } else {
+            driver.setAvailabilityStatus(DriverAvailabilityStatus.ONLINE);
+            driver.setLastSeenAt(LocalDateTime.now());
+        }
+
+        driverRepository.save(driver);
 
     }
 
