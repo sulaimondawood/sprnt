@@ -55,6 +55,7 @@ public class Rider {
 
   private long totalRatings;
 
+  @Builder.Default
   private boolean completedProfile = false;
 
   @OneToOne
