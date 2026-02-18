@@ -81,4 +81,6 @@ public interface RideRepository extends JpaRepository<Ride, UUID> {
 
         Optional<Ride> findByDriverAndRideStatus(Driver driver, RideStatus status);
 
+        List<Ride> findTop5ByRiderOrderByCreatedAtDesc(Driver driver);
+
 }

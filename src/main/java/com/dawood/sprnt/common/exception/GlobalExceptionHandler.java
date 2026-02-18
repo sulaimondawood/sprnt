@@ -7,6 +7,7 @@ import com.dawood.sprnt.ride.exception.LocationException;
 import com.dawood.sprnt.ride.exception.RideException;
 import com.dawood.sprnt.ride.exception.RideNotFoundException;
 import com.dawood.sprnt.rider.exception.RiderException;
+import com.dawood.sprnt.rider.exception.RiderNotFoundException;
 import com.dawood.sprnt.vehicle.exception.VehicleException;
 import com.dawood.sprnt.vehicle.exception.VehicleNotFoundException;
 
@@ -34,6 +35,23 @@ import java.util.Map;
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
+
+  @ExceptionHandler(RiderNotFoundException.class)
+  public ResponseEntity<ErrorResponse> handleRiderNotFoundException(RiderNotFoundException ex,
+      HttpServletRequest request) {
+
+    ErrorResponse errorResponse = ErrorResponse.builder()
+        .status(HttpStatus.BAD_REQUEST.value())
+        .path(request.getRequestURI())
+        .message(ex.getMessage())
+        .error(HttpStatus.BAD_REQUEST.name())
+        .build();
+
+    log.error(ex.getMessage(), ex);
+
+    return ResponseEntity.badRequest().body(errorResponse);
+
+  }
 
   @ExceptionHandler(DriverException.class)
   public ResponseEntity<ErrorResponse> handleDriverException(DriverException ex,
