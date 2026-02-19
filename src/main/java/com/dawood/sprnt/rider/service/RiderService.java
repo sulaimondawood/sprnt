@@ -7,14 +7,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.dawood.sprnt.common.utils.GeometryUtils;
+import com.dawood.sprnt.driver.exception.DriverNotFoundException;
 import com.dawood.sprnt.identity.model.User;
 import com.dawood.sprnt.identity.service.IdentityService;
 import com.dawood.sprnt.ride.api.dto.CreateRideRequest;
 import com.dawood.sprnt.ride.api.dto.CreateRideResponse;
 import com.dawood.sprnt.ride.api.dto.RideResponseDTO;
+import com.dawood.sprnt.ride.exception.RideNotFoundException;
 import com.dawood.sprnt.ride.mapper.RideMapper;
 import com.dawood.sprnt.ride.model.Location;
 import com.dawood.sprnt.ride.model.Ride;
+import com.dawood.sprnt.ride.model.RideStatus;
 import com.dawood.sprnt.ride.repository.RideRepository;
 import com.dawood.sprnt.ride.service.RideService;
 import com.dawood.sprnt.rider.api.dto.ProfileRequestDTO;
@@ -74,16 +77,34 @@ public class RiderService {
 
         User user = identityService.getCurrentLoggedInUser();
 
-        if (user.getRider() == null) {
+        Rider rider = user.getRider();
+        if (rider == null) {
             throw new RiderNotFoundException();
         }
 
-        List<Ride> recentRides = rideRepository.findTop5ByRiderOrderByCreatedAtDesc(user.getRider());
+        List<Ride> recentRides = rideRepository.findTop5ByRiderAndRideStatusInOrderByCreatedAtDesc(rider,
+                List.of(RideStatus.COMPLETED, RideStatus.RIDER_CANCELLED, RideStatus.DRIVER_CANCELLED));
 
         List<RideResponseDTO> rides = recentRides.stream()
                 .map(RideMapper::toDTO).toList();
 
         return rides;
+
+    }
+
+    public RideResponseDTO currentRide() {
+
+        User user = identityService.getCurrentLoggedInUser();
+
+        Rider rider = user.getRider();
+        if (rider == null) {
+            throw new RiderNotFoundException();
+        }
+
+        Ride response = rideRepository.findByRiderAndRideStatus(rider, RideStatus.ON_TRIP)
+                .orElseThrow(() -> new RideNotFoundException());
+
+        return RideMapper.toDTO(response);
 
     }
 }

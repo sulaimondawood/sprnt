@@ -48,4 +48,12 @@ public class RiderController {
 
     }
 
+    @GetMapping("/rides/current")
+    public ResponseEntity<ApiResponse<RideResponseDTO>> getCurrentRide() {
+
+        return ApiResponse.success(
+                riderService.currentRide(), "Current ride successfully fetched");
+
+    }
+
 }
