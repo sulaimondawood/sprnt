@@ -56,4 +56,8 @@ public class RideResponseDTO {
 
   private RiderResponseDTO rider;
 
+  private String vehicleName;
+
+  private String vehiclePlate;
+
 }

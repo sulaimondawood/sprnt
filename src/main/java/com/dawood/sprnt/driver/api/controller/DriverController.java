@@ -75,6 +75,14 @@ public class DriverController {
 
     }
 
+    @PatchMapping("/ride/{rideId}/accept")
+    public ResponseEntity<ApiResponse<Object>> acceptRide(@PathVariable UUID rideId) {
+
+        driverService.driverAcceptsRequest(rideId);
+        return ApiResponse.success("Ride was successfully accepted");
+
+    }
+
     @PatchMapping("/ride/{rideId}/arrived")
     public ResponseEntity<ApiResponse<String>> driverArrivedAtPickup(@PathVariable UUID rideId) {
 

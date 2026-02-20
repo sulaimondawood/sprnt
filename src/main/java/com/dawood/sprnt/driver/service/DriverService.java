@@ -172,13 +172,22 @@ public class DriverService {
         ride.setAcceptedAt(LocalDateTime.now());
         ride.setDriver(driver);
 
-        rideRepository.save(ride);
+        Ride savedRide = rideRepository.save(ride);
 
         driverRepository.updateDriverAvailabilityStatus(DriverAvailabilityStatus.BUSY, driver.getId());
 
-        simpMessagingTemplate.convertAndSendToUser(ride.getRider().getId().toString(),
+        RideAccepted response = new RideAccepted();
+        response.setDriverName(savedRide.getDriver().getDisplayName());
+        response.setMessage("Driver is coming!");
+        response.setRating(ride.getDriver().getRating());
+        response.setTotalTrips(ride.getDriver().getTotalCompletedTrips());
+        response.setVehicleName(
+                ride.getDriver().getVehicle().getBrand() + " " + ride.getDriver().getVehicle().getModel());
+        response.setVehiclePlate(ride.getDriver().getVehicle().getPlateNumber());
+
+        simpMessagingTemplate.convertAndSendToUser(ride.getRider().getUser().getEmail(),
                 "/queue/ride-accepted",
-                new RideAccepted("Driver is coming!", driver.getDisplayName()));
+                response);
 
         log.info("Ride {} accepted by Driver {}", rideId, driver.getId());
 

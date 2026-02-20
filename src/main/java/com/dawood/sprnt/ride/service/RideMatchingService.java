@@ -1,5 +1,18 @@
 package com.dawood.sprnt.ride.service;
 
+import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.List;
+import java.util.UUID;
+
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Point;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+
 import com.dawood.sprnt.common.service.KafkaProducer;
 import com.dawood.sprnt.driver.api.dto.DriverDistanceProjection;
 import com.dawood.sprnt.driver.model.Driver;
@@ -12,21 +25,9 @@ import com.dawood.sprnt.ride.model.RideCancelledTask;
 import com.dawood.sprnt.ride.model.RideStatus;
 import com.dawood.sprnt.ride.repository.RideRepository;
 import com.dawood.sprnt.ride.scheduler.RideTimeoutScheduler;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Point;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -50,7 +51,8 @@ public class RideMatchingService {
         double lng = coords.getX();
         double lat = coords.getY();
 
-        double[] expansionProgression = expandSteps != null ? expandSteps : new double[]{0.002, 0.005, 0.01,0.05, 0.1};
+        double[] expansionProgression = expandSteps != null ? expandSteps
+                : new double[] { 0.002, 0.005, 0.01, 0.05, 0.1, 1, 2 };
 
         for (double expansion : expansionProgression) {
 
@@ -62,7 +64,8 @@ public class RideMatchingService {
 
             if (!validCandidates.isEmpty()) {
                 boolean dispatched = dispatchToBestDriver(ride, rankDrivers(validCandidates));
-                if (dispatched) return;
+                if (dispatched)
+                    return;
             }
 
         }
@@ -73,14 +76,12 @@ public class RideMatchingService {
 
     public List<DriverDistanceProjection> rankDrivers(List<DriverDistanceProjection> candidates) {
 
-        return candidates.stream().sorted(Comparator.
-                comparingDouble(DriverDistanceProjection::getDistance)
+        return candidates.stream().sorted(Comparator.comparingDouble(DriverDistanceProjection::getDistance)
                 .thenComparing(Comparator.comparingDouble(DriverDistanceProjection::getRating).reversed())
-                .thenComparing(Comparator.comparingLong(DriverDistanceProjection::getTotalCompletedTrips).reversed())
-        ).toList();
+                .thenComparing(Comparator.comparingLong(DriverDistanceProjection::getTotalCompletedTrips).reversed()))
+                .toList();
 
     }
-
 
     public boolean dispatchToBestDriver(Ride ride, List<DriverDistanceProjection> candidates) {
 
@@ -95,7 +96,7 @@ public class RideMatchingService {
                 ride.setRideStatus(RideStatus.REQUESTED);
                 rideRepository.save(ride);
 
-                //Schedule timeout for 15secs
+                // Schedule timeout for 15secs
                 RideCancelledTask task = rideTimeoutScheduler.scheduleTimeout(ride.getId(), driver.getId());
 
                 TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
@@ -115,8 +116,8 @@ public class RideMatchingService {
     }
 
     private void sendRideRequestToDriver(Ride ride,
-                                         DriverDistanceProjection driverDistanceProjection,
-                                         LocalDateTime expiresAt) {
+            DriverDistanceProjection driverDistanceProjection,
+            LocalDateTime expiresAt) {
 
         UUID driverId = driverDistanceProjection.getId();
 
@@ -127,17 +128,19 @@ public class RideMatchingService {
         request.setPickupLat(ride.getPickupLocation().getCoords().getY());
         request.setEstimatedFare(ride.getEstimatedFare());
         request.setExpiresAt(expiresAt);
+        request.setRating(ride.getRider().getRating());
+        request.setRiderName(ride.getRider().getDisplayName());
+        request.setPickup(ride.getPickupLocation().getAddress());
+        request.setDropoff(ride.getDropoffLocation().getAddress());
 
         log.info("Ride request sent to subscribers");
 
         simpMessagingTemplate.convertAndSendToUser(
                 ride.getDriver().getUser().getEmail(),
                 "/queue/ride-request",
-                request
-        );
+                request);
 
     }
-
 
     @Transactional
     public void handleDriverRejectOrTimeout(UUID rideId, UUID driverId) {
@@ -145,7 +148,7 @@ public class RideMatchingService {
 
         Ride ride = rideRepository.findById(rideId).orElseThrow(RideNotFoundException::new);
 
-        //Free Driver for future ride request
+        // Free Driver for future ride request
         driverRepository.updateDriverAvailabilityStatus(DriverAvailabilityStatus.ONLINE, driverId);
 
         ride.getRejectedDrivers().add(driverId);
@@ -167,15 +170,13 @@ public class RideMatchingService {
         simpMessagingTemplate.convertAndSendToUser(
                 ride.getRider().getUser().getEmail(),
                 "/queue/no-driver-found",
-                "No drivers available at the moment."
-        );
+                "No drivers available at the moment.");
     }
 
     protected boolean lockDriver(UUID driverId) {
         int rowsUpdated = driverRepository.updateDriverAvailabilityStatus(
                 DriverAvailabilityStatus.RESERVED,
-                driverId
-        );
+                driverId);
         return rowsUpdated > 0;
 
     }

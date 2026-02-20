@@ -55,6 +55,10 @@ public class RideMapper {
             response.setDriverName(ride.getDriver().getDisplayName());
             response.setDriverInfo(UserMapper.toUserDTO(ride.getDriver().getUser()));
             response.setDriver(DriverMapper.toDTO(ride.getDriver()));
+            response.setVehicleName(
+                    ride.getDriver().getVehicle().getBrand() + " " + ride.getDriver().getVehicle().getModel());
+            response.setVehiclePlate(ride.getDriver().getVehicle().getPlateNumber());
+
         }
         response.setRider(RiderMapper.toDTO(ride.getRider() != null ? ride.getRider() : null));
 
