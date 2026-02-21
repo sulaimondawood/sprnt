@@ -2,7 +2,9 @@ package com.dawood.sprnt.ride.service;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.locationtech.jts.geom.Coordinate;
@@ -13,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-import com.dawood.sprnt.common.service.KafkaProducer;
 import com.dawood.sprnt.driver.api.dto.DriverDistanceProjection;
 import com.dawood.sprnt.driver.model.Driver;
 import com.dawood.sprnt.driver.model.DriverAvailabilityStatus;
@@ -36,7 +37,6 @@ public class RideMatchingService {
 
     private final RideRepository rideRepository;
     private final DriverRepository driverRepository;
-    private final KafkaProducer kafkaProducer;
     private final RideTimeoutScheduler rideTimeoutScheduler;
     private final SimpMessagingTemplate simpMessagingTemplate;
 
@@ -167,10 +167,13 @@ public class RideMatchingService {
         ride.setDriver(null);
         rideRepository.save(ride);
 
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "No drivers available at the moment.");
+
         simpMessagingTemplate.convertAndSendToUser(
                 ride.getRider().getUser().getEmail(),
                 "/queue/no-driver-found",
-                "No drivers available at the moment.");
+                response);
     }
 
     protected boolean lockDriver(UUID driverId) {

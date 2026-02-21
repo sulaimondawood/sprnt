@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.dawood.sprnt.common.utils.GeometryUtils;
-import com.dawood.sprnt.driver.exception.DriverNotFoundException;
 import com.dawood.sprnt.identity.model.User;
 import com.dawood.sprnt.identity.service.IdentityService;
 import com.dawood.sprnt.ride.api.dto.CreateRideRequest;
@@ -101,7 +100,10 @@ public class RiderService {
             throw new RiderNotFoundException();
         }
 
-        Ride response = rideRepository.findByRiderAndRideStatus(rider, RideStatus.ON_TRIP)
+        Ride response = rideRepository.findByRiderAndRideStatusIn(rider,
+                List.of(RideStatus.ON_TRIP, RideStatus.DRIVER_ACCEPTED,
+                        RideStatus.DRIVER_ARRIVED,
+                        RideStatus.DRIVER_EN_ROUTE))
                 .orElseThrow(() -> new RideNotFoundException());
 
         return RideMapper.toDTO(response);

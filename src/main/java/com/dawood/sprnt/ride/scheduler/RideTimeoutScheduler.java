@@ -2,6 +2,7 @@ package com.dawood.sprnt.ride.scheduler;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.context.annotation.Lazy;
@@ -47,38 +48,75 @@ public class RideTimeoutScheduler {
 
     @Scheduled(fixedDelay = 1000)
     public void processTimeouts() {
-
         List<RideCancelledTask> tasks = rideCancelledTaskRepository.findAndLockCancelledAndDueTasks(
-                LocalDateTime.now(),
-                50);
+                LocalDateTime.now(), 50);
 
         if (tasks.isEmpty())
             return;
 
         for (RideCancelledTask task : tasks) {
-
-            Ride ride = rideRepository.findById(task.getRideId()).orElse(null);
-
             try {
+                Optional<Ride> rideOpt = rideRepository.findById(task.getRideId());
 
-                if (ride == null ||
-                        task.getStatus().equals(TaskStatus.PROCESSED) ||
-                        task.getStatus().equals(TaskStatus.CANCELLED)) {
+                // Handle edge cases where ride is gone or task is stale
+                if (rideOpt.isEmpty() || task.getStatus() != TaskStatus.PENDING) {
                     task.setStatus(TaskStatus.PROCESSED);
+                    rideCancelledTaskRepository.save(task);
                     continue;
                 }
 
-                rideMatchingService.handleDriverRejectOrTimeout(task.getRideId(), task.getDriverId());
+                Ride ride = rideOpt.get();
+
+                // Only process if the ride is still waiting for this specific driver
+                if (ride.getRideStatus() == RideStatus.SEARCHING || ride.getRideStatus() == RideStatus.REQUESTED) {
+                    rideMatchingService.handleDriverRejectOrTimeout(task.getRideId(), task.getDriverId());
+                }
+
                 task.setStatus(TaskStatus.PROCESSED);
+                rideCancelledTaskRepository.save(task);
+
             } catch (Exception e) {
-                log.error("Error processing timeout task {}", task.getId(), e);
-                ride.setRideStatus(RideStatus.FAILED);
-                rideRepository.save(ride);
+                log.error("Critical error processing task {}: {}", task.getId(), e.getMessage());
+                task.setStatus(TaskStatus.PROCESSED);
+                rideCancelledTaskRepository.save(task);
             }
-
         }
-
-        rideCancelledTaskRepository.saveAll(tasks);
     }
-
 }
+// @Scheduled(fixedDelay = 1000)
+// public void processTimeouts() {
+
+// List<RideCancelledTask> tasks =
+// rideCancelledTaskRepository.findAndLockCancelledAndDueTasks(
+// LocalDateTime.now(),
+// 50);
+
+// if (tasks.isEmpty())
+// return;
+
+// for (RideCancelledTask task : tasks) {
+
+// Ride ride = rideRepository.findById(task.getRideId()).orElse(null);
+
+// try {
+
+// if (ride == null ||
+// task.getStatus().equals(TaskStatus.PROCESSED) ||
+// task.getStatus().equals(TaskStatus.CANCELLED)) {
+// task.setStatus(TaskStatus.PROCESSED);
+// continue;
+// }
+
+// rideMatchingService.handleDriverRejectOrTimeout(task.getRideId(),
+// task.getDriverId());
+// task.setStatus(TaskStatus.PROCESSED);
+// } catch (Exception e) {
+// log.error("Error processing timeout task {}", task.getId(), e);
+// ride.setRideStatus(RideStatus.FAILED);
+// rideRepository.save(ride);
+// }
+
+// }
+
+// rideCancelledTaskRepository.saveAll(tasks);
+// }

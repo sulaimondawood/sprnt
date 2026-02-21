@@ -393,7 +393,10 @@ public class DriverService {
             throw new DriverNotFoundException();
         }
 
-        Ride response = rideRepository.findByDriverAndRideStatus(user.getDriver(), RideStatus.ON_TRIP)
+        Ride response = rideRepository
+                .findByDriverAndRideStatusIn(user.getDriver(), List.of(RideStatus.ON_TRIP, RideStatus.DRIVER_ACCEPTED,
+                        RideStatus.DRIVER_ARRIVED,
+                        RideStatus.DRIVER_EN_ROUTE))
                 .orElseThrow(() -> new RideNotFoundException());
 
         return RideMapper.toDTO(response);
