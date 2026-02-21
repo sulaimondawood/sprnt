@@ -99,6 +99,14 @@ public class DriverController {
 
     }
 
+    @PatchMapping("/ride/{rideId}/enroute")
+    public ResponseEntity<ApiResponse<String>> driverProceedsToLocation(@PathVariable UUID rideId) {
+
+        driverService.driverProceedsToLocation(rideId);
+        return ApiResponse.success("You have successful completed the ride");
+
+    }
+
     @GetMapping("/rides")
     public ResponseEntity<ApiResponse<RideResponseMetaDTO>> getRideHistory(
             @RequestParam(defaultValue = "20", required = false) int pageSize,

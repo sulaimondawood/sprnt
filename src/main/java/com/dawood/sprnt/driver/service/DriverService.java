@@ -254,6 +254,26 @@ public class DriverService {
 
     }
 
+    public void driverProceedsToLocation(UUID rideId) {
+        Driver currentDriver = identityService.getCurrentLoggedInUser().getDriver();
+
+        Ride ride = rideRepository.findById(rideId)
+                .orElseThrow(RideNotFoundException::new);
+
+        if (!isValidTransition(ride.getRideStatus(), RideStatus.DRIVER_EN_ROUTE)) {
+            throw new RideException("Invalid ride state transition from " + ride.getRideStatus());
+        }
+
+        if (!ride.getDriver().getId().equals(currentDriver.getId())) {
+            throw new RideException("You are not the authorized driver for this request");
+        }
+
+        ride.setRideStatus(RideStatus.DRIVER_EN_ROUTE);
+
+        rideRepository.save(ride);
+
+    }
+
     @Transactional
     public RideCompleted driverArrivedAtDestination(UUID rideId) {
 
