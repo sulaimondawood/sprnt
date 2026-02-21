@@ -1,22 +1,5 @@
 package com.dawood.sprnt.common.service;
 
-import com.dawood.sprnt.driver.api.dto.DriverLocationDTO;
-import com.dawood.sprnt.driver.model.Driver;
-import com.dawood.sprnt.driver.repository.DriverRepository;
-import com.dawood.sprnt.rating.api.dto.RatingMessage;
-import com.dawood.sprnt.rating.model.RatingSource;
-import com.dawood.sprnt.rating.repository.RatingRepository;
-import com.dawood.sprnt.ride.api.dto.DriverRideRequest;
-import com.dawood.sprnt.ride.event.CreateRideEvent;
-import com.dawood.sprnt.ride.exception.LocationException;
-import com.dawood.sprnt.ride.exception.RideNotFoundException;
-import com.dawood.sprnt.ride.model.Ride;
-import com.dawood.sprnt.ride.repository.RideRepository;
-import com.dawood.sprnt.ride.service.RideMatchingService;
-import com.dawood.sprnt.rider.model.Rider;
-import com.dawood.sprnt.rider.repository.RiderRepository;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -25,7 +8,19 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import com.dawood.sprnt.common.config.KafkaConfig;
+import com.dawood.sprnt.driver.api.dto.DriverLocationDTO;
+import com.dawood.sprnt.driver.repository.DriverRepository;
 import com.dawood.sprnt.identity.api.dto.UserAccountDTO;
+import com.dawood.sprnt.rating.api.dto.RatingMessage;
+import com.dawood.sprnt.rating.model.RatingSource;
+import com.dawood.sprnt.rating.repository.RatingRepository;
+import com.dawood.sprnt.ride.event.CreateRideEvent;
+import com.dawood.sprnt.ride.exception.LocationException;
+import com.dawood.sprnt.ride.exception.RideNotFoundException;
+import com.dawood.sprnt.ride.model.Ride;
+import com.dawood.sprnt.ride.repository.RideRepository;
+import com.dawood.sprnt.ride.service.RideMatchingService;
+import com.dawood.sprnt.rider.repository.RiderRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,7 +41,6 @@ public class KafkaConsumer {
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final RatingRepository ratingRepository;
     private final RiderRepository riderRepository;
-
 
     @KafkaListener(topics = KafkaConfig.EMAIL_TOPIC_NAME, groupId = "email-service-group")
     public void consumeSendAccountActivationEmail(UserAccountDTO message) {
@@ -84,7 +78,6 @@ public class KafkaConsumer {
     @KafkaListener(topics = KafkaConfig.RIDE_REQUEST_TOPIC, groupId = "ride-request-grooFixedup")
     public void consumeCreateRideRequest(CreateRideEvent message) {
 
-
         Ride ride = rideRepository.findById(message.getRideId())
                 .orElseThrow(RideNotFoundException::new);
 
@@ -109,26 +102,26 @@ public class KafkaConsumer {
 
     }
 
-  @KafkaListener(topics = KafkaConfig.RIDE_RATING_TOPIC, groupId = "ratings-group")
-  public void consumeAndProcessRatings(RatingMessage message) {
+    @KafkaListener(topics = KafkaConfig.RIDE_RATING_TOPIC, groupId = "ratings-group")
+    public void consumeAndProcessRatings(RatingMessage message) {
 
-    double avgRating = ratingRepository.getAverageRatingsForUser(message.getRatedUser());
-    long ratingCounts = ratingRepository.countRatingsForUser(message.getRatedUser());
+        double avgRating = ratingRepository.getAverageRatingsForUser(message.getRatedUser());
+        long ratingCounts = ratingRepository.countRatingsForUser(message.getRatedUser());
 
-    Ride ride = rideRepository.findById(message.getRideId())
-            .orElseThrow(RideNotFoundException::new);
+        Ride ride = rideRepository.findById(message.getRideId())
+                .orElseThrow(RideNotFoundException::new);
 
-    if (message.getRatingSource() == RatingSource.RIDER) {
+        if (message.getRatingSource() == RatingSource.RIDER) {
 
-      driverRepository.updateRating(message.getRatedUser(), avgRating, ratingCounts);
-      log.info("Updated Driver {} rating to {}", message.getRatedUser(), avgRating);
+            driverRepository.updateRating(message.getRatedUser(), avgRating, ratingCounts);
+            log.info("Updated Driver {} rating to {}", message.getRatedUser(), avgRating);
 
-    } else {
-      // If the DRIVER submitted the review, we update the RIDER's profile.
-      riderRepository.updateRating(message.getRatedUser(), avgRating, ratingCounts);
-      log.info("Updated Rider {} rating to {}", message.getRatedUser(), avgRating);
+        } else {
+            // If the DRIVER submitted the review, we update the RIDER's profile.
+            riderRepository.updateRating(message.getRatedUser(), avgRating, ratingCounts);
+            log.info("Updated Rider {} rating to {}", message.getRatedUser(), avgRating);
+        }
+
     }
-
-  }
 
 }

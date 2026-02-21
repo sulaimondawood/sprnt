@@ -246,8 +246,7 @@ public class DriverService {
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override
             public void afterCommit() {
-                simpMessagingTemplate.convertAndSend(
-                        "/queue/ride/" + ride.getId().toString(),
+                simpMessagingTemplate.convertAndSendToUser(ride.getRider().getUser().getEmail(), "/queue/ride/update",
                         message);
             }
         });
@@ -303,8 +302,7 @@ public class DriverService {
                 message.setMessage("VOILA! Your ride completed successfully");
                 message.setStatus(RideStatus.COMPLETED.name());
 
-                simpMessagingTemplate.convertAndSend(
-                        "/queue/ride/" + ride.getId().toString(),
+                simpMessagingTemplate.convertAndSendToUser(ride.getRider().getUser().getEmail(), "/queue/ride/update",
                         message);
             }
         });
@@ -491,7 +489,8 @@ public class DriverService {
 
             case DRIVER_ARRIVED -> Set.of(
                     RideStatus.ON_TRIP,
-                    RideStatus.DRIVER_CANCELLED).contains(newStatus);
+                    RideStatus.DRIVER_CANCELLED,
+                    RideStatus.COMPLETED).contains(newStatus);
 
             case ON_TRIP -> RideStatus.COMPLETED.equals(newStatus);
 

@@ -103,7 +103,7 @@ public class DriverController {
     public ResponseEntity<ApiResponse<String>> driverProceedsToLocation(@PathVariable UUID rideId) {
 
         driverService.driverProceedsToLocation(rideId);
-        return ApiResponse.success("You have successful completed the ride");
+        return ApiResponse.success("Navigation started. Please proceed to the rider's location.");
 
     }
 
