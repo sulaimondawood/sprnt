@@ -91,6 +91,8 @@ public class Ride {
 
         private LocalDateTime acceptedAt;
 
+        private LocalDateTime rejectedAt;
+
         @CreationTimestamp
         @Column(nullable = false, updatable = false)
         private LocalDateTime createdAt;
