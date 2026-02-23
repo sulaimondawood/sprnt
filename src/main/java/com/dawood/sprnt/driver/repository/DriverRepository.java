@@ -45,7 +45,7 @@ public interface DriverRepository extends JpaRepository<Driver, UUID> {
     @Query("""
                 UPDATE Driver d
                 SET d.availabilityStatus= :status
-                WHERE d.id = :driverId AND d.availabilityStatus='ONLINE'
+                WHERE d.id = :driverId
             """)
     int updateDriverAvailabilityStatus(@Param("status") DriverAvailabilityStatus status,
             @Param("driverId") UUID driverId);

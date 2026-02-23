@@ -291,8 +291,11 @@ public class DriverService {
 
         ride.setRideStatus(RideStatus.COMPLETED);
         ride.setDropOffTime(LocalDateTime.now());
+        rideRepository.save(ride);
 
-        Ride savedRide = rideRepository.save(ride);
+        currentDriver.setAvailabilityStatus(DriverAvailabilityStatus.ONLINE);
+        currentDriver.setTotalCompletedTrips(currentDriver.getTotalCompletedTrips() + 1);
+        driverRepository.save(currentDriver);
 
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override
@@ -302,13 +305,15 @@ public class DriverService {
                 message.setMessage("VOILA! Your ride completed successfully");
                 message.setStatus(RideStatus.COMPLETED.name());
 
-                simpMessagingTemplate.convertAndSendToUser(ride.getRider().getUser().getEmail(), "/queue/ride/update",
+                simpMessagingTemplate.convertAndSendToUser(
+                        ride.getRider().getUser().getEmail(),
+                        "/queue/ride/update",
                         message);
             }
         });
 
         return RideCompleted.builder()
-                .rideId(savedRide.getId())
+                .rideId(ride.getId())
                 .nextAction("RATE_RIDER")
                 .message("Ride completed successfully")
                 .build();
@@ -485,7 +490,12 @@ public class DriverService {
             case DRIVER_ACCEPTED -> Set.of(
                     RideStatus.DRIVER_ARRIVED,
                     RideStatus.ON_TRIP,
+                    RideStatus.DRIVER_EN_ROUTE,
                     RideStatus.DRIVER_CANCELLED).contains(newStatus);
+
+            case DRIVER_EN_ROUTE -> Set.of(
+                    RideStatus.DRIVER_ARRIVED,
+                    RideStatus.COMPLETED).contains(newStatus);
 
             case DRIVER_ARRIVED -> Set.of(
                     RideStatus.ON_TRIP,

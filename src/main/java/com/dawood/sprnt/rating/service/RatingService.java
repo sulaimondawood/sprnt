@@ -51,9 +51,9 @@ public class RatingService {
 
         RatingSource source;
 
-        if (user.getId().equals(ride.getRider().getId())) {
+        if (user.getId().equals(ride.getRider().getUser().getId())) {
             source = RatingSource.RIDER; // It's the Rider rating the Driver
-        } else if (user.getId().equals(ride.getDriver().getId())) {
+        } else if (user.getId().equals(ride.getDriver().getUser().getId())) {
             source = RatingSource.DRIVER; // It's the Driver rating the Rider
         } else {
             throw new RatingException("You are not a participant in this ride");
