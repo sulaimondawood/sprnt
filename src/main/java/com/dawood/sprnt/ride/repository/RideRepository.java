@@ -51,6 +51,28 @@ public interface RideRepository extends JpaRepository<Ride, UUID> {
                         @Param("to") LocalDateTime to,
                         Pageable pageable);
 
+        @Query(value = """
+                            SELECT r.*
+                            FROM rides r
+                            LEFT JOIN riders rd ON r.rider_id = rd.id
+                            WHERE r.rider_id = :riderId
+                              AND (CAST(:status AS text) IS NULL OR r.ride_status = CAST(:status AS text))
+                              AND (CAST(:keyword AS text) IS NULL OR
+                                   r.pick_up_address ILIKE CONCAT('%', :keyword, '%') OR
+                                   r.drop_off_address ILIKE CONCAT('%', :keyword, '%') OR
+                                   rd.display_name ILIKE CONCAT('%', :keyword, '%')
+                              )
+                              AND (CAST(:from AS timestamp) IS NULL OR r.created_at >= :from)
+                              AND (CAST(:to AS timestamp) IS NULL OR r.created_at <= :to)
+                        """, nativeQuery = true)
+        Page<Ride> findByRiderAndRideStatus(
+                        @Param("riderId") UUID riderId,
+                        @Param("status") String status,
+                        @Param("keyword") String keyword,
+                        @Param("from") LocalDateTime from,
+                        @Param("to") LocalDateTime to,
+                        Pageable pageable);
+
         // @Query("""
         // SELECT r FROM Ride r
         // WHERE r.driver=:driver

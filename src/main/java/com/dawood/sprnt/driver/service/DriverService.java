@@ -214,7 +214,16 @@ public class DriverService {
     }
 
     public void processLocationUpdate(DriverLocationDTO location) {
-        kafkaProducer.sendDriverLocationUpdate(location);
+
+        Driver driver = identityService.getCurrentLoggedInUser().getDriver();
+
+        DriverLocationDTO message = new DriverLocationDTO();
+        message.setLat(location.getLat());
+        message.setLng(location.getLng());
+        message.setActiveRideId(location.getActiveRideId());
+        message.setDriverId(driver.getId());
+
+        kafkaProducer.sendDriverLocationUpdate(message);
     }
 
     @Transactional

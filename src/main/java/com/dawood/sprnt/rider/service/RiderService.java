@@ -6,13 +6,19 @@ import java.util.List;
 import java.util.Map;
 
 import org.locationtech.jts.geom.Point;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+import com.dawood.sprnt.common.dto.Meta;
 import com.dawood.sprnt.common.utils.GeometryUtils;
+import com.dawood.sprnt.driver.exception.DriverNotFoundException;
 import com.dawood.sprnt.driver.model.Driver;
 import com.dawood.sprnt.driver.model.DriverAvailabilityStatus;
 import com.dawood.sprnt.driver.repository.DriverRepository;
@@ -21,6 +27,7 @@ import com.dawood.sprnt.identity.service.IdentityService;
 import com.dawood.sprnt.ride.api.dto.CreateRideRequest;
 import com.dawood.sprnt.ride.api.dto.CreateRideResponse;
 import com.dawood.sprnt.ride.api.dto.RideResponseDTO;
+import com.dawood.sprnt.ride.api.dto.RideResponseMetaDTO;
 import com.dawood.sprnt.ride.exception.RideException;
 import com.dawood.sprnt.ride.exception.RideNotFoundException;
 import com.dawood.sprnt.ride.mapper.RideMapper;
@@ -168,4 +175,47 @@ public class RiderService {
         }
 
     }
+
+    public RideResponseMetaDTO getRideHistory(int pageNo, int pageSize, String keyword, LocalDateTime from,
+            LocalDateTime to, RideStatus status) {
+
+        if (from != null && to != null && from.isAfter(to)) {
+            throw new IllegalArgumentException("From date cannot be after To date");
+        }
+
+        User user = identityService.getCurrentLoggedInUser();
+
+        if (user.getRider() == null) {
+            throw new RiderNotFoundException();
+        }
+
+        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by("created_at").descending());
+
+        String statusStr = status != null ? status.name() : null;
+
+        Page<Ride> pageRides = rideRepository.findByRiderAndRideStatus(user.getRider().getId(),
+                statusStr,
+                keyword, from,
+                to,
+                pageable);
+
+        List<RideResponseDTO> rides = pageRides.getContent().stream()
+                .map(RideMapper::toDTO).toList();
+
+        Meta meta = Meta.builder()
+                .currentPage(pageRides.getNumber())
+                .totalPages(pageRides.getTotalPages())
+                .pageSize(pageRides.getSize())
+                .hasNext(pageRides.hasNext())
+                .hasPrev(pageRides.hasPrevious())
+                .build();
+
+        RideResponseMetaDTO response = new RideResponseMetaDTO();
+        response.setMeta(meta);
+        response.setData(rides);
+
+        return response;
+
+    }
+
 }
