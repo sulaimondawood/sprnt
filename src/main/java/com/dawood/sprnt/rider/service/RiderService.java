@@ -18,6 +18,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 
 import com.dawood.sprnt.common.dto.Meta;
 import com.dawood.sprnt.common.utils.GeometryUtils;
+import com.dawood.sprnt.driver.api.dto.DriverTripOverview;
 import com.dawood.sprnt.driver.exception.DriverNotFoundException;
 import com.dawood.sprnt.driver.model.Driver;
 import com.dawood.sprnt.driver.model.DriverAvailabilityStatus;
@@ -218,4 +219,32 @@ public class RiderService {
 
     }
 
+    public DriverTripOverview driverTripOverview() {
+        User user = identityService.getCurrentLoggedInUser();
+
+        Rider rider = user.getRider();
+        if (rider == null) {
+            throw new DriverNotFoundException();
+        }
+
+        long totalTrips = rideRepository.rideCountRider(rider,
+                List.of(RideStatus.COMPLETED, RideStatus.DRIVER_CANCELLED, RideStatus.RIDER_CANCELLED));
+
+        long totalCompletedTrips = rideRepository.rideCountRider(rider,
+                List.of(RideStatus.COMPLETED));
+
+        long totalCancelledTrips = rideRepository.rideCountRider(rider,
+                List.of(RideStatus.DRIVER_CANCELLED, RideStatus.RIDER_CANCELLED));
+
+        long totalOngoingTrips = rideRepository.rideCountRider(rider,
+                List.of(RideStatus.ON_TRIP, RideStatus.DRIVER_EN_ROUTE, RideStatus.DRIVER_ARRIVED));
+
+        return DriverTripOverview.builder()
+                .totalTrips(totalTrips)
+                .totalCancelled(totalCancelledTrips)
+                .totalOngoing(totalOngoingTrips)
+                .totalCompleted(totalCompletedTrips)
+                .build();
+
+    }
 }

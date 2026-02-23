@@ -1,6 +1,7 @@
 package com.dawood.sprnt.rider.api.controller;
 
 import com.dawood.sprnt.common.dto.ApiResponse;
+import com.dawood.sprnt.driver.api.dto.DriverTripOverview;
 import com.dawood.sprnt.ride.api.dto.CreateRideRequest;
 import com.dawood.sprnt.ride.api.dto.CreateRideResponse;
 import com.dawood.sprnt.ride.api.dto.RideResponseDTO;
@@ -74,6 +75,14 @@ public class RiderController {
         return ApiResponse.success(
                 riderService.getRideHistory(pageNo, pageSize, keyword, from, to, status),
                 "Ride history successfully fetched");
+
+    }
+
+    @GetMapping("/rides/overview")
+    public ResponseEntity<ApiResponse<DriverTripOverview>> getRideOverview() {
+
+        return ApiResponse.success(
+                riderService.driverTripOverview(), "Ride overview successfully fetched");
 
     }
 

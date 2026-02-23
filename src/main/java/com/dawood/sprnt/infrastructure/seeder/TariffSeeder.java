@@ -23,7 +23,6 @@ public class TariffSeeder implements CommandLineRunner {
 
         long count = tariffRepository.count();
 
-
         if (count == 0) {
             log.info("Seeding Default Tariffs...");
             seedLagos();
@@ -51,7 +50,16 @@ public class TariffSeeder implements CommandLineRunner {
                 .minimumFare(BigDecimal.valueOf(2000))
                 .build();
 
-        tariffRepository.saveAll(List.of(lagStandard, lagPremium));
+        Tariff lagSuv = Tariff.builder()
+                .city("LAGOS")
+                .rideType(RideType.SUV)
+                .baseFare(BigDecimal.valueOf(1000))
+                .perKmRate(BigDecimal.valueOf(400))
+                .perMinuteRate(BigDecimal.valueOf(70))
+                .minimumFare(BigDecimal.valueOf(3500))
+                .build();
+
+        tariffRepository.saveAll(List.of(lagStandard, lagPremium, lagSuv));
     }
 
 }
