@@ -1,8 +1,10 @@
 package com.dawood.sprnt.identity.service;
 
+import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import com.dawood.sprnt.driver.model.Driver;
@@ -10,15 +12,23 @@ import com.dawood.sprnt.driver.repository.DriverRepository;
 import com.dawood.sprnt.identity.exception.*;
 import com.dawood.sprnt.rider.model.Rider;
 import com.dawood.sprnt.rider.repository.RiderRepository;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
 import com.dawood.sprnt.common.event.AccountCreationEvent;
 import com.dawood.sprnt.common.security.JwtProvider;
+import com.dawood.sprnt.common.service.EmailService;
+import com.dawood.sprnt.common.service.KafkaProducer;
 import com.dawood.sprnt.identity.api.dto.LoginRequest;
 import com.dawood.sprnt.identity.api.dto.LoginResponse;
 import com.dawood.sprnt.identity.api.dto.RegisterRequestDTO;
@@ -32,8 +42,10 @@ import com.dawood.sprnt.identity.repository.UserRepository;
 import com.dawood.sprnt.identity.repository.VerificationTokenRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class IdentityService {
 
@@ -44,6 +56,12 @@ public class IdentityService {
   private final JwtProvider jwtProvider;
   private final RiderRepository riderRepository;
   private final DriverRepository driverRepository;
+  private final EmailService emailService;
+  private final TemplateEngine templateEngine;
+  private final KafkaProducer kafkaProducer;
+
+  @Value("${app.client-url}")
+  private String baseUrl;
 
   @Transactional
   public RegisterResponseDTO createDriverAccount(RegisterRequestDTO request) {
@@ -179,4 +197,43 @@ public class IdentityService {
     return UserMapper.toRegisterResponseDTO(savedUser);
   }
 
+  @Transactional
+  public void forgotPassword(Map<String, String> payload) throws UnsupportedEncodingException {
+
+    String email = payload.get("email");
+
+    if (email.isBlank()) {
+      throw new IllegalArgumentException("Email address is required");
+    }
+
+    Optional<User> user = userRepository.findByEmailIgnoreCase(email);
+
+    if (user.isEmpty()) {
+      log.info("Password reset requested for non-existent email: {}", email);
+      return;
+    }
+
+    VerificationToken token = new VerificationToken();
+    token.setExpiresAt(LocalDateTime.now().plusMinutes(15));
+    token.setToken(UUID.randomUUID().toString());
+    token.setUser(user.get());
+    VerificationToken savedToken = tokenRepository.save(token);
+
+    user.get().setToken(savedToken);
+    userRepository.save(user.get());
+
+    TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+
+      @Override
+      public void afterCommit() {
+        Map<String, String> message = new HashMap<>();
+        message.put("token", savedToken.getToken());
+        message.put("email", user.get().getEmail());
+
+        kafkaProducer.sendAccountPasswordReset(message);
+      }
+
+    });
+
+  }
 }

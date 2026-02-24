@@ -1,5 +1,7 @@
 package com.dawood.sprnt.common.service;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -68,6 +70,35 @@ public class KafkaConsumer {
             String emailBody = templateEngine.process("/account/email-verification.html", context);
 
             emailService.sendEmail(email, "Sprnt Account Activation", emailBody);
+        } catch (Exception e) {
+            log.error("Error processing Kafka message", e);
+            throw new RuntimeException("Failed to process email", e);
+        }
+
+    }
+
+    @KafkaListener(topics = "password-reset", groupId = "password-reset-group")
+    public void consumeSendAccountPasswordResetEmail(Map<String, String> message) {
+
+        try {
+            log.info("Email service group subscribes to the published event");
+
+            String token = message.get("token");
+            String email = message.get("email");
+
+            if (token == null || email == null) {
+                log.warn("Received malformed Kafka message: {}", message);
+                return;
+            }
+
+            String url = String.format("%s/auth/reset-password?token=%s", clientUrl, token);
+
+            Context ctx = new Context();
+            ctx.setVariable("RESET_LINK", url);
+
+            String body = templateEngine.process("/account/password-reset.html", ctx);
+
+            emailService.sendEmail(email, "Password Reset - Sprnt", body);
         } catch (Exception e) {
             log.error("Error processing Kafka message", e);
             throw new RuntimeException("Failed to process email", e);
