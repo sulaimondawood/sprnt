@@ -19,6 +19,8 @@ public class DriverLocationDTO {
 
     private UUID driverId;
 
+    private String token;
+
     private UUID activeRideId;
 
 }

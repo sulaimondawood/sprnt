@@ -89,9 +89,12 @@ public class KafkaConsumer {
 
         if (message.getActiveRideId() != null) {
             simpMessagingTemplate.convertAndSend(
-                    "/queue/ride/" + message.getActiveRideId().toString(),
+                    "/topic/ride/" + message.getActiveRideId().toString(),
                     message);
         }
+
+        String destination = "/queue/ride/" + message.getActiveRideId().toString();
+        log.info("Broadcasting location to destination: {}", destination);
 
         try {
             driverRepository.updateLocation(message.getDriverId(), message.getLng(), message.getLat());

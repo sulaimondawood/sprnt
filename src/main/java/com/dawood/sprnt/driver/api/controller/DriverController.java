@@ -19,13 +19,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dawood.sprnt.common.dto.ApiResponse;
+import com.dawood.sprnt.common.security.JwtProvider;
 import com.dawood.sprnt.driver.api.dto.DriverLocationDTO;
 import com.dawood.sprnt.driver.api.dto.DriverTripOverview;
 import com.dawood.sprnt.driver.api.dto.OnboardingRequest;
 import com.dawood.sprnt.driver.api.dto.OnboardingResponse;
+import com.dawood.sprnt.driver.exception.DriverNotFoundException;
 import com.dawood.sprnt.driver.model.Driver;
+import com.dawood.sprnt.driver.repository.DriverRepository;
 import com.dawood.sprnt.driver.service.DriverService;
-import com.dawood.sprnt.identity.service.IdentityService;
 import com.dawood.sprnt.ride.api.dto.RideResponseDTO;
 import com.dawood.sprnt.ride.api.dto.RideResponseMetaDTO;
 import com.dawood.sprnt.ride.model.RideStatus;
@@ -44,9 +46,10 @@ import lombok.RequiredArgsConstructor;
 public class DriverController {
 
     private final DriverService driverService;
-    private final IdentityService identityService;
     private final VehicleService vehicleService;
     private final UserService userService;
+    private final JwtProvider jwtProvider;
+    private final DriverRepository driverRepository;
 
     @PostMapping("/onboard")
     public ResponseEntity<ApiResponse<OnboardingResponse>> completeOnboarding(
@@ -61,7 +64,13 @@ public class DriverController {
     @MessageMapping("/driver-location")
     public void handleLocationUpdate(@Payload DriverLocationDTO dto) {
 
-        Driver driver = identityService.getCurrentLoggedInUser().getDriver();
+        if (dto.getToken() == null)
+            return;
+
+        String email = jwtProvider.getSubject(dto.getToken());
+
+        Driver driver = driverRepository.findByUserEmail(email).orElseThrow(() -> new DriverNotFoundException());
+
         dto.setDriverId(driver.getId());
 
         driverService.processLocationUpdate(dto);

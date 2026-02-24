@@ -75,4 +75,6 @@ public interface DriverRepository extends JpaRepository<Driver, UUID> {
             """)
     List<Driver> findOnlineBefore(@Param("cutoff") LocalDateTime cutoff);
 
+    Optional<Driver> findByUserEmail(String email);
+
 }

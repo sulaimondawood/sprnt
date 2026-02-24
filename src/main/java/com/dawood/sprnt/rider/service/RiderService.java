@@ -224,7 +224,7 @@ public class RiderService {
 
         Rider rider = user.getRider();
         if (rider == null) {
-            throw new DriverNotFoundException();
+            throw new RiderNotFoundException();
         }
 
         long totalTrips = rideRepository.rideCountRider(rider,

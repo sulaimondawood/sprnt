@@ -215,7 +215,9 @@ public class DriverService {
 
     public void processLocationUpdate(DriverLocationDTO location) {
 
-        Driver driver = identityService.getCurrentLoggedInUser().getDriver();
+        String email = jwtProvider.getSubject(location.getToken());
+
+        Driver driver = driverRepository.findByUserEmail(email).orElseThrow(() -> new DriverNotFoundException());
 
         DriverLocationDTO message = new DriverLocationDTO();
         message.setLat(location.getLat());
