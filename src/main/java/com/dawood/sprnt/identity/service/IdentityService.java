@@ -1,18 +1,12 @@
 package com.dawood.sprnt.identity.service;
 
-import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.dawood.sprnt.driver.model.Driver;
-import com.dawood.sprnt.driver.repository.DriverRepository;
-import com.dawood.sprnt.identity.exception.*;
-import com.dawood.sprnt.rider.model.Rider;
-import com.dawood.sprnt.rider.repository.RiderRepository;
-
+import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
@@ -22,17 +16,21 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
-import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.context.Context;
 
 import com.dawood.sprnt.common.event.AccountCreationEvent;
 import com.dawood.sprnt.common.security.JwtProvider;
-import com.dawood.sprnt.common.service.EmailService;
 import com.dawood.sprnt.common.service.KafkaProducer;
+import com.dawood.sprnt.driver.model.Driver;
+import com.dawood.sprnt.driver.repository.DriverRepository;
 import com.dawood.sprnt.identity.api.dto.LoginRequest;
 import com.dawood.sprnt.identity.api.dto.LoginResponse;
 import com.dawood.sprnt.identity.api.dto.RegisterRequestDTO;
 import com.dawood.sprnt.identity.api.dto.RegisterResponseDTO;
+import com.dawood.sprnt.identity.exception.IdentityException;
+import com.dawood.sprnt.identity.exception.TokenException;
+import com.dawood.sprnt.identity.exception.TokenExpiredException;
+import com.dawood.sprnt.identity.exception.UserAlreadyExistsException;
+import com.dawood.sprnt.identity.exception.UserNotFoundException;
 import com.dawood.sprnt.identity.mapper.UserMapper;
 import com.dawood.sprnt.identity.model.Role;
 import com.dawood.sprnt.identity.model.Status;
@@ -40,6 +38,8 @@ import com.dawood.sprnt.identity.model.User;
 import com.dawood.sprnt.identity.model.VerificationToken;
 import com.dawood.sprnt.identity.repository.UserRepository;
 import com.dawood.sprnt.identity.repository.VerificationTokenRepository;
+import com.dawood.sprnt.rider.model.Rider;
+import com.dawood.sprnt.rider.repository.RiderRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -56,8 +56,7 @@ public class IdentityService {
   private final JwtProvider jwtProvider;
   private final RiderRepository riderRepository;
   private final DriverRepository driverRepository;
-  private final EmailService emailService;
-  private final TemplateEngine templateEngine;
+
   private final KafkaProducer kafkaProducer;
 
   @Value("${app.client-url}")
@@ -198,7 +197,7 @@ public class IdentityService {
   }
 
   @Transactional
-  public void forgotPassword(Map<String, String> payload) throws UnsupportedEncodingException {
+  public void forgotPassword(Map<String, String> payload) {
 
     String email = payload.get("email");
 
@@ -236,4 +235,41 @@ public class IdentityService {
     });
 
   }
+
+  @Transactional
+  public void resetPassword(Map<String, String> payload) {
+    String token = payload.get("token");
+    String newPassword = payload.get("password");
+    String cPassword = payload.get("confirmPassword");
+
+    if (!newPassword.equals(cPassword)) {
+      throw new IllegalArgumentException("New password and Confirm password didn't match");
+    }
+
+    if (token == null) {
+      throw new IllegalArgumentException("Verification token is required");
+    }
+
+    if (newPassword == null || newPassword.isBlank()) {
+      throw new IllegalArgumentException("New password is required");
+    }
+
+    VerificationToken verificationToken = tokenRepository.findByToken(token)
+        .orElseThrow(() -> new ResourceNotFoundException("Invalid or expired token"));
+
+    if (verificationToken.hasExpired()) {
+      tokenRepository.delete(verificationToken);
+      throw new TokenExpiredException("Token has expired");
+    }
+
+    User user = verificationToken.getUser();
+    user.setPassword(passwordEncoder.encode(newPassword));
+    user.setToken(null);
+    userRepository.save(user);
+
+    tokenRepository.delete(verificationToken);
+
+    log.info("Password successfully reset for user: {}", user.getEmail());
+  }
+
 }
