@@ -1,5 +1,7 @@
 package com.dawood.sprnt.identity.api.controller;
 
+import java.util.Map;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -54,6 +56,24 @@ public class IdentityController {
   public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody LoginRequest request) {
 
     return ApiResponse.success(identityService.login(request), "Login was successfull");
+
+  }
+
+  @PostMapping("/forgot-password")
+  public ResponseEntity<ApiResponse<Void>> forgotPassword(@RequestBody Map<String, String> request) {
+
+    identityService.forgotPassword(request);
+
+    return ApiResponse.success("Your request was successfull");
+
+  }
+
+  @PostMapping("/reset-password")
+  public ResponseEntity<ApiResponse<Void>> resetPassword(@RequestBody Map<String, String> request) {
+
+    identityService.resetPassword(request);
+
+    return ApiResponse.success("Your request was successfull");
 
   }
 
