@@ -1,6 +1,9 @@
 package com.dawood.sprnt.rider.service;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +22,6 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import com.dawood.sprnt.common.dto.Meta;
 import com.dawood.sprnt.common.utils.GeometryUtils;
 import com.dawood.sprnt.driver.api.dto.DriverTripOverview;
-import com.dawood.sprnt.driver.exception.DriverNotFoundException;
 import com.dawood.sprnt.driver.model.Driver;
 import com.dawood.sprnt.driver.model.DriverAvailabilityStatus;
 import com.dawood.sprnt.driver.repository.DriverRepository;
@@ -39,6 +41,7 @@ import com.dawood.sprnt.ride.repository.RideRepository;
 import com.dawood.sprnt.ride.service.RideService;
 import com.dawood.sprnt.rider.api.dto.ProfileRequestDTO;
 import com.dawood.sprnt.rider.api.dto.ProfileResponseDTO;
+import com.dawood.sprnt.rider.api.dto.RiderOverviewData;
 import com.dawood.sprnt.rider.exception.RiderNotFoundException;
 import com.dawood.sprnt.rider.mapper.RiderMapper;
 import com.dawood.sprnt.rider.model.Rider;
@@ -246,5 +249,29 @@ public class RiderService {
                 .totalCompleted(totalCompletedTrips)
                 .build();
 
+    }
+
+    public RiderOverviewData getRiderOverviewData() {
+        Rider rider = identityService.getCurrentLoggedInUser().getRider();
+
+        if (rider == null) {
+            throw new RiderNotFoundException();
+        }
+
+        long totalRides = rider.getTotalRides();
+        double ratings = rider.getRating();
+
+        LocalDateTime startOfTheWeek = LocalDate.now()
+                .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+                .atStartOfDay();
+
+        long ridesOfTheWeek = rideRepository.findRideCountByRiderAfterDay(rider, startOfTheWeek);
+
+        RiderOverviewData res = new RiderOverviewData();
+        res.setRating(ratings);
+        res.setTotalRides(totalRides);
+        res.setRidesOfTheWeek(ridesOfTheWeek);
+
+        return res;
     }
 }

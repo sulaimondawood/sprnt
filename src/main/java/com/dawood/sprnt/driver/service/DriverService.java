@@ -1,6 +1,9 @@
 package com.dawood.sprnt.driver.service;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +23,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import com.dawood.sprnt.common.dto.Meta;
 import com.dawood.sprnt.common.security.JwtProvider;
 import com.dawood.sprnt.common.service.KafkaProducer;
+import com.dawood.sprnt.driver.api.dto.DriverDataOverview;
 import com.dawood.sprnt.driver.api.dto.DriverLocationDTO;
 import com.dawood.sprnt.driver.api.dto.DriverTripOverview;
 import com.dawood.sprnt.driver.api.dto.OnboardingRequest;
@@ -47,6 +51,8 @@ import com.dawood.sprnt.ride.model.Ride;
 import com.dawood.sprnt.ride.model.RideStatus;
 import com.dawood.sprnt.ride.repository.RideRepository;
 import com.dawood.sprnt.ride.service.RideMatchingService;
+import com.dawood.sprnt.rider.model.Rider;
+import com.dawood.sprnt.rider.repository.RiderRepository;
 import com.dawood.sprnt.vehicle.model.Vehicle;
 import com.dawood.sprnt.vehicle.model.VehicleDocument;
 import com.dawood.sprnt.vehicle.model.VehicleDocumentStatus;
@@ -71,6 +77,7 @@ public class DriverService {
     private final VehicleDocumentRepository vehicleDocumentRepository;
     private final KafkaProducer kafkaProducer;
     private final JwtProvider jwtProvider;
+    private final RiderRepository riderRepository;
 
     @Transactional
     public OnboardingResponse completeOnboarding(OnboardingRequest request) {
@@ -308,6 +315,10 @@ public class DriverService {
         currentDriver.setTotalCompletedTrips(currentDriver.getTotalCompletedTrips() + 1);
         driverRepository.save(currentDriver);
 
+        Rider rider = ride.getRider();
+        rider.setTotalRides(rider.getTotalRides() + 1);
+        riderRepository.save(rider);
+
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override
             public void afterCommit() {
@@ -472,6 +483,39 @@ public class DriverService {
         }
 
         driverRepository.save(driver);
+
+    }
+
+    public DriverDataOverview getDriverDataOverview() {
+        Driver driver = identityService.getCurrentLoggedInUser().getDriver();
+
+        if (driver == null) {
+            throw new DriverNotFoundException();
+        }
+
+        double rating = driver.getRating();
+        long totalCompletedRides = driver.getTotalCompletedTrips();
+        long totalRides = rideRepository.countByDriver(driver);
+
+        double completionRate = (totalRides > 0) ? ((double) totalCompletedRides / totalRides) * 100 : 0.0;
+
+        LocalDateTime todayRides = LocalDate.now().atStartOfDay();
+
+        long today = rideRepository.findRideCountByDriverAfterDayAndRideCompleted(driver, todayRides);
+
+        LocalDateTime startOfTheWeek = LocalDate.now()
+                .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+                .atStartOfDay();
+
+        long ridesOfTheWeek = rideRepository.findRideCountByDriverAfterDay(driver, startOfTheWeek);
+
+        DriverDataOverview res = new DriverDataOverview();
+        res.setRating(rating);
+        res.setCompletionRate(completionRate);
+        res.setCompletedRideToday(today);
+        res.setRidesOfTheWeek(ridesOfTheWeek);
+
+        return res;
 
     }
 

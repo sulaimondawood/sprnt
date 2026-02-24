@@ -116,4 +116,30 @@ public interface RideRepository extends JpaRepository<Ride, UUID> {
 
      Optional<Ride> findByRiderAndRideStatusIn(Rider rider, List<RideStatus> status);
 
+     long countByDriver(Driver driver);
+
+     @Query("""
+               SELECT COUNT(r) FROM Ride r
+               WHERE r.rider=:rider
+               AND r.createdAt >= :startOfWeek
+               """)
+     long findRideCountByRiderAfterDay(@Param("rider") Rider rider,
+               @Param("startOfWeek") LocalDateTime startOfWeek);
+
+     @Query("""
+               SELECT COUNT(r) FROM Ride r
+               WHERE r.driver=:driver
+               AND r.createdAt >= :startOfWeek
+               """)
+     long findRideCountByDriverAfterDay(@Param("driver") Driver driver,
+               @Param("startOfWeek") LocalDateTime startOfWeek);
+
+     @Query("""
+               SELECT COUNT(r) FROM Ride r
+               WHERE r.driver=:driver
+               AND r.createdAt >= :startOfWeek
+               AND r.rideStatus='COMPLETED'
+               """)
+     long findRideCountByDriverAfterDayAndRideCompleted(@Param("driver") Driver driver,
+               @Param("startOfWeek") LocalDateTime startOfWeek);
 }

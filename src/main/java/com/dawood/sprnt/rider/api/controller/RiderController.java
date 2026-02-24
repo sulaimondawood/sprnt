@@ -9,6 +9,7 @@ import com.dawood.sprnt.ride.api.dto.RideResponseMetaDTO;
 import com.dawood.sprnt.ride.model.RideStatus;
 import com.dawood.sprnt.rider.api.dto.ProfileRequestDTO;
 import com.dawood.sprnt.rider.api.dto.ProfileResponseDTO;
+import com.dawood.sprnt.rider.api.dto.RiderOverviewData;
 import com.dawood.sprnt.rider.service.RiderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -83,6 +84,14 @@ public class RiderController {
 
         return ApiResponse.success(
                 riderService.driverTripOverview(), "Ride overview successfully fetched");
+
+    }
+
+    @GetMapping("/overview")
+    public ResponseEntity<ApiResponse<RiderOverviewData>> getRiderOverviewData() {
+
+        return ApiResponse.success(
+                riderService.getRiderOverviewData(), "Ride overview successfully fetched");
 
     }
 

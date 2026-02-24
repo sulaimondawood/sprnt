@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.dawood.sprnt.common.dto.ApiResponse;
 import com.dawood.sprnt.common.security.JwtProvider;
+import com.dawood.sprnt.driver.api.dto.DriverDataOverview;
 import com.dawood.sprnt.driver.api.dto.DriverLocationDTO;
 import com.dawood.sprnt.driver.api.dto.DriverTripOverview;
 import com.dawood.sprnt.driver.api.dto.OnboardingRequest;
@@ -211,6 +212,13 @@ public class DriverController {
         driverService.toggleAvailabilityStatus();
 
         return ApiResponse.success("Updated availability status");
+
+    }
+
+    @GetMapping("/overview")
+    public ResponseEntity<ApiResponse<DriverDataOverview>> getDriver() {
+
+        return ApiResponse.success(driverService.getDriverDataOverview(), "Sucessfully fetched");
 
     }
 
