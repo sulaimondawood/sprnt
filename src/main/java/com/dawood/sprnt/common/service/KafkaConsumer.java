@@ -91,7 +91,7 @@ public class KafkaConsumer {
                 return;
             }
 
-            String url = String.format("%s/auth/reset-password?token=%s", clientUrl, token);
+            String url = String.format("%sauth/reset-password?token=%s", clientUrl, token);
 
             Context ctx = new Context();
             ctx.setVariable("RESET_LINK", url);

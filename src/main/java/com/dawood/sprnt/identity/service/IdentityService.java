@@ -205,21 +205,31 @@ public class IdentityService {
       throw new IllegalArgumentException("Email address is required");
     }
 
-    Optional<User> user = userRepository.findByEmailIgnoreCase(email);
+    Optional<User> userOpt = userRepository.findByEmailIgnoreCase(email);
 
-    if (user.isEmpty()) {
+    if (userOpt.isEmpty()) {
       log.info("Password reset requested for non-existent email: {}", email);
       return;
+    }
+
+    User user = userOpt.get();
+
+    if (user.getToken() != null) {
+      VerificationToken oldToken = user.getToken();
+      user.setToken(null);
+      userRepository.save(user);
+      tokenRepository.delete(oldToken);
+      tokenRepository.flush();
     }
 
     VerificationToken token = new VerificationToken();
     token.setExpiresAt(LocalDateTime.now().plusMinutes(15));
     token.setToken(UUID.randomUUID().toString());
-    token.setUser(user.get());
+    token.setUser(user);
     VerificationToken savedToken = tokenRepository.save(token);
 
-    user.get().setToken(savedToken);
-    userRepository.save(user.get());
+    user.setToken(savedToken);
+    userRepository.save(user);
 
     TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
 
@@ -227,7 +237,7 @@ public class IdentityService {
       public void afterCommit() {
         Map<String, String> message = new HashMap<>();
         message.put("token", savedToken.getToken());
-        message.put("email", user.get().getEmail());
+        message.put("email", user.getEmail());
 
         kafkaProducer.sendAccountPasswordReset(message);
       }
@@ -255,7 +265,7 @@ public class IdentityService {
     }
 
     VerificationToken verificationToken = tokenRepository.findByToken(token)
-        .orElseThrow(() -> new ResourceNotFoundException("Invalid or expired token"));
+        .orElseThrow(() -> new TokenException("Invalid or expired token"));
 
     if (verificationToken.hasExpired()) {
       tokenRepository.delete(verificationToken);
