@@ -41,7 +41,8 @@ public class KafkaProducer {
 
   public void sendAccountPasswordReset(Map<String, String> message) {
 
-    CompletableFuture<SendResult<String, Object>> future = kafkaTemplate.send("password-reset", message);
+    CompletableFuture<SendResult<String, Object>> future = kafkaTemplate.send(KafkaConfig.PASSWORD_RESET_TOPIC,
+        message);
 
     future.whenComplete((result, err) -> {
       if (err == null) {

@@ -3,8 +3,6 @@ package com.dawood.sprnt.driver.api.dto;
 import java.time.LocalDate;
 import java.util.UUID;
 
-import org.locationtech.jts.geom.Point;
-
 import com.dawood.sprnt.driver.model.DriverAvailabilityStatus;
 import com.dawood.sprnt.driver.model.DriverKycStatus;
 import com.dawood.sprnt.driver.model.DriverStatus;

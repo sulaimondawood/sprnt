@@ -66,7 +66,8 @@ public class Ride {
 
         private BigDecimal estimatedFare;
 
-        // @Enumerated(EnumType.STRING)
+        @Enumerated(EnumType.STRING)
+        @Builder.Default
         private Currency currency = Currency.NGN;
 
         private LocalDateTime estimatedArrivalTime;
