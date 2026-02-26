@@ -177,7 +177,7 @@ public class IdentityService {
         .email(request.getEmail())
         .password(passwordEncoder.encode(request.getPassword()))
         .status(Status.UNVERIFIED)
-        .role(Role.DRIVER)
+        .role(role)
         .build();
 
     User savedUser = userRepository.save(newUser);

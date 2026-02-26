@@ -11,6 +11,8 @@ public class UserEditDTO {
 
   private String fullname;
 
+  private String username;
+
   private String imageUrl;
 
 }
