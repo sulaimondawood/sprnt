@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
@@ -282,4 +281,59 @@ public class IdentityService {
     log.info("Password successfully reset for user: {}", user.getEmail());
   }
 
+  @Transactional
+  public void resendVerificationLink(Map<String, String> request) {
+
+    String token = request.get("token");
+
+    if (token.isBlank()) {
+      throw new IllegalArgumentException("Token is required");
+    }
+
+    Optional<User> userOpt = userRepository.findByToken_Token(token);
+
+    if (userOpt.isEmpty()) {
+      log.info("Password reset requested for non-existent token: {}", token);
+      return;
+    }
+
+    User user = userOpt.get();
+
+    if (user.getStatus() == Status.ACTIVE) {
+      throw new IllegalArgumentException("Email is already verified");
+
+    }
+
+    VerificationToken oldToken = user.getToken();
+    user.setToken(null);
+    userRepository.save(user);
+
+    if (oldToken != null) {
+      tokenRepository.delete(oldToken);
+      tokenRepository.flush();
+    }
+
+    VerificationToken newToken = new VerificationToken();
+    newToken.setExpiresAt(LocalDateTime.now().plusMinutes(15));
+    newToken.setToken(UUID.randomUUID().toString());
+    newToken.setUser(user);
+    VerificationToken savedToken = tokenRepository.save(newToken);
+
+    user.setToken(savedToken);
+    userRepository.save(user);
+
+    TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+
+      @Override
+      public void afterCommit() {
+        Map<String, String> message = new HashMap<>();
+        message.put("token", savedToken.getToken());
+        message.put("email", user.getEmail());
+
+        kafkaProducer.sendAccountPasswordReset(message);
+      }
+
+    });
+
+  }
 }

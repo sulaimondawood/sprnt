@@ -77,4 +77,13 @@ public class IdentityController {
 
   }
 
+  @PostMapping("/resend-verfication-link")
+  public ResponseEntity<ApiResponse<Void>> resendVerificationLink(@RequestBody Map<String, String> request) {
+
+    identityService.resendVerificationLink(request);
+
+    return ApiResponse.success("You'll recieve a verification link.");
+
+  }
+
 }
