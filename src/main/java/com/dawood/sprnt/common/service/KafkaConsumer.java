@@ -77,7 +77,7 @@ public class KafkaConsumer {
 
     }
 
-    @KafkaListener(topics = "password-reset", groupId = "password-reset-group")
+    @KafkaListener(topics = KafkaConfig.PASSWORD_RESET_TOPIC, groupId = "password-reset-group")
     public void consumeSendAccountPasswordResetEmail(Map<String, String> message) {
 
         try {

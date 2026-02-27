@@ -9,16 +9,19 @@ spring:
   datasource:
     username: ${DB_USER}
     password: ${DB_PASSWORD}
-    url: jdbc:postgresql://localhost:5433/sprnt_db
+    url: ${DB_URL}
+    # username: admin
+    # password: admin
+    # url: jdbc:postgresql://localhost:5433/sprnt_db
   jpa:
     hibernate:
       ddl-auto: update
 
   mail:
-    host: smtp.gmail.com
+    host: ${SMTP_HOST}
     username: ${SMTP_USERNAME}
     password: ${SMTP_PASSWORD}
-    port: 587
+    port: 2525
     properties:
       mail:
         smtp:
@@ -28,7 +31,26 @@ spring:
             required: true
 
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: ${KAFKA_HOST}
+    security:
+      protocol: SSL
+    ssl:
+      key-store-type: PEM
+      key-store-certificate-chain: ${KAFKA_ACCESS_CERT}
+      key-store-key: ${KAFKA_ACCESS_KEY}
+      trust-store-type: PEM
+      trust-store-certificates: ${KAFKA_CA_CERT}
+
+      # key-store-type: PKCS12
+      # key-store-location: file:src/main/resources/kafka/client.keystore.p12
+      # key-password: dawood
+      # key-store-password: dawood
+      # trust-store-type: JKS
+      # trust-store-location: file:src/main/resources/kafka/client.truststore.jks
+      # trust-store-password: dawood
+
+      # bootstrap-servers: localhost:9092
+
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
@@ -46,12 +68,16 @@ spring:
 
   data:
     redis:
-      host: localhost
-      port: 6379
+      # host: localhost
+      # port: 6379
+      url: ${REDIS_CONNECTION_STRING}
+      ssl:
+        enabled: true
 
 app:
   base-url: http://localhost:8080/api/
   client-url: http://localhost:3000/
+  email: ${MAIL_USER_DEV}
   cloudinary:
     api-key: ${CLOUDINARY_API_KEY}
     secret-key: ${CLOUDINARY_SECRET_KEY}
