@@ -31,7 +31,26 @@ spring:
             required: true
 
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: ${KAFKA_HOST}
+    security:
+      protocol: SSL
+    ssl:
+      key-store-type: PEM
+      key-store-certificate-chain: ${KAFKA_ACCESS_CERT}
+      key-store-key: ${KAFKA_ACCESS_KEY}
+      trust-store-type: PEM
+      trust-store-certificates: ${KAFKA_CA_CERT}
+
+      # key-store-type: PKCS12
+      # key-store-location: file:src/main/resources/kafka/client.keystore.p12
+      # key-password: dawood
+      # key-store-password: dawood
+      # trust-store-type: JKS
+      # trust-store-location: file:src/main/resources/kafka/client.truststore.jks
+      # trust-store-password: dawood
+
+      # bootstrap-servers: localhost:9092
+
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
@@ -52,6 +71,8 @@ spring:
       # host: localhost
       # port: 6379
       url: ${REDIS_CONNECTION_STRING}
+      ssl:
+        enabled: true
 
 app:
   base-url: http://localhost:8080/api/
