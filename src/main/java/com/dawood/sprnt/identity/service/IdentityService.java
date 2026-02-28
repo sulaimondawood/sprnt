@@ -25,6 +25,7 @@ import com.dawood.sprnt.identity.api.dto.LoginRequest;
 import com.dawood.sprnt.identity.api.dto.LoginResponse;
 import com.dawood.sprnt.identity.api.dto.RegisterRequestDTO;
 import com.dawood.sprnt.identity.api.dto.RegisterResponseDTO;
+import com.dawood.sprnt.identity.api.dto.UserAccountDTO;
 import com.dawood.sprnt.identity.exception.IdentityException;
 import com.dawood.sprnt.identity.exception.TokenException;
 import com.dawood.sprnt.identity.exception.TokenExpiredException;
@@ -285,19 +286,19 @@ public class IdentityService {
   public void resendVerificationLink(Map<String, String> request) {
 
     String token = request.get("token");
+    String email = request.get("email");
 
-    if (token.isBlank()) {
-      throw new IllegalArgumentException("Token is required");
+    User user;
+
+    if (token != null && !token.isBlank()) {
+      user = userRepository.findByToken_Token(token)
+          .orElseThrow(() -> new IllegalArgumentException("Invalid token"));
+    } else if (email != null && !email.isBlank()) {
+      user = userRepository.findByEmailIgnoreCase(email)
+          .orElseThrow(() -> new IllegalArgumentException("User not found"));
+    } else {
+      throw new IllegalArgumentException("Either email or token is required");
     }
-
-    Optional<User> userOpt = userRepository.findByToken_Token(token);
-
-    if (userOpt.isEmpty()) {
-      log.info("Password reset requested for non-existent token: {}", token);
-      return;
-    }
-
-    User user = userOpt.get();
 
     if (user.getStatus() == Status.ACTIVE) {
       throw new IllegalArgumentException("Email is already verified");
@@ -322,18 +323,31 @@ public class IdentityService {
     user.setToken(savedToken);
     userRepository.save(user);
 
+    String userEmail = user.getEmail();
+    String userFullname = user.getFullname();
+    String rawTokenValue = savedToken.getToken();
+
     TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
 
       @Override
       public void afterCommit() {
         Map<String, String> message = new HashMap<>();
-        message.put("token", savedToken.getToken());
-        message.put("email", user.getEmail());
+        message.put("token", rawTokenValue);
+        message.put("email", userEmail);
 
-        kafkaProducer.sendAccountPasswordReset(message);
+        if (token != null) {
+          kafkaProducer.sendAccountPasswordReset(message);
+        } else {
+          kafkaProducer.sendAccountActivationEmail(UserAccountDTO.builder()
+              .email(userEmail)
+              .fullname(userFullname)
+              .token(rawTokenValue)
+              .build());
+        }
       }
 
     });
 
   }
+
 }
