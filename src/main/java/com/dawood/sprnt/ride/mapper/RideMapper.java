@@ -49,15 +49,21 @@ public class RideMapper {
         response.setAcceptedAt(ride.getAcceptedAt());
         response.setRiderName(ride.getRider() != null ? ride.getRider().getDisplayName() : null);
         response.setCreatedAt(ride.getCreatedAt());
-        response.setRiderInfo(UserMapper.toUserDTO(ride.getRider().getUser()));
+
+        if (ride.getRider() != null && ride.getRider().getUser() != null) {
+            response.setRiderInfo(UserMapper.toUserDTO(ride.getRider().getUser()));
+        }
 
         if (ride.getDriver() != null) {
             response.setDriverName(ride.getDriver().getDisplayName());
             response.setDriverInfo(UserMapper.toUserDTO(ride.getDriver().getUser()));
             response.setDriver(DriverMapper.toDTO(ride.getDriver()));
-            response.setVehicleName(
-                    ride.getDriver().getVehicle().getBrand() + " " + ride.getDriver().getVehicle().getModel());
-            response.setVehiclePlate(ride.getDriver().getVehicle().getPlateNumber());
+
+            if (ride.getDriver().getVehicle() != null) {
+                response.setVehicleName(
+                        ride.getDriver().getVehicle().getBrand() + " " + ride.getDriver().getVehicle().getModel());
+                response.setVehiclePlate(ride.getDriver().getVehicle().getPlateNumber());
+            }
 
         }
         response.setRider(RiderMapper.toDTO(ride.getRider() != null ? ride.getRider() : null));
