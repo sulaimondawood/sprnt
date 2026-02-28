@@ -70,7 +70,8 @@ public class DriverController {
 
         String email = jwtProvider.getSubject(dto.getToken());
 
-        Driver driver = driverRepository.findByUserEmail(email).orElseThrow(() -> new DriverNotFoundException());
+        Driver driver = driverRepository.findByUserEmail(email)
+                .orElseThrow(() -> new DriverNotFoundException());
 
         dto.setDriverId(driver.getId());
 

@@ -221,18 +221,7 @@ public class DriverService {
     }
 
     public void processLocationUpdate(DriverLocationDTO location) {
-
-        String email = jwtProvider.getSubject(location.getToken());
-
-        Driver driver = driverRepository.findByUserEmail(email).orElseThrow(() -> new DriverNotFoundException());
-
-        DriverLocationDTO message = new DriverLocationDTO();
-        message.setLat(location.getLat());
-        message.setLng(location.getLng());
-        message.setActiveRideId(location.getActiveRideId());
-        message.setDriverId(driver.getId());
-
-        kafkaProducer.sendDriverLocationUpdate(message);
+        kafkaProducer.sendDriverLocationUpdate(location);
     }
 
     @Transactional
