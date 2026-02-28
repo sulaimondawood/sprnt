@@ -122,6 +122,8 @@ public interface RideRepository extends JpaRepository<Ride, UUID> {
                SELECT COUNT(r) FROM Ride r
                WHERE r.rider=:rider
                AND r.createdAt >= :startOfWeek
+               AND r.rideStatus='COMPLETED'
+
                """)
      long findRideCountByRiderAfterDay(@Param("rider") Rider rider,
                @Param("startOfWeek") LocalDateTime startOfWeek);
