@@ -44,7 +44,7 @@ public class KafkaConsumer {
     private final RatingRepository ratingRepository;
     private final RiderRepository riderRepository;
 
-    @KafkaListener(topics = KafkaConfig.EMAIL_TOPIC_NAME, groupId = "email-service-group")
+    @KafkaListener(topics = KafkaConfig.EMAIL_TOPIC_NAME, groupId = "email-service-group1")
     public void consumeSendAccountActivationEmail(UserAccountDTO message) {
 
         try {
@@ -57,7 +57,7 @@ public class KafkaConsumer {
             String[] nameParts = fullname.split(" ");
             String username = nameParts.length > 0 ? nameParts[0] : fullname;
 
-            String activationUrl = String.format("%s?token=%s", clientUrl, token);
+            String activationUrl = String.format("%sauth/verify-email?token=%s", clientUrl, token);
 
             Context context = new Context();
 

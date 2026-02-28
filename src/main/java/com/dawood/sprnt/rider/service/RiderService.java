@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.locationtech.jts.geom.Point;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,7 +19,6 @@ import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import com.dawood.sprnt.common.dto.Meta;
-import com.dawood.sprnt.common.utils.GeometryUtils;
 import com.dawood.sprnt.driver.api.dto.DriverTripOverview;
 import com.dawood.sprnt.driver.model.Driver;
 import com.dawood.sprnt.driver.model.DriverAvailabilityStatus;
@@ -34,7 +32,6 @@ import com.dawood.sprnt.ride.api.dto.RideResponseMetaDTO;
 import com.dawood.sprnt.ride.exception.RideException;
 import com.dawood.sprnt.ride.exception.RideNotFoundException;
 import com.dawood.sprnt.ride.mapper.RideMapper;
-import com.dawood.sprnt.ride.model.Location;
 import com.dawood.sprnt.ride.model.Ride;
 import com.dawood.sprnt.ride.model.RideStatus;
 import com.dawood.sprnt.ride.repository.RideRepository;
@@ -65,8 +62,8 @@ public class RiderService {
 
         User currentUser = identityService.getCurrentLoggedInUser();
 
-        double lng = profileRequest.getDefaultPickupLocation().getLng();
-        double lat = profileRequest.getDefaultPickupLocation().getLat();
+        // double lng = profileRequest.getDefaultPickupLocation().getLng();
+        // double lat = profileRequest.getDefaultPickupLocation().getLat();
 
         Rider rider = currentUser.getRider();
 
@@ -75,15 +72,14 @@ public class RiderService {
             rider.setUser(currentUser);
         }
 
-        Location location = new Location();
+        // Location location = new Location();
 
-        location.setAddress(profileRequest.getDefaultPickupLocation().getAddress());
-        Point coords = GeometryUtils.createPoint(lng, lat);
-        location.setCoords(coords);
+        // location.setAddress(profileRequest.getDefaultPickupLocation().getAddress());
+        // Point coords = GeometryUtils.createPoint(lng, lat);
+        // location.setCoords(coords);
 
         rider.completeProfile(
                 profileRequest.getImageUrl(),
-                location,
                 profileRequest.getDisplayName());
 
         Rider savedRider = riderRepository.save(rider);

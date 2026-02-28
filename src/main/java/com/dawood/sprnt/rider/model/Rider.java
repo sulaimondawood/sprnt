@@ -67,14 +67,13 @@ public class Rider {
   @UpdateTimestamp
   private LocalDateTime updatedAt;
 
-  public void completeProfile(String imageUrl, Location defaultLocation, String displayName) {
+  public void completeProfile(String imageUrl, String displayName) {
 
     if (this.status == null) {
       this.status = RiderStatus.ACTIVE;
     }
 
     this.profileImage = imageUrl;
-    this.defaultPickupLocation = defaultLocation;
     this.displayName = displayName;
     this.completedProfile = true;
     this.totalRides = 0;
