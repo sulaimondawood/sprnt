@@ -115,7 +115,7 @@ public class KafkaConsumer {
         rideMatchingService.findAndDispatch(ride, null, 10);
     }
 
-    @KafkaListener(topics = KafkaConfig.DRIVER_LOCATION_TOPIC, groupId = "driver-location-group")
+    @KafkaListener(topics = KafkaConfig.DRIVER_LOCATION_TOPIC, groupId = "driver-location-group-1")
     public void consumeDriverLocationUpdate(DriverLocationDTO message) {
 
         if (message.getActiveRideId() != null) {
