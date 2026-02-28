@@ -119,13 +119,15 @@ public class KafkaConsumer {
     public void consumeDriverLocationUpdate(DriverLocationDTO message) {
 
         if (message.getActiveRideId() != null) {
+            String destination = "/queue/ride/" + message.getActiveRideId().toString();
+            log.info("Broadcasting location to destination: {}", destination);
+
             simpMessagingTemplate.convertAndSend(
                     "/topic/ride/" + message.getActiveRideId().toString(),
                     message);
+        } else {
+            log.debug("No active ride for driver {}; skipping broadcast.", message.getDriverId());
         }
-
-        String destination = "/queue/ride/" + message.getActiveRideId().toString();
-        log.info("Broadcasting location to destination: {}", destination);
 
         try {
             driverRepository.updateLocation(message.getDriverId(), message.getLng(), message.getLat());
