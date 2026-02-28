@@ -32,8 +32,9 @@ public class SecurityConfig {
         .csrf(csrf -> csrf.disable())
         .cors(cors -> cors.configurationSource(corsConfigurationSource()))
         .authorizeHttpRequests(authRequest -> authRequest
+            .requestMatchers("/ping").permitAll()
             .requestMatchers("/auth/**", "/email/**").permitAll()
-            .requestMatchers("/ws/**", "/ping").permitAll()
+            .requestMatchers("/ws/**").permitAll()
             // .requestMatchers("/email/**").permitAll()
             .requestMatchers("/driver/**").hasRole(Role.DRIVER.name())
             .requestMatchers("/riders/**").hasRole(Role.RIDER.name())
