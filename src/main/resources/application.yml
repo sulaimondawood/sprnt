@@ -75,8 +75,8 @@ spring:
         enabled: true
 
 app:
-  base-url: http://localhost:8080/api/
-  client-url: http://localhost:3000/
+  base-url: ${BASE_URL}
+  client-url: { CLIENT_URL }
   email: ${MAIL_USER_DEV}
   cloudinary:
     api-key: ${CLOUDINARY_API_KEY}
