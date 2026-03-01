@@ -67,7 +67,7 @@ public class KafkaConsumer {
 
             context.setVariable("expiresIn", "15mins");
 
-            String emailBody = templateEngine.process("/account/email-verification.html", context);
+            String emailBody = templateEngine.process("account/email-verification.html", context);
 
             emailService.sendEmail(email, "Sprnt Account Activation", emailBody);
         } catch (Exception e) {
@@ -96,7 +96,7 @@ public class KafkaConsumer {
             Context ctx = new Context();
             ctx.setVariable("RESET_LINK", url);
 
-            String body = templateEngine.process("/account/password-reset.html", ctx);
+            String body = templateEngine.process("account/password-reset.html", ctx);
 
             emailService.sendEmail(email, "Password Reset - Sprnt", body);
         } catch (Exception e) {
