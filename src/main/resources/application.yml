@@ -76,7 +76,7 @@ spring:
 
 app:
   base-url: ${BASE_URL}
-  client-url: { CLIENT_URL }
+  client-url: ${CLIENT_URL}
   email: ${MAIL_USER_DEV}
   cloudinary:
     api-key: ${CLOUDINARY_API_KEY}
